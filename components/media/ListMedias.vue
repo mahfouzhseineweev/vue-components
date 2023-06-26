@@ -6,15 +6,15 @@
       <div class="flex pl-16">
         <MainFilter :filters-query="filtersQuery" :add-filter-label="$t(mediaTranslationPrefix + 'table.addFilter')" :clear-filters-label="$t(mediaTranslationPrefix + 'table.clearFilters')" :apply-filter-label="$t(mediaTranslationPrefix + 'table.applyFilters')" :filtered-values-style="'color: white; background: #03B1C7; padding: 5px 15px; margin: 15px 5px 0 0; border-radius: 10px; position: relative; display: flex;'" :filter-icon-icomoon="'icon-filterIcon'" :filter-icon-style="''" :main-filter-style="'flex items-center pl-2 mr-6 ml-2 border border-FieldGray rounded-xl h-48px w-284px focus:outline-none'" :select-style="'h-35px w-220px ml-8'" :filter-select-default="$t(mediaTranslationPrefix + 'selectFilter')" :filter-by-text="$t(mediaTranslationPrefix + 'filterMedias')" :clear-filters="filterClear" :sub-filter-style="'flex items-center pl-2 mr-6 ml-2 border border-FieldGray rounded-xl h-48px w-244px focus:outline-none'" :input-style="'py-4 pl-6 ml-2 pr-3.5 border border-FieldGray rounded-xl h-48px w-220px focus:outline-none'" :filter-options="filterOptions" :filter_map="filterMap" :emit-all="false" :alter-value="updateFilterValues" :main-filter-options="mainFilterOptions" :multi-select-placeholder="multiSelectPlaceholder" :single-select-filter-options="singleSelectFilterOptions" :multi-select-filter-options="multiSelectFilterOptions" @getFilter = "getFilter" @remove_filter="removeFilter" @clearFilters="clearFilters" @apply_filter="filterMedias" />
       </div>
-      <Buttons v-if="showCreateMediaButton" :button-text="$t(mediaTranslationPrefix + 'createNew')" :button-style="createButtonsStyle" :with-icon="false" :submit-function="openCreateMedia" />
+      <Buttons v-show="showCreateMediaButton === true" :button-text="$t(mediaTranslationPrefix + 'createNew')" :button-style="createButtonsStyle" :with-icon="false" :submit-function="openCreateMedia" />
 
     </div>
 
-    <div v-if="mediaResponse.length !== 0">
+    <div v-show="mediaResponse.length !== 0">
       <div class="flex pl-16 py-8">
         <Folder :all="true" :medias="allMedias" :total-label="$t(mediaTranslationPrefix + 'total')" :category-label="$t(mediaTranslationPrefix + 'category')" :category-value="$t(mediaTranslationPrefix + 'all')" :all-text="$t(mediaTranslationPrefix + 'all')" :total-value="allMedias.length.toString()" folder-style="font-size: 185px" :media-style="'rounded-full ml-2 h-40px w-40px'" />
-        <Folder v-if="imageMedias.length !== 0" :medias="imageMedias" :total-label="$t(mediaTranslationPrefix + 'total')" :category-label="$t(mediaTranslationPrefix + 'category')" :category-value="$t(mediaTranslationPrefix + 'images')" :total-value="imageMedias.length.toString()" class="px-16" folder-style="font-size: 185px" :media-style="'rounded-full ml-2 h-40px w-40px'" />
-        <Folder v-if="videoMedias.length !== 0" :medias="videoMedias" :total-label="$t(mediaTranslationPrefix + 'total')" :category-label="$t(mediaTranslationPrefix + 'category')" :category-value="$t(mediaTranslationPrefix + 'videos')" :total-value="videoMedias.length.toString()" :category-icon="'icon-play pr-2'" folder-style="font-size: 185px" :media-style="'rounded-full ml-2 h-40px w-40px'" />
+        <Folder v-show="imageMedias.length !== 0" :medias="imageMedias" :total-label="$t(mediaTranslationPrefix + 'total')" :category-label="$t(mediaTranslationPrefix + 'category')" :category-value="$t(mediaTranslationPrefix + 'images')" :total-value="imageMedias.length.toString()" class="px-16" folder-style="font-size: 185px" :media-style="'rounded-full ml-2 h-40px w-40px'" />
+        <Folder v-show="videoMedias.length !== 0" :medias="videoMedias" :total-label="$t(mediaTranslationPrefix + 'total')" :category-label="$t(mediaTranslationPrefix + 'category')" :category-value="$t(mediaTranslationPrefix + 'videos')" :total-value="videoMedias.length.toString()" :category-icon="'icon-play pr-2'" folder-style="font-size: 185px" :media-style="'rounded-full ml-2 h-40px w-40px'" />
       </div>
 
       <div class="flex pl-16 text-FieldGray pt-2">
@@ -27,10 +27,10 @@
         </div>
       </div>
 
-      <a v-if="mediaResponse.length !== totalMedias" class="flex justify-center text-Blue underline mb-16 cursor-pointer" @click="seeMoreMedias">{{ $t(mediaTranslationPrefix + 'seeMore') }}</a>
+      <a v-show="mediaResponse.length !== totalMedias" class="flex justify-center text-Blue underline mb-16 cursor-pointer" @click="seeMoreMedias">{{ $t(mediaTranslationPrefix + 'seeMore') }}</a>
 
     </div>
-    <div v-else-if="!loading" class="text-FieldGray p-16">{{ $t(mediaTranslationPrefix + 'noMediasFound') }}</div>
+    <div v-show="mediaResponse.length === 0 && loading === false" class="text-FieldGray p-16">{{ $t(mediaTranslationPrefix + 'noMediasFound') }}</div>
 
     <AnimatedLoading :loading="loading" :animated-loading-icon="require('../../assets/images/loading_animated.svg')" />
   </div>
@@ -343,7 +343,7 @@ export default {
         this.mediaUri = val
         if(this.$route.query.filters && this.$route.query.filters !== "") {
           this.filterMedias(JSON.parse(this.$route.query.filters))
-        } else if (val) this.getAllMedias()
+        } else if (val && process.client) this.getAllMedias()
       },
       deep: true,
       immediate: true
@@ -351,7 +351,7 @@ export default {
     authorsUriProp: {
       handler(val) {
         this.authorsUri = val
-        if (val) this.getAuthors()
+        if (val && process.client) this.getAuthors()
       },
       deep: true,
       immediate: true
