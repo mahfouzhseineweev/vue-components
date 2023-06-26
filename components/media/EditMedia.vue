@@ -129,14 +129,14 @@
         <div v-if="media.files" class="w-max">
           <div class="flex pt-10 pl-2 justify-between">
             <div class="text-grayText text-lg pt-0.5">
-              {{ $t(`EditMedia.${media.files[0].platform.name}`) }}
+              {{ $t(mediaTranslationPrefix + `EditMedia.${media.files[0].platform.name}`) }}
             </div>
 <!--            <span class="icon-trashCan2 text-lg cursor-pointer"></span>-->
           </div>
 
           <div class="text-xs text-mediaTextGray flex pl-2 pt-2">
             <div class="font-light">{{ $t(mediaTranslationPrefix + 'EditMedia.sizeRec') }}</div>
-            <div class="pl-1 font-bold">{{ $t(`EditMedia.${media.files[0].platform.name}`) }}</div>
+            <div class="pl-1 font-bold">{{ $t(mediaTranslationPrefix + `EditMedia.${media.files[0].platform.name}`) }}</div>
             <div class="font-light">{{ `: W ${media.files[0].platform.width}px H ${media.files[0].platform.height}px)` }}</div>
           </div>
         </div>
@@ -205,15 +205,19 @@
           <div class="text-error text-lg">{{ $t(mediaTranslationPrefix + 'EditMedia.deleteMedia') }}</div>
           <span class="icon-trashCan2 text-md pb-1 px-2"></span>
         </div>
-        <Buttons :button-text="$t(mediaTranslationPrefix + 'save')" :button-style="saveButtonStyle" :with-icon="false" :submit-function="mediaByIdUri !== '' ? updateMediaByID : () => {}" />
-        <Buttons v-if="withSelectMediaButton" :button-text="$t(mediaTranslationPrefix + 'selectMedia')" :button-style="selectMediaButtonStyle" :with-icon="false" :submit-function="() => $emit('onMediaSelected', media)" />
+        <div @click.stop.prevent="mediaByIdUri !== '' ? updateMediaByID() : () => {}">
+          <Buttons :button-text="$t(mediaTranslationPrefix + 'save')" :button-style="saveButtonStyle" :with-icon="false" />
+        </div>
+        <div @click.stop.prevent="$emit('onMediaSelected', media)">
+          <Buttons v-if="withSelectMediaButton" :button-text="$t(mediaTranslationPrefix + 'selectMedia')" :button-style="selectMediaButtonStyle" :with-icon="false" />
+        </div>
       </div>
 
     </div>
 
     <AlertPopup :errors-container-style="'mt-10 mb-14 self-center h-70px overflow-y-auto'" :apply-button-text="$t(mediaTranslationPrefix + 'EditMedia.deleteMedia')" :cancel-button-text="$t(mediaTranslationPrefix + 'EditMedia.cancel')" :title-delete="$t(mediaTranslationPrefix + 'EditMedia.deleteMediaMsg')" :title-no-delete="$t(mediaTranslationPrefix + 'EditMedia.cannotDelete')" :sub-title-no-delete="$t(mediaTranslationPrefix + 'EditMedia.cannotDeleteExtra')" :show-popup-code="showPopup" :can-be-deleted="media.meta ? !(media.meta.content && media.meta.content.length > 0) : false" :errors="noDeleteErrors" @cancel="showPopup = false" @apply="deleteMediaByID" />
 
-    <AnimatedLoading :loading="loading" />
+    <AnimatedLoading :loading="loading" :animated-loading-icon="require('../../assets/images/loading_animated.svg')" />
 
   </div>
 </template>
@@ -221,8 +225,9 @@
 <script>
 import AlertPopup from "../AlertPopup";
 import Buttons from "../Buttons";
+import AnimatedLoading from "../AnimatedLoading";
 import HeaderContainer from "../HeaderContainer";
-import {mediaHeader} from "./medias";
+import {mediaHeader, showSectionsToast} from "./medias";
 
 /* eslint-disable vue/return-in-computed-property */
 export default {
@@ -235,7 +240,8 @@ export default {
   components: {
     HeaderContainer,
     Buttons,
-    AlertPopup
+    AlertPopup,
+    AnimatedLoading
   },
   props: {
     mediaByIdUriProp: {
@@ -285,6 +291,10 @@ export default {
       default() {
         return {}
       }
+    },
+    nuxtSections: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -525,23 +535,31 @@ export default {
         } else {
           errorMessage = e.response.data.error ? `${e.response.data.error}, ${e.response.data.message}` : e.response.data
         }
-        this.$toast.show(
-          {
-            message: errorMessage,
-            timeout: 5,
-            classToast: 'bg-error',
-            classMessage: 'text-white',
+          if (this.nuxtSections) {
+            showSectionsToast(this.$toast, 'error', errorMessage)
+          } else {
+            this.$toast.show(
+              {
+                message: errorMessage,
+                timeout: 5,
+                classToast: 'bg-error',
+                classMessage: 'text-white',
+              }
+            )
           }
-        )
       })
       if(response) {
-        this.$toast.show(
-          {
-            message: this.$t(this.mediaTranslationPrefix + 'mediaUpdated'),
-            classToast: 'bg-Blue',
-            classMessage: 'text-white',
-          }
-        )
+        if (this.nuxtSections) {
+          showSectionsToast(this.$toast, 'success', this.$t(this.mediaTranslationPrefix + 'mediaUpdated'))
+        } else {
+          this.$toast.show(
+            {
+              message: this.$t(this.mediaTranslationPrefix + 'mediaUpdated'),
+              classToast: 'bg-Blue',
+              classMessage: 'text-white',
+            }
+          )
+        }
       }
       this.loading = false
     },
@@ -553,13 +571,17 @@ export default {
           {
             headers: mediaHeader({token}, this.projectId)
           })
-        this.$toast.show(
-          {
-            message: response.data.message,
-            classToast: 'bg-Blue',
-            classMessage: 'text-white',
-          }
-        )
+        if (this.nuxtSections) {
+          showSectionsToast(this.$toast, 'success', response.data.message)
+        } else {
+          this.$toast.show(
+            {
+              message: response.data.message,
+              classToast: 'bg-Blue',
+              classMessage: 'text-white',
+            }
+          )
+        }
         this.loading = false
         if (this.mediasPath) {
           this.$router.push(this.localePath({path: this.mediasPath}))

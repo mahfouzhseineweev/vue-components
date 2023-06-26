@@ -32,7 +32,7 @@
     </div>
     <div v-else-if="!loading" class="text-FieldGray p-16">{{ $t(mediaTranslationPrefix + 'noMediasFound') }}</div>
 
-    <AnimatedLoading :loading="loading" :animated-loading-icon="require('assets/images/loading_animated.svg')" />
+    <AnimatedLoading :loading="loading" :animated-loading-icon="require('../../assets/images/loading_animated.svg')" />
   </div>
 </template>
 
@@ -264,7 +264,7 @@ export default {
           multiSelectLabel: 'translation',
           multiSelectKey: 'key',
           multipleSelect: false,
-          selectPlaceholder: this.$t('selectUser'),
+          selectPlaceholder: this.$t(this.mediaTranslationPrefix + 'selectUser'),
           filterOptions: []
         },
         number_of_contents: {
@@ -278,7 +278,7 @@ export default {
           key: 'private_status',
           size: 5,
           type: 'select',
-          selectPlaceholder: this.$t('filterOptions.selectStatus'),
+          selectPlaceholder: this.$t(this.mediaTranslationPrefix + 'filterOptions.selectStatus'),
           options: [{key: 'public', translation: this.$t(this.mediaTranslationPrefix + 'public')},{key: 'private', translation: this.$t(this.mediaTranslationPrefix + 'private')}]
         },
         locked_status: {
@@ -286,7 +286,7 @@ export default {
           key: 'locked_status',
           size: 5,
           type: 'select',
-          selectPlaceholder: this.$t('filterOptions.selectStatus'),
+          selectPlaceholder: this.$t(this.mediaTranslationPrefix + 'filterOptions.selectStatus'),
           options: [{key: 'locked', translation: this.$t(this.mediaTranslationPrefix + 'locked')},{key: 'unlocked', translation: this.$t(this.mediaTranslationPrefix + 'unlocked')}]
         }
       },

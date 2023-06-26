@@ -24,20 +24,22 @@
              </div>
 
              <div class="flex justify-center mt-14">
-               <Buttons
-                 :button-text="applyButtonText"
-                 :button-style="applyButtonStyle"
-                 :with-icomoon-icon="true"
-                 :icomoon-icon-active-src="'icon-trashCan2'"
-                 :active="true"
-                 :submit-function="() => {$emit('apply')}"
-               />
-               <Buttons
-                 :button-text="cancelButtonText"
-                 :button-style="cancelButtonStyle"
-                 :with-icon="false"
-                 :submit-function="() => {$emit('cancel')}"
-               />
+               <div @click.stop.prevent="$emit('apply')">
+                 <Buttons
+                   :button-text="applyButtonText"
+                   :button-style="applyButtonStyle"
+                   :with-icomoon-icon="true"
+                   :icomoon-icon-active-src="'icon-trashCan2'"
+                   :active="true"
+                 />
+               </div>
+               <div @click.stop.prevent="$emit('cancel')">
+                 <Buttons
+                   :button-text="cancelButtonText"
+                   :button-style="cancelButtonStyle"
+                   :with-icon="false"
+                 />
+               </div>
              </div>
 
             </div>

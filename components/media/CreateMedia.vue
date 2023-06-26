@@ -1,5 +1,8 @@
 <template>
-  <div class="ml-4">
+  <div class="ml-4 mr-8">
+    <div class="pl-8 cursor-pointer text-4xl text-Blue" @click="backClicked">
+      {{ backLabel }}
+    </div>
     <div class="text-mediaTextGray ml-8 mt-8">
       {{ $t(mediaTranslationPrefix + 'dragDropMedia') }}
     </div>
@@ -15,16 +18,20 @@
       </label>
     </div>
 
-    <AnimatedLoading :loading="loading" />
+    <AnimatedLoading :loading="loading" :animated-loading-icon="require('../../assets/images/loading_animated.svg')" />
 
   </div>
 </template>
 
 <script>
-import {mediaHeader} from "./medias";
+import {mediaHeader, showSectionsToast} from "./medias";
+import AnimatedLoading from "../AnimatedLoading";
 
 export default {
   name: "CreateMedia",
+  components: {
+    AnimatedLoading
+  },
   head() {
     return {
       title: "bo - CreateMedia",
@@ -51,9 +58,17 @@ export default {
       type: String,
       default: ""
     },
+    mediasPath: {
+      type: String,
+      default: ""
+    },
     boUsage: {
       type: Boolean,
       default: true
+    },
+    nuxtSections: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -61,7 +76,8 @@ export default {
       mediaByIdUri: '',
       projectId: '',
       token: '',
-      loading: false
+      loading: false,
+      backLabel: '<'
     }
   },
   watch: {
@@ -117,29 +133,42 @@ export default {
           } else {
             errorMessage = e.response.data.error ? `${e.response.data.error}, ${e.response.data.message}` : e.response.data
           }
-          this.$toast.show(
-            {
-              message: errorMessage,
-              timeout: 5,
-              classToast: 'bg-error',
-              classMessage: 'text-white',
-            }
-          )
+          if (this.nuxtSections) {
+            showSectionsToast(this.$toast, 'error', errorMessage)
+          } else {
+            this.$toast.show(
+              {
+                message: errorMessage,
+                timeout: 5,
+                classToast: 'bg-error',
+                classMessage: 'text-white',
+              }
+            )
+          }
         })
         if(response) {
-          this.$toast.show(
-            {
-              message: 'Media created successfully',
-              classToast: 'bg-Blue',
-              classMessage: 'text-white',
-            }
-          )
+          if (this.nuxtSections) {
+            showSectionsToast(this.$toast, 'success', this.$t(this.mediaTranslationPrefix + 'mediaCreated'))
+          } else {
+            this.$toast.show(
+              {
+                message: this.$t(this.mediaTranslationPrefix + 'mediaCreated'),
+                classToast: 'bg-Blue',
+                classMessage: 'text-white',
+              }
+            )
+          }
           if(this.editMediaPath) {
             this.$router.push(this.localePath({path: this.editMediaPath, query: {id: response.data.id}}))
           } else this.$emit('updateMediaComponent', {name: 'MediaEditMedia', mediaId: response.data.id})
         }
       }
       this.loading = false
+    },
+    backClicked() {
+      if (this.mediasPath) {
+        this.$router.push(this.localePath({path: this.mediasPath, query: {filters: this.$route.query.filters}}))
+      } else this.$emit('updateMediaComponent', {name: 'MediaListMedias'})
     }
   }
 }
