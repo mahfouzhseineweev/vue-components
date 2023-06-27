@@ -1,12 +1,12 @@
 <template>
-  <div class="ml-4 mr-8">
-    <div class="pl-8 cursor-pointer text-4xl text-Blue" @click="backClicked">
+  <div class="mr-8" :class="nuxtSections ? '' : 'ml-4'">
+    <div class="cursor-pointer text-4xl text-Blue" :class="nuxtSections ? '' : 'pl-8'" @click="backClicked">
       {{ backLabel }}
     </div>
-    <div class="text-mediaTextGray ml-8 mt-8">
+    <div class="text-mediaTextGray mt-8" :class="nuxtSections ? '' : 'ml-8'">
       {{ $t(mediaTranslationPrefix + 'dragDropMedia') }}
     </div>
-    <div class="flex justify-center items-center w-2/3 ml-8 mt-8" @drop.prevent="onFileSelected" @dragenter.prevent @dragover.prevent>
+    <div class="flex justify-center items-center w-2/3 mt-8" :class="nuxtSections ? '' : 'ml-8'" @drop.prevent="onFileSelected" @dragenter.prevent @dragover.prevent>
       <label for="dropzone-file" class="flex flex-col justify-center items-center w-full h-64 bg-gray-50 rounded-lg border-2 border-BorderGray border-dashed cursor-pointer bg-mediaUploadGray">
         <div class="flex flex-col justify-center items-center pt-5 pb-6">
           <img src="../../assets/images/upload.svg" alt="" class="pb-4" width="100">
@@ -134,7 +134,7 @@ export default {
             errorMessage = e.response.data.error ? `${e.response.data.error}, ${e.response.data.message}` : e.response.data
           }
           if (this.nuxtSections) {
-            showSectionsToast(this.$toast, 'error', errorMessage)
+            showSectionsToast(this.$toast, 'error', e.response.data.message, e.response.data.options)
           } else {
             this.$toast.show(
               {
@@ -159,7 +159,7 @@ export default {
             )
           }
           if(this.editMediaPath) {
-            this.$router.push(this.localePath({path: this.editMediaPath, query: {id: response.data.id}}))
+            this.$router.push(this.localePath({path: this.editMediaPath, query: {id: response.data.id, isCreate: true}}))
           } else this.$emit('updateMediaComponent', {name: 'MediaEditMedia', mediaId: response.data.id})
         }
       }

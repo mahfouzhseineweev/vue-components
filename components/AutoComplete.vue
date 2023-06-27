@@ -183,7 +183,9 @@ export default {
   watch: {
     mainFilter: {
       handler() {
-        this.filterModel = this.mainFilter
+        this.$nextTick(() => {
+          this.filterModel = this.mainFilter
+        })
       },
       deep: true,
       immediate: true

@@ -271,5 +271,10 @@ export default {
 </script>
 
 <style scoped>
-
+.bg-mediaUnLocked {
+  background-color: #DDEBFF;
+}
+.bg-mediaLocked {
+  background-color: #FFE5DD;
+}
 </style>

@@ -142,5 +142,7 @@ export default {
 </script>
 
 <style scoped>
-
+.text-mediaGrey {
+  color: #6E6E6E;
+}
 </style>

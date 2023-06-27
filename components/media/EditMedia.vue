@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col h-full justify-start">
 
-    <div class="pl-8 cursor-pointer text-4xl text-Blue" @click="backClicked">
+    <div class="cursor-pointer text-4xl text-Blue" :class="nuxtSections ? '' : 'pl-8'" @click="backClicked">
       {{ backLabel }}
     </div>
 
@@ -32,7 +32,7 @@
       </div>
     </div>
 
-    <div class="flex pl-6 mt-4 w-full">
+    <div class="flex mt-4 w-full" :class="nuxtSections ? '' : 'pl-6'">
 
       <div class="flex flex-col w-300px py-8 px-6 shadow rounded-xl">
 
@@ -66,7 +66,7 @@
           </div>
         </div>
 
-        <select v-model="media.private_status" :disabled="(lockedStatus === 'locked' && media.author !== sectionsUserIdProp)" class="border border-SmallTextGray shadow rounded-md outline-none py-1 px-2 mt-3 mr-16">
+        <select v-model="media.private_status" :disabled="nuxtSections ? (lockedStatus === 'locked' && media.author !== sectionsUserIdProp) : $route.query.isCreate !== 'true'" class="border border-SmallTextGray shadow rounded-md outline-none py-1 px-2 mt-3 mr-16">
           <option value="none" disabled selected>{{ $t(mediaTranslationPrefix + 'EditMedia.selectOption') }}</option>
           <option value="public">{{ $t(mediaTranslationPrefix + 'EditMedia.public') }}</option>
           <option value="private">{{ $t(mediaTranslationPrefix + 'EditMedia.private') }}</option>
@@ -154,6 +154,8 @@
           <div>{{ `${$t(mediaTranslationPrefix + 'EditMedia.fileSize')} ${media.files[0].size > Math.pow(10, 6) ? `${(media.files[0].size * Math.pow(10, -6)).toFixed(2)} MB` : `${(media.files[0].size * Math.pow(10, -3)).toFixed(2)} KB`}` }}</div>
         </div>
 
+        <div v-if="withSelectMediaButton" class="text-sm font-light text-SmallTextGray pt-2 pl-2">{{ $t(mediaTranslationPrefix + 'EditMedia.updateMediaAgain') }}</div>
+
         <div v-if="privateStatus !== 'private' || (privateStatus === 'private' && media.author === sectionsUserIdProp)">
           <div class="my-8 p-2 px-2 cursor-pointer flex rounded-md shadow text-sm text-SmallTextGray font-light w-max" @click="downloadMedia">
             <img src="../../assets/images/downloadMedia.svg" alt="" class="pr-2">
@@ -176,7 +178,7 @@
           </div>
           <div v-else-if="media.files">
             <div v-if="media.files[0].url !== ''" class="relative w-max">
-              <img :src="media.files[0].url" alt="" class="rounded-md w-400px">
+              <img :src="mediaPreview ? mediaPreview : media.files[0].url" alt="" class="rounded-md w-400px">
             </div>
           </div>
 
@@ -208,8 +210,8 @@
         <div @click.stop.prevent="mediaByIdUri !== '' ? updateMediaByID() : () => {}">
           <Buttons :button-text="$t(mediaTranslationPrefix + 'save')" :button-style="saveButtonStyle" :with-icon="false" />
         </div>
-        <div @click.stop.prevent="$emit('onMediaSelected', media)">
-          <Buttons v-if="withSelectMediaButton" :button-text="$t(mediaTranslationPrefix + 'selectMedia')" :button-style="selectMediaButtonStyle" :with-icon="false" />
+        <div @click.stop.prevent="(privateStatus === 'private' && media.author !== sectionsUserIdProp) ? null : $emit('onMediaSelected', media)">
+          <Buttons v-if="withSelectMediaButton" :active="!(privateStatus === 'private' && media.author !== sectionsUserIdProp)" :button-text="$t(mediaTranslationPrefix + 'selectMedia')" :button-style="selectMediaButtonStyle" :with-icon="false" />
         </div>
       </div>
 
@@ -379,6 +381,7 @@ export default {
           content: []
         }
       },
+      mediaPreview: '',
       showPopup: false,
       file: null,
       showPopupCode: false,
@@ -536,7 +539,7 @@ export default {
           errorMessage = e.response.data.error ? `${e.response.data.error}, ${e.response.data.message}` : e.response.data
         }
           if (this.nuxtSections) {
-            showSectionsToast(this.$toast, 'error', errorMessage)
+            showSectionsToast(this.$toast, 'error', e.response.data.message, e.response.data.options)
           } else {
             this.$toast.show(
               {
@@ -612,7 +615,7 @@ export default {
     },
     getMediaImage(url) {
       fetch(url, { headers: this.media.files[0].headers, mode: "cors"}).then(r=>r.blob()).then(d => {
-        this.media.files[0].url = window.URL.createObjectURL(d)
+        this.mediaPreview = window.URL.createObjectURL(d)
       });
     },
     backClicked() {
@@ -625,5 +628,10 @@ export default {
 </script>
 
 <style scoped>
-
+.bg-mediaUnLocked {
+  background-color: #DDEBFF;
+}
+.bg-mediaLocked {
+  background-color: #FFE5DD;
+}
 </style>
