@@ -65,8 +65,8 @@
             {{ $t(mediaTranslationPrefix + 'EditMedia.publicDesc') }}
           </div>
         </div>
-
-        <select v-model="media.private_status" :disabled="nuxtSections ? (lockedStatus === 'locked' && media.author !== sectionsUserIdProp) : $route.query.isCreate !== 'true'" class="border border-SmallTextGray shadow rounded-md outline-none py-1 px-2 mt-3 mr-16">
+<!--    :disabled="(lockedStatus === 'locked' && media.author !== sectionsUserIdProp)"  -->
+        <select v-model="media.private_status" :disabled="nuxtSections ? isCreateMedia !== true : $route.query.isCreate !== 'true'" class="border border-SmallTextGray shadow rounded-md outline-none py-1 px-2 mt-3 mr-16">
           <option value="none" disabled selected>{{ $t(mediaTranslationPrefix + 'EditMedia.selectOption') }}</option>
           <option value="public">{{ $t(mediaTranslationPrefix + 'EditMedia.public') }}</option>
           <option value="private">{{ $t(mediaTranslationPrefix + 'EditMedia.private') }}</option>
@@ -154,7 +154,7 @@
           <div>{{ `${$t(mediaTranslationPrefix + 'EditMedia.fileSize')} ${media.files[0].size > Math.pow(10, 6) ? `${(media.files[0].size * Math.pow(10, -6)).toFixed(2)} MB` : `${(media.files[0].size * Math.pow(10, -3)).toFixed(2)} KB`}` }}</div>
         </div>
 
-        <div v-if="withSelectMediaButton" class="text-sm font-light text-SmallTextGray pt-2 pl-2">{{ $t(mediaTranslationPrefix + 'EditMedia.updateMediaAgain') }}</div>
+        <div v-if="withSelectMediaButton" class="text-sm font-light text-SmallTextGray pt-2 pl-2"><span class="icon-alert pr-1"></span>{{ $t(mediaTranslationPrefix + 'EditMedia.updateMediaAgain') }}</div>
 
         <div v-if="privateStatus !== 'private' || (privateStatus === 'private' && media.author === sectionsUserIdProp)">
           <div class="my-8 p-2 px-2 cursor-pointer flex rounded-md shadow text-sm text-SmallTextGray font-light w-max" @click="downloadMedia">
@@ -283,6 +283,10 @@ export default {
     boUsage: {
       type: Boolean,
       default: true
+    },
+    isCreateMedia: {
+      type: Boolean,
+      default: false
     },
     withSelectMediaButton: {
       type: Boolean,
@@ -539,7 +543,7 @@ export default {
           errorMessage = e.response.data.error ? `${e.response.data.error}, ${e.response.data.message}` : e.response.data
         }
           if (this.nuxtSections) {
-            showSectionsToast(this.$toast, 'error', e.response.data.message, e.response.data.options)
+            showSectionsToast(this.$toast, 'error', e.response.data.error ? `${e.response.data.error}, ${e.response.data.message}` : e.response.data.message, e.response.data.options)
           } else {
             this.$toast.show(
               {

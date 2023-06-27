@@ -1,5 +1,5 @@
 <template>
-  <component :is="componentsPrefix + componentName" :media-uri-prop="mediaUriProp" :authors-uri-prop="authorsUriProp" :project-id-prop="projectIdProp" :auth-token="authToken" :sections-user-id-prop="sectionsUserIdProp" :media-translation-prefix="mediaTranslationPrefix" :show-create-media-button="showCreateMediaButton" :media-response-prop="mediaResponseProp" :media-by-id-uri-prop="mediaByIdUriProp" :media-by-id-response-prop="mediaByIdResponseProp" :media-id-prop="mediaId" :create-media-path="createMediaPath" :edit-media-path="editMediaPath" :medias-path="mediasPath" :bo-usage="boUsage" :access-limited="accessLimited" @updateMediaComponent="onMediaComponentUpdate" :with-select-media-button="withSelectMediaButton" :nuxt-sections="nuxtSections" @onMediaSelected="(media) => $emit('getSelectedMedia', media)"  />
+  <component :is="componentsPrefix + componentName" :media-uri-prop="mediaUriProp" :authors-uri-prop="authorsUriProp" :project-id-prop="projectIdProp" :auth-token="authToken" :sections-user-id-prop="sectionsUserIdProp" :media-translation-prefix="mediaTranslationPrefix" :show-create-media-button="showCreateMediaButton" :media-response-prop="mediaResponseProp" :media-by-id-uri-prop="mediaByIdUriProp" :media-by-id-response-prop="mediaByIdResponseProp" :media-id-prop="mediaId" :create-media-path="createMediaPath" :edit-media-path="editMediaPath" :medias-path="mediasPath" :bo-usage="boUsage" :access-limited="accessLimited" @updateMediaComponent="onMediaComponentUpdate" :with-select-media-button="withSelectMediaButton" :nuxt-sections="nuxtSections" :is-create-media="isCreateMedia" @onMediaSelected="(media) => $emit('getSelectedMedia', media)"  />
 </template>
 
 <script>
@@ -9,7 +9,8 @@ export default {
   data() {
     return {
       componentName: 'MediaListMedias',
-      mediaId: ''
+      mediaId: '',
+      isCreateMedia: false
     }
   },
   props: {
@@ -132,6 +133,7 @@ export default {
       this.$emit('mediaComponentUpdated', component)
       this.componentName = component.name
       this.mediaId = component.mediaId
+      this.isCreateMedia = component.isCreateMedia
     }
   }
 }

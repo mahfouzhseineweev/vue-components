@@ -134,7 +134,7 @@ export default {
             errorMessage = e.response.data.error ? `${e.response.data.error}, ${e.response.data.message}` : e.response.data
           }
           if (this.nuxtSections) {
-            showSectionsToast(this.$toast, 'error', e.response.data.message, e.response.data.options)
+            showSectionsToast(this.$toast, 'error', e.response.data.error ? `${e.response.data.error}, ${e.response.data.message}` : e.response.data.message, e.response.data.options)
           } else {
             this.$toast.show(
               {
@@ -160,7 +160,7 @@ export default {
           }
           if(this.editMediaPath) {
             this.$router.push(this.localePath({path: this.editMediaPath, query: {id: response.data.id, isCreate: true}}))
-          } else this.$emit('updateMediaComponent', {name: 'MediaEditMedia', mediaId: response.data.id})
+          } else this.$emit('updateMediaComponent', {name: 'MediaEditMedia', mediaId: response.data.id, isCreateMedia: true})
         }
       }
       this.loading = false
