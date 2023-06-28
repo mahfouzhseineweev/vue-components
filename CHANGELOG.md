@@ -7,6 +7,6 @@
 
 ---
 
-- [x] Launch of geeks-apps-bo-public library
+- [x] Launch of vue-components library
 
 - [x] Required updates for issue Library update to support media #92
