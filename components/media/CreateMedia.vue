@@ -1,0 +1,179 @@
+<template>
+  <div class="mr-8" :class="nuxtSections ? '' : 'ml-4'">
+    <div class="cursor-pointer text-4xl text-Blue" :class="nuxtSections ? '' : 'pl-8'" @click="backClicked">
+      {{ backLabel }}
+    </div>
+    <div class="text-mediaTextGray mt-8" :class="nuxtSections ? '' : 'ml-8'">
+      {{ $t(mediaTranslationPrefix + 'dragDropMedia') }}
+    </div>
+    <div class="flex justify-center items-center w-2/3 mt-8" :class="nuxtSections ? '' : 'ml-8'" @drop.prevent="onFileSelected" @dragenter.prevent @dragover.prevent>
+      <label for="dropzone-file" class="flex flex-col justify-center items-center w-full h-64 bg-gray-50 rounded-lg border-2 border-BorderGray border-dashed cursor-pointer bg-mediaUploadGray">
+        <div class="flex flex-col justify-center items-center pt-5 pb-6">
+          <img src="../../assets/images/upload.svg" alt="" class="pb-4" width="100">
+          <div class="text-grayText">
+            {{ $t(mediaTranslationPrefix + 'dragDrop') }} <a class="text-Blue underline">{{ $t(mediaTranslationPrefix + 'browse') }}</a> {{ $t(mediaTranslationPrefix + 'yourMedia') }}
+          </div>
+        </div>
+        <input id="dropzone-file" ref="imageUploaded" type="file" class="hidden" @change="onFileSelected" />
+      </label>
+    </div>
+
+    <AnimatedLoading :loading="loading" :animated-loading-icon="require('../../assets/images/loading_animated.svg')" />
+
+  </div>
+</template>
+
+<script>
+import {mediaHeader, showSectionsToast} from "./medias";
+import AnimatedLoading from "../AnimatedLoading";
+
+export default {
+  name: "CreateMedia",
+  components: {
+    AnimatedLoading
+  },
+  head() {
+    return {
+      title: "bo - CreateMedia",
+    }
+  },
+  props: {
+    mediaByIdUriProp: {
+      type: String,
+      default: ""
+    },
+    projectIdProp: {
+      type: String,
+      default: ""
+    },
+    authToken: {
+      type: String,
+      default: ""
+    },
+    mediaTranslationPrefix: {
+      type: String,
+      default: "mediaT."
+    },
+    editMediaPath: {
+      type: String,
+      default: ""
+    },
+    mediasPath: {
+      type: String,
+      default: ""
+    },
+    boUsage: {
+      type: Boolean,
+      default: true
+    },
+    nuxtSections: {
+      type: Boolean,
+      default: false
+    }
+  },
+  data() {
+    return {
+      mediaByIdUri: '',
+      projectId: '',
+      token: '',
+      loading: false,
+      backLabel: '<'
+    }
+  },
+  watch: {
+    projectIdProp: {
+      handler(val) {
+        this.projectId = val
+      },
+      deep: true,
+      immediate: true
+    },
+    authToken: {
+      handler(val) {
+        this.token = val
+      },
+      deep: true,
+      immediate: true
+    },
+    mediaByIdUriProp: {
+      handler(val) {
+        this.mediaByIdUri = val
+      },
+      deep: true,
+      immediate: true
+    },
+  },
+  methods: {
+    async onFileSelected(e) {
+
+      let fileData = this.$refs.imageUploaded.files[0]
+      if(e.dataTransfer && e.dataTransfer.files) {
+        fileData = e.dataTransfer.files[0]
+      }
+      this.loading = true
+      const token = this.token
+
+      const data = new FormData();
+      data.append('files[1][file]', fileData);
+      data.append('type', 'image');
+      if(this.mediaByIdUri !== '') {
+        const response = await this.$axios.post(this.mediaByIdUri,
+          data,
+          {
+            headers: mediaHeader({token}, this.projectId)
+          }).catch((e) => {
+          this.loading = false
+          let errorMessage = ''
+          if (e.response.data.options) {
+            if (this.boUsage === true) {
+              errorMessage = `<a href='/admin${e.response.data.options.link.path}' >${e.response.data.error}, ${e.response.data.message}</a>`
+            } else {
+              errorMessage = `<a href='${e.response.data.options.link.root}${e.response.data.options.link.path}' target=\\'_blank\\'>${e.response.data.error}, ${e.response.data.message}</a>`
+            }
+          } else {
+            errorMessage = e.response.data.error ? `${e.response.data.error}, ${e.response.data.message}` : e.response.data
+          }
+          if (this.nuxtSections) {
+            showSectionsToast(this.$toast, 'error', e.response.data.error ? `${e.response.data.error}, ${e.response.data.message}` : e.response.data.message, e.response.data.options)
+          } else {
+            this.$toast.show(
+              {
+                message: errorMessage,
+                timeout: 5,
+                classToast: 'bg-error',
+                classMessage: 'text-white',
+              }
+            )
+          }
+        })
+        if(response) {
+          if (this.nuxtSections) {
+            showSectionsToast(this.$toast, 'success', this.$t(this.mediaTranslationPrefix + 'mediaCreated'))
+          } else {
+            this.$toast.show(
+              {
+                message: this.$t(this.mediaTranslationPrefix + 'mediaCreated'),
+                classToast: 'bg-Blue',
+                classMessage: 'text-white',
+              }
+            )
+          }
+          if(this.editMediaPath) {
+            this.$router.push(this.localePath({path: this.editMediaPath, query: {id: response.data.id, isCreate: true}}))
+          } else this.$emit('updateMediaComponent', {name: 'MediaEditMedia', mediaId: response.data.id, isCreateMedia: true})
+        }
+      }
+      this.loading = false
+    },
+    backClicked() {
+      if (this.mediasPath) {
+        this.$router.push(this.localePath({path: this.mediasPath, query: {filters: this.$route.query.filters}}))
+      } else this.$emit('updateMediaComponent', {name: 'MediaListMedias'})
+    }
+  }
+}
+</script>
+
+<style scoped>
+
+</style>
