@@ -1,4 +1,4 @@
-# geeks-apps-bo
+# vue-components
 
 ## Build Setup Locally
 
@@ -11,17 +11,17 @@ $ npm pack
 
 # the above commands will result in creating a .tgz file for the component library which will be added to the main DIR
 
-# copy the path reference of the last created .tgz file ex.: "/Users/YOUR_USER/Documents/Eweev Gitlab Repositories/Geeks Apps BO/geeks-apps-bo/eweev-apps-bo-1.0.1.tgz"
+# copy the path reference of the last created .tgz file ex.: "/Users/YOUR_USER/Documents/Eweev Gitlab Repositories/Geeks Apps BO/geeks-apps-bo/geeks.solutions-vue-components-1.0.0.tgz"
 
-# in your host project, Add "@eweev/apps-bo": "file://{paste here the file path you copied in the previous step}" to you package.json dependencies
+# in your host project, Add "@geeks.solutions/vue-components": "file://{paste here the file path you copied in the previous step}" to you package.json dependencies
 
 # install the dependencies
 $ npm install
 
-# inside buildModules of your host project nuxt.config.js add '@eweev/apps-bo/nuxt':
+# inside buildModules of your host project nuxt.config.js add '@geeks.solutions/vue-components/nuxt':
 $ ex.: buildModules: [
     ...,
-    '@eweev/apps-bo/nuxt'
+    '@geeks.solutions/vue-components/nuxt'
   ]
 
 ```
