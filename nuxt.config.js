@@ -18,7 +18,7 @@ export default {
     "~/assets/icons/icomoon/style.css"
   ],
 
-  // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
+  // Plugins to run before rendering page:  https://go.nuxtjs.dev/config-plugins
   plugins: [
 
   ],
