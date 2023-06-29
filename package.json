@@ -23,7 +23,6 @@
     "nuxt.js",
     "nuxt.config.js"
   ],
-  "sideEffects": false,
   "private": false,
   "scripts": {
     "dev": "nuxt",
