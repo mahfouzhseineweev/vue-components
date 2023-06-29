@@ -1,6 +1,28 @@
 {
   "name": "@geeks.solutions/vue-components",
   "version": "1.0.0",
+  "author": "Geeks Solutions info@geeks.solutions (https://www.geeks.solutions)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Geeks-Solutions/vue-components"
+  },
+  "keywords": [
+    "vue components"
+  ],
+  "description": "A NuxtJS components library",
+  "license": "ISC",
+  "homepage": "https://sections.geeks.solutions",
+  "contributors": [],
+  "files": [
+    "assets",
+    "components",
+    "lang",
+    "static",
+    "utils",
+    "tailwind.config.js",
+    "nuxt.js",
+    "nuxt.config.js"
+  ],
   "private": false,
   "scripts": {
     "dev": "nuxt",
@@ -12,6 +34,9 @@
     "test": "jest",
     "build-storybook": "npx nuxt storybook build",
     "chromatic": "npx chromatic --project-token=$CHROMATIC_PROJECT_TOKEN --auto-accept-changes -d storybook-static/"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "dependencies": {
     "@nuxt/content": "^1.14.0",
