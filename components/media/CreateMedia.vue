@@ -1,6 +1,6 @@
 <template>
   <div class="mr-8" :class="nuxtSections ? '' : 'ml-4'">
-    <div class="cursor-pointer text-4xl text-Blue" :class="nuxtSections ? '' : 'pl-8'" @click="backClicked">
+    <div class="cursor-pointer text-4xl text-Blue" :class="nuxtSections ? 'fixed top-2.5 left-12' : 'pl-8'" @click="backClicked">
       {{ backLabel }}
     </div>
     <div class="text-mediaTextGray mt-8" :class="nuxtSections ? '' : 'ml-8'">
@@ -122,6 +122,7 @@ export default {
           {
             headers: mediaHeader({token}, this.projectId)
           }).catch((e) => {
+            console.log(e.response.data)
           this.loading = false
           let errorMessage = ''
           if (e.response.data.options) {
@@ -130,11 +131,13 @@ export default {
             } else {
               errorMessage = `<a href='${e.response.data.options.link.root}${e.response.data.options.link.path}' target=\\'_blank\\'>${e.response.data.error}, ${e.response.data.message}</a>`
             }
+          } else if (e.response.data.errors) {
+            errorMessage = e.response.data.errors.files[0]
           } else {
-            errorMessage = e.response.data.error ? `${e.response.data.error}, ${e.response.data.message}` : e.response.data
+            errorMessage = e.response.data.error ? `${e.response.data.error}, ${e.response.data.message}` : e.response.data.message
           }
           if (this.nuxtSections) {
-            showSectionsToast(this.$toast, 'error', e.response.data.error ? `${e.response.data.error}, ${e.response.data.message}` : e.response.data.message, e.response.data.options)
+            showSectionsToast(this.$toast, 'error', errorMessage, e.response.data.options)
           } else {
             this.$toast.show(
               {
