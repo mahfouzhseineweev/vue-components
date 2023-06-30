@@ -1,6 +1,6 @@
 <template>
   <div class="mr-8" :class="nuxtSections ? '' : 'ml-4'">
-    <div class="cursor-pointer text-4xl text-Blue" :class="nuxtSections ? '' : 'pl-8'" @click="backClicked">
+    <div class="cursor-pointer text-4xl text-Blue" :class="nuxtSections ? 'fixed top-2.5 left-12' : 'pl-8'" @click="backClicked">
       {{ backLabel }}
     </div>
     <div class="text-mediaTextGray mt-8" :class="nuxtSections ? '' : 'ml-8'">

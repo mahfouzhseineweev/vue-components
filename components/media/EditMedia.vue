@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col h-full justify-start">
 
-    <div class="cursor-pointer text-4xl text-Blue" :class="nuxtSections ? '' : 'pl-8'" @click="backClicked">
+    <div class="cursor-pointer text-4xl text-Blue" :class="nuxtSections ? 'fixed top-2.5 left-12' : 'pl-8'" @click="backClicked">
       {{ backLabel }}
     </div>
 
@@ -149,12 +149,13 @@
           <div>{{ `${$t(mediaTranslationPrefix + 'EditMedia.duration')}  ${media.files[0].size}min` }}</div>
         </div>
         <div v-else-if="media.files" class="text-xs text-SmallTextGray font-light pl-2 pt-5 flex">
-          <div>{{ `${$t(mediaTranslationPrefix + 'EditMedia.fileName')} ${media.files[0].filename}` }}</div>
+          <div class="flex gap-2">
+            <div>{{ `${$t(mediaTranslationPrefix + 'EditMedia.fileName')}` }}</div>
+            <div class="w-min">{{ `${media.files[0].filename}` }}</div>
+          </div>
           <div class="px-6 text-Dark">|</div>
           <div>{{ `${$t(mediaTranslationPrefix + 'EditMedia.fileSize')} ${media.files[0].size > Math.pow(10, 6) ? `${(media.files[0].size * Math.pow(10, -6)).toFixed(2)} MB` : `${(media.files[0].size * Math.pow(10, -3)).toFixed(2)} KB`}` }}</div>
         </div>
-
-        <div v-if="withSelectMediaButton" class="text-sm font-light text-SmallTextGray pt-2 pl-2"><span class="icon-alert pr-1"></span>{{ $t(mediaTranslationPrefix + 'EditMedia.updateMediaAgain') }}</div>
 
         <div v-if="privateStatus !== 'private' || (privateStatus === 'private' && media.author === sectionsUserIdProp)">
           <div class="my-8 p-2 px-2 cursor-pointer flex rounded-md shadow text-sm text-SmallTextGray font-light w-max" @click="downloadMedia">
@@ -301,6 +302,10 @@ export default {
     nuxtSections: {
       type: Boolean,
       default: false
+    },
+    mediaIdEditing: {
+      type: String,
+      default: ""
     }
   },
   data() {
@@ -390,7 +395,8 @@ export default {
       file: null,
       showPopupCode: false,
       popupContent: '',
-      backLabel: '<'
+      backLabel: '<',
+      isEditingMedia: false
     }
   },
   computed: {
@@ -510,6 +516,9 @@ export default {
         if (this.privateStatus === 'private' && this.media.author === this.sectionsUserIdProp) {
           this.getMediaImage(this.media.files[0].url)
         }
+        if (this.nuxtSections && this.mediaIdEditing && this.mediaIdEditing !== '' && this.mediaIdEditing === this.media.id) {
+          this.isEditingMedia = true
+        }
       }
       this.loading = false
     },
@@ -557,6 +566,9 @@ export default {
       })
       if(response) {
         if (this.nuxtSections) {
+          if (this.isEditingMedia) {
+            this.$emit('onMediaSelected', this.media)
+          }
           showSectionsToast(this.$toast, 'success', this.$t(this.mediaTranslationPrefix + 'mediaUpdated'))
         } else {
           this.$toast.show(
@@ -623,6 +635,7 @@ export default {
       });
     },
     backClicked() {
+      this.isEditingMedia = false
       if (this.mediasPath) {
         this.$router.push(this.localePath({path: this.mediasPath, query: {filters: this.$route.query.filters}}))
       } else this.$emit('updateMediaComponent', {name: 'MediaListMedias'})
