@@ -3,6 +3,13 @@
 ---
 
 
+### v1.0.2 (30/6/2023)
+
+---
+
+- [x] Performance and style updates on the media meta component
+
+
 ### v1.0.1 (29/6/2023)
 
 ---
