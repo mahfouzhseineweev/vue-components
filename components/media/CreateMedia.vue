@@ -1,6 +1,6 @@
 <template>
   <div class="mr-8" :class="nuxtSections ? '' : 'ml-4'">
-    <div class="cursor-pointer text-4xl text-Blue" :class="nuxtSections ? 'fixed top-2.5 left-12' : 'pl-8'" @click="backClicked">
+    <div class="cursor-pointer text-4xl text-Blue" :class="nuxtSections ? 'fixed top-3 left-12' : 'pl-8'" @click="backClicked">
       {{ backLabel }}
     </div>
     <div class="text-mediaTextGray mt-8" :class="nuxtSections ? '' : 'ml-8'">
@@ -105,68 +105,68 @@ export default {
   },
   methods: {
     async onFileSelected(e) {
-
       let fileData = this.$refs.imageUploaded.files[0]
       if(e.dataTransfer && e.dataTransfer.files) {
         fileData = e.dataTransfer.files[0]
       }
-      this.loading = true
-      const token = this.token
+      if (fileData) {
+        this.loading = true
+        const token = this.token
 
-      const data = new FormData();
-      data.append('files[1][file]', fileData);
-      data.append('type', 'image');
-      if(this.mediaByIdUri !== '') {
-        const response = await this.$axios.post(this.mediaByIdUri,
-          data,
-          {
-            headers: mediaHeader({token}, this.projectId)
-          }).catch((e) => {
-            console.log(e.response.data)
-          this.loading = false
-          let errorMessage = ''
-          if (e.response.data.options) {
-            if (this.boUsage === true) {
-              errorMessage = `<a href='/admin${e.response.data.options.link.path}' >${e.response.data.error}, ${e.response.data.message}</a>`
+        const data = new FormData();
+        data.append('files[1][file]', fileData);
+        data.append('type', 'image');
+        if(this.mediaByIdUri !== '') {
+          const response = await this.$axios.post(this.mediaByIdUri,
+            data,
+            {
+              headers: mediaHeader({token}, this.projectId)
+            }).catch((e) => {
+            this.loading = false
+            let errorMessage = ''
+            if (e.response.data.options) {
+              if (this.boUsage === true) {
+                errorMessage = `<a href='/admin${e.response.data.options.link.path}' >${e.response.data.error}, ${e.response.data.message}</a>`
+              } else {
+                errorMessage = `<a href='${e.response.data.options.link.root}${e.response.data.options.link.path}' target=\\'_blank\\'>${e.response.data.error}, ${e.response.data.message}</a>`
+              }
+            } else if (e.response.data.errors) {
+              errorMessage = e.response.data.errors.files[0]
             } else {
-              errorMessage = `<a href='${e.response.data.options.link.root}${e.response.data.options.link.path}' target=\\'_blank\\'>${e.response.data.error}, ${e.response.data.message}</a>`
+              errorMessage = e.response.data.error ? `${e.response.data.error}, ${e.response.data.message}` : e.response.data.message
             }
-          } else if (e.response.data.errors) {
-            errorMessage = e.response.data.errors.files[0]
-          } else {
-            errorMessage = e.response.data.error ? `${e.response.data.error}, ${e.response.data.message}` : e.response.data.message
+            if (this.nuxtSections) {
+              showSectionsToast(this.$toast, 'error', errorMessage, e.response.data.options)
+            } else {
+              this.$toast.show(
+                {
+                  message: errorMessage,
+                  timeout: 5,
+                  classToast: 'bg-error',
+                  classMessage: 'text-white',
+                }
+              )
+            }
+          })
+          if(response) {
+            if (this.nuxtSections) {
+              showSectionsToast(this.$toast, 'success', this.$t(this.mediaTranslationPrefix + 'mediaCreated'))
+            } else {
+              this.$toast.show(
+                {
+                  message: this.$t(this.mediaTranslationPrefix + 'mediaCreated'),
+                  classToast: 'bg-Blue',
+                  classMessage: 'text-white',
+                }
+              )
+            }
+            if(this.editMediaPath) {
+              this.$router.push(this.localePath({path: this.editMediaPath, query: {id: response.data.id, isCreate: true}}))
+            } else this.$emit('updateMediaComponent', {name: 'MediaEditMedia', mediaId: response.data.id, isCreateMedia: true})
           }
-          if (this.nuxtSections) {
-            showSectionsToast(this.$toast, 'error', errorMessage, e.response.data.options)
-          } else {
-            this.$toast.show(
-              {
-                message: errorMessage,
-                timeout: 5,
-                classToast: 'bg-error',
-                classMessage: 'text-white',
-              }
-            )
-          }
-        })
-        if(response) {
-          if (this.nuxtSections) {
-            showSectionsToast(this.$toast, 'success', this.$t(this.mediaTranslationPrefix + 'mediaCreated'))
-          } else {
-            this.$toast.show(
-              {
-                message: this.$t(this.mediaTranslationPrefix + 'mediaCreated'),
-                classToast: 'bg-Blue',
-                classMessage: 'text-white',
-              }
-            )
-          }
-          if(this.editMediaPath) {
-            this.$router.push(this.localePath({path: this.editMediaPath, query: {id: response.data.id, isCreate: true}}))
-          } else this.$emit('updateMediaComponent', {name: 'MediaEditMedia', mediaId: response.data.id, isCreateMedia: true})
         }
+        this.loading = false
       }
-      this.loading = false
     },
     backClicked() {
       if (this.mediasPath) {

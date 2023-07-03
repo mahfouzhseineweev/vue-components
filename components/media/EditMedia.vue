@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col h-full justify-start">
 
-    <div class="cursor-pointer text-4xl text-Blue" :class="nuxtSections ? 'fixed top-2.5 left-12' : 'pl-8'" @click="backClicked">
+    <div class="cursor-pointer text-4xl text-Blue" :class="nuxtSections ? 'fixed top-3 left-12' : 'pl-8'" @click="backClicked">
       {{ backLabel }}
     </div>
 
@@ -612,10 +612,12 @@ export default {
     onFileSelected(e) {
       const reader = new FileReader()
       reader.onload = (e) => {
-        this.media.files[0].url = e.target.result
+        if (e) this.media.files[0].url = e.target.result
       }
-      reader.readAsDataURL(this.$refs.imagePick.files[0])
-      this.file = this.$refs.imagePick.files[0]
+      if (this.$refs.imagePick.files[0]) {
+        reader.readAsDataURL(this.$refs.imagePick.files[0])
+        this.file = this.$refs.imagePick.files[0]
+      }
     },
     downloadMedia(){
       const fileLink = document.createElement('a')
