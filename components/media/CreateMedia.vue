@@ -122,7 +122,6 @@ export default {
           {
             headers: mediaHeader({token}, this.projectId)
           }).catch((e) => {
-            console.log(e.response.data)
           this.loading = false
           let errorMessage = ''
           if (e.response.data.options) {
