@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="flex md:flex-row flex-col" :class="filterContainerStyle">
+    <div class="flex" :class="filterContainerStyle">
       <div class="flex-col">
         <AutoComplete
           :main-filter="mainFilter"
