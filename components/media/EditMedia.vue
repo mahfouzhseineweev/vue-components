@@ -568,6 +568,7 @@ export default {
       })
       if(response) {
         if (this.nuxtSections) {
+          await this.getMediaByID()
           if (this.isEditingMedia) {
             this.$emit('onMediaSelected', this.media)
           }
