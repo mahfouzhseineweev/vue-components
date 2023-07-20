@@ -142,7 +142,7 @@
         </div>
 
         <div v-if="media.files && media.type === 'video'" class="text-xs text-SmallTextGray font-light pl-2 pt-5 flex">
-          <div>{{ `${$t(mediaTranslationPrefix + 'EditMedia.fileName')}  ${media.files[0].filename}` }}</div>
+          <div>{{ `${$t(mediaTranslationPrefix + 'EditMedia.fileName')}  ${handleFileName(media.files[0].filename)}` }}</div>
           <div class="px-6 text-Dark">|</div>
           <div>{{ `${$t(mediaTranslationPrefix + 'EditMedia.fileSize')}  ${media.files[0].size > Math.pow(10, 6) ? `${(media.files[0].size * Math.pow(10, -6)).toFixed(2)} MB` : `${(media.files[0].size * Math.pow(10, -3)).toFixed(2)} KB`}` }}</div>
           <div class="px-6 text-Dark">|</div>
@@ -151,7 +151,7 @@
         <div v-else-if="media.files" class="text-xs text-SmallTextGray font-light pl-2 pt-5 flex">
           <div class="flex gap-2">
             <div>{{ `${$t(mediaTranslationPrefix + 'EditMedia.fileName')}` }}</div>
-            <div class="w-min">{{ `${media.files[0].filename}` }}</div>
+            <div class="w-min">{{ `${handleFileName(media.files[0].filename)}` }}</div>
           </div>
           <div class="px-6 text-Dark">|</div>
           <div>{{ `${$t(mediaTranslationPrefix + 'EditMedia.fileSize')} ${media.files[0].size > Math.pow(10, 6) ? `${(media.files[0].size * Math.pow(10, -6)).toFixed(2)} MB` : `${(media.files[0].size * Math.pow(10, -3)).toFixed(2)} KB`}` }}</div>
@@ -505,8 +505,23 @@ export default {
       const response = await this.$axios.get(this.mediaByIdUri + this.mediaId,
         {
           headers: mediaHeader({token}, this.projectId)
-        })
-      if(response.data) {
+        }).catch((e) => {
+        this.loading = false
+        if (this.nuxtSections) {
+          showSectionsToast(this.$toast, 'error', e.response.data.message)
+        } else {
+          this.$toast.show(
+            {
+              message: e.response.data.message,
+              timeout: 5,
+              classToast: 'bg-error',
+              classMessage: 'text-white',
+            }
+          )
+        }
+        this.backClicked()
+      })
+      if(response && response.data) {
         this.media = response.data
         if(this.media.title === "null") this.media.title = ""
         if(this.media.seo_tag === "null") this.media.seo_tag = ""
@@ -644,6 +659,18 @@ export default {
       if (this.mediasPath) {
         this.$router.push(this.localePath({path: this.mediasPath, query: {filters: this.$route.query.filters}}))
       } else this.$emit('updateMediaComponent', {name: 'MediaListMedias'})
+    },
+    handleFileName(fileName) {
+      if (fileName.length > 50) {
+        const len = fileName.length;
+        const partLength = Math.ceil(len / 3);
+
+        const part1 = fileName.substring(0, partLength);
+        const part2 = fileName.substring(partLength, partLength * 2);
+        const part3 = fileName.substring(partLength * 2);
+
+        return [part1, part2, part3].join(' ');
+      }
     }
   }
 }
