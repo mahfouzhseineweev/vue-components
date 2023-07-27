@@ -115,7 +115,7 @@ export default {
 
         const data = new FormData();
         data.append('files[1][file]', fileData);
-        data.append('type', 'image');
+        data.append('type', fileData.type && fileData.type.includes('image') ? 'image' : 'document');
         if(this.mediaByIdUri !== '') {
           const response = await this.$axios.post(this.mediaByIdUri,
             data,
