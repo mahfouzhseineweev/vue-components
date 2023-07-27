@@ -7,7 +7,7 @@
       <div :class="containerStyle">
         <div class="flex">
           <div v-for="(media, i) in medias.slice(0, mediasNumber)" :key="i">
-            <div v-if="!media.type.includes('image')" :class="[mediaStyle, documentClass]" :style="documentStyle">
+            <div v-if="media.type && !media.type.includes('image')" :class="[mediaStyle, documentClass]" :style="documentStyle">
               <span class="icon-mediaDocument text-xl"></span>
             </div>
             <div v-else>
