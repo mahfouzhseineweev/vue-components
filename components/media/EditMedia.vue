@@ -142,7 +142,7 @@
         </div>
 
         <div v-if="media.files && media.type === 'video'" class="text-xs text-SmallTextGray font-light pl-2 pt-5 flex">
-          <div>{{ `${$t(mediaTranslationPrefix + 'EditMedia.fileName')}  ${media.files[0].filename}` }}</div>
+          <div>{{ `${$t(mediaTranslationPrefix + 'EditMedia.fileName')}  ${handleFileName(media.files[0].filename)}` }}</div>
           <div class="px-6 text-Dark">|</div>
           <div>{{ `${$t(mediaTranslationPrefix + 'EditMedia.fileSize')}  ${media.files[0].size > Math.pow(10, 6) ? `${(media.files[0].size * Math.pow(10, -6)).toFixed(2)} MB` : `${(media.files[0].size * Math.pow(10, -3)).toFixed(2)} KB`}` }}</div>
           <div class="px-6 text-Dark">|</div>
@@ -151,7 +151,7 @@
         <div v-else-if="media.files" class="text-xs text-SmallTextGray font-light pl-2 pt-5 flex">
           <div class="flex gap-2">
             <div>{{ `${$t(mediaTranslationPrefix + 'EditMedia.fileName')}` }}</div>
-            <div class="w-min">{{ `${media.files[0].filename}` }}</div>
+            <div class="w-min">{{ `${handleFileName(media.files[0].filename)}` }}</div>
           </div>
           <div class="px-6 text-Dark">|</div>
           <div>{{ `${$t(mediaTranslationPrefix + 'EditMedia.fileSize')} ${media.files[0].size > Math.pow(10, 6) ? `${(media.files[0].size * Math.pow(10, -6)).toFixed(2)} MB` : `${(media.files[0].size * Math.pow(10, -3)).toFixed(2)} KB`}` }}</div>
@@ -163,7 +163,24 @@
             <div>{{ $t(mediaTranslationPrefix + 'EditMedia.downloadMedia') }}</div>
           </div>
 
-          <div v-if="!(lockedStatus === 'locked' && media.author !== sectionsUserIdProp)">
+          <div v-if="media.type === 'document'">
+            <div class="flex w-350px h-200px justify-center items-center object-cover relative" :style="hiddenContainerStyle">
+              <div class="flex flex-col items-center gap-4">
+                <span class="icon-mediaDocument text-6xl"></span>
+              </div>
+              <div class="absolute top-1/3 left-1/3 -translate-x-1/3 -translate-y-1/3" @click="$refs.imagePick.click()">
+                <span class="icon-reload text-8xl cursor-pointer"></span>
+                <input
+                  ref="imagePick"
+                  type="file"
+                  class="hidden"
+                  accept=".pdf, .doc, .docx, .zip, .json, .css, .scss, .xlsx, .xlsb, .xltx"
+                  @change="onFileSelected"
+                />
+              </div>
+            </div>
+          </div>
+          <div v-else-if="!(lockedStatus === 'locked' && media.author !== sectionsUserIdProp)">
             <div v-if="media.files && media.files[0].url !== ''" class="relative w-max">
               <img :src="media.files[0].url" alt="" class="rounded-md w-400px">
               <div class="absolute top-1/3 left-1/3 -translate-x-1/3 -translate-y-1/3" @click="$refs.imagePick.click()">
@@ -172,6 +189,7 @@
                   ref="imagePick"
                   type="file"
                   class="hidden"
+                  accept="image/*"
                   @change="onFileSelected"
                 />
               </div>
@@ -274,6 +292,10 @@ export default {
     mediasPath: {
       type: String,
       default: ""
+    },
+    hiddenContainerStyle: {
+      type: String,
+      default: "background: #61035B"
     },
     mediaByIdResponseProp: {
       type: Object,
@@ -505,8 +527,23 @@ export default {
       const response = await this.$axios.get(this.mediaByIdUri + this.mediaId,
         {
           headers: mediaHeader({token}, this.projectId)
-        })
-      if(response.data) {
+        }).catch((e) => {
+        this.loading = false
+        if (this.nuxtSections) {
+          showSectionsToast(this.$toast, 'error', e.response.data.message)
+        } else {
+          this.$toast.show(
+            {
+              message: e.response.data.message,
+              timeout: 5,
+              classToast: 'bg-error',
+              classMessage: 'text-white',
+            }
+          )
+        }
+        this.backClicked()
+      })
+      if(response && response.data) {
         this.media = response.data
         if(this.media.title === "null") this.media.title = ""
         if(this.media.seo_tag === "null") this.media.seo_tag = ""
@@ -529,6 +566,7 @@ export default {
       const data = new FormData();
       if(this.file) {
         data.append('files[1][file]', this.file);
+        data.append('type', this.file.type && this.file.type.includes('image') ? 'image' : 'document');
       }
       if(this.media.title && this.media.title !== '') data.append('title', this.media.title);
       if(this.media.seo_tag && this.media.seo_tag !== '') data.append('seo_tag', this.media.seo_tag);
@@ -568,6 +606,7 @@ export default {
       })
       if(response) {
         if (this.nuxtSections) {
+          await this.getMediaByID()
           if (this.isEditingMedia) {
             this.$emit('onMediaSelected', this.media)
           }
@@ -641,8 +680,20 @@ export default {
     backClicked() {
       this.isEditingMedia = false
       if (this.mediasPath) {
-        this.$router.push(this.localePath({path: this.mediasPath, query: {filters: this.$route.query.filters}}))
+        this.$router.push(this.localePath({path: this.mediasPath, query: {filters: this.$route.query.filters, folder: this.$route.query.folder}}))
       } else this.$emit('updateMediaComponent', {name: 'MediaListMedias'})
+    },
+    handleFileName(fileName) {
+      if (fileName.length > 50) {
+        const len = fileName.length;
+        const partLength = Math.ceil(len / 3);
+
+        const part1 = fileName.substring(0, partLength);
+        const part2 = fileName.substring(partLength, partLength * 2);
+        const part3 = fileName.substring(partLength * 2);
+
+        return [part1, part2, part3].join(' ');
+      }
     }
   }
 }

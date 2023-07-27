@@ -12,10 +12,30 @@
     </div>
 
     <div v-show="mediaResponse.length !== 0">
-      <div class="flex py-8" :class="nuxtSections ? '' : 'pl-16'">
-        <Folder :all="true" :medias="allMedias" :total-label="$t(mediaTranslationPrefix + 'total')" :category-label="$t(mediaTranslationPrefix + 'category')" :category-value="$t(mediaTranslationPrefix + 'all')" :all-text="$t(mediaTranslationPrefix + 'all')" :total-value="allMedias.length.toString()" folder-style="font-size: 185px" :media-style="'rounded-full ml-2 h-40px w-40px'" />
-        <Folder v-show="imageMedias.length !== 0" :medias="imageMedias" :total-label="$t(mediaTranslationPrefix + 'total')" :category-label="$t(mediaTranslationPrefix + 'category')" :category-value="$t(mediaTranslationPrefix + 'images')" :total-value="imageMedias.length.toString()" class="px-16" folder-style="font-size: 185px" :media-style="'rounded-full ml-2 h-40px w-40px'" />
-        <Folder v-show="videoMedias.length !== 0" :medias="videoMedias" :total-label="$t(mediaTranslationPrefix + 'total')" :category-label="$t(mediaTranslationPrefix + 'category')" :category-value="$t(mediaTranslationPrefix + 'videos')" :total-value="videoMedias.length.toString()" :category-icon="'icon-play pr-2'" folder-style="font-size: 185px" :media-style="'rounded-full ml-2 h-40px w-40px'" />
+      <div class="flex pt-8 gap-16" :class="nuxtSections ? '' : 'pl-16'">
+        <div class="flex flex-col">
+          <Folder :is-selected="selectedFolder === 'all'" :all="true" :medias="allMedias" :total-label="$t(mediaTranslationPrefix + 'total')" :category-label="$t(mediaTranslationPrefix + 'category')" :category-value="$t(mediaTranslationPrefix + 'all')" :all-text="$t(mediaTranslationPrefix + 'all')" :total-value="allMedias.length.toString()" folder-style="font-size: 185px" :media-style="'rounded-full ml-2 h-40px w-40px'" :folder-clicked="() => {selectedFolder = 'all'}" />
+          <div v-if="selectedFolder === 'all'" class="h-10px bg-Blue flex mt-6">
+          </div>
+        </div>
+        <div v-show="imageMedias.length !== 0">
+          <Folder :is-selected="selectedFolder === 'image'" :medias="imageMedias" :total-label="$t(mediaTranslationPrefix + 'total')" :category-label="$t(mediaTranslationPrefix + 'category')" :category-value="$t(mediaTranslationPrefix + 'images')" :total-value="imageMedias.length.toString()" folder-style="font-size: 185px" :media-style="'rounded-full ml-2 h-40px w-40px'" :folder-clicked="() => {selectedFolder = 'image'}" />
+          <div v-if="selectedFolder === 'image'" class="h-10px bg-Blue flex mt-6">
+          </div>
+        </div>
+        <div v-show="videoMedias.length !== 0">
+          <Folder :is-selected="selectedFolder === 'video'" :medias="videoMedias" :total-label="$t(mediaTranslationPrefix + 'total')" :category-label="$t(mediaTranslationPrefix + 'category')" :category-value="$t(mediaTranslationPrefix + 'videos')" :total-value="videoMedias.length.toString()" :category-icon="'icon-play pr-2'" folder-style="font-size: 185px" :media-style="'rounded-full ml-2 h-40px w-40px'" :folder-clicked="() => {selectedFolder = 'video'}" />
+          <div v-if="selectedFolder === 'video'" class="h-10px bg-Blue flex mt-6">
+          </div>
+        </div>
+        <div v-show="documentMedias.length !== 0">
+          <Folder :is-selected="selectedFolder === 'document'" :medias="documentMedias" :total-label="$t(mediaTranslationPrefix + 'total')" :category-label="$t(mediaTranslationPrefix + 'category')" :category-value="$t(mediaTranslationPrefix + 'documents')" :total-value="documentMedias.length.toString()" :category-icon="'icon-mediaDocumentBlue pr-2'" folder-style="font-size: 185px" :media-style="'rounded-full ml-2 h-40px w-40px'" :folder-clicked="() => {selectedFolder = 'document'}" />
+          <div v-if="selectedFolder === 'document'" class="h-10px bg-Blue flex mt-6">
+          </div>
+        </div>
+      </div>
+
+      <div class="h-10px flex mx-16 mb-8" :style="lineSeparatorStyle">
       </div>
 
       <div class="flex text-FieldGray pt-2" :class="nuxtSections ? 'pl-4' : 'pl-16'">
@@ -24,11 +44,11 @@
 
       <div class="py-8 flex flex-wrap" :class="nuxtSections ? '' : 'pl-16'">
         <div v-for="media in mediaResponse" :key="`media--${media.id}`" class="m-2">
-          <Card :copy-link-label="$t(mediaTranslationPrefix + 'copyLink')" :size-label="$t(mediaTranslationPrefix + 'size')" :content-label="$t(mediaTranslationPrefix + 'contentUsing')" :locked="media.locked_status !== 'unlocked'" :hidden="media.private_status !== 'public'" :media-src="media.files[0].url" :media-title="media.title && media.title !== '' && media.title !== 'null' ? media.title : media.files[0].filename" :media-title-style="'w-200px overflow-hidden text-ellipsis white whitespace-nowrap'" :media-author="media.meta.author_name ? $t(mediaTranslationPrefix + 'by') + media.meta.author_name : ''" :contentvalue="media.number_of_contents.toString()" :hidden-media-src="'icon-alert text-4xl'" :hidden-container-style="'background: #EDEDED'" :hidden-message="$t(mediaTranslationPrefix + 'previewNotAvailable')" :is-author="media.author === sectionsUserId" :size-value="media.files[0].size > Math.pow(10, 6) ? `${(media.files[0].size * Math.pow(10, -6)).toFixed(2)} MB` : `${(media.files[0].size * Math.pow(10, -3)).toFixed(2)} KB`" :with-duration="media.type !== 'image'" :copy-link="() => copyMediaLink(media.files[0].url)" :open-media="() => openMedia(media.id)" />
+          <Card :copy-link-label="$t(mediaTranslationPrefix + 'copyLink')" :size-label="$t(mediaTranslationPrefix + 'size')" :content-label="$t(mediaTranslationPrefix + 'contentUsing')" :locked="media.locked_status !== 'unlocked'" :hidden="media.private_status !== 'public'" :media-src="media.files[0].url" :media-title="media.title && media.title !== '' && media.title !== 'null' ? media.title : media.files[0].filename" :media-title-style="'w-200px overflow-hidden text-ellipsis white whitespace-nowrap'" :media-author="media.meta.author_name ? $t(mediaTranslationPrefix + 'by') + media.meta.author_name : ''" :contentvalue="media.number_of_contents.toString()" :hidden-media-src="'icon-alert text-4xl'" :hidden-container-style="media.type === 'document' ? 'background: #61035B' : 'background: #EDEDED'" :hidden-message="$t(mediaTranslationPrefix + 'previewNotAvailable')" :is-author="media.author === sectionsUserId" :size-value="media.files[0].size > Math.pow(10, 6) ? `${(media.files[0].size * Math.pow(10, -6)).toFixed(2)} MB` : `${(media.files[0].size * Math.pow(10, -3)).toFixed(2)} KB`" :with-duration="media.type === 'video'" :media-type="media.type" :copy-link="() => copyMediaLink(media.files[0].url)" :open-media="() => openMedia(media.id)" />
         </div>
       </div>
 
-      <a v-show="mediaResponse.length !== totalMedias" class="flex justify-center text-Blue underline mb-16 cursor-pointer" @click="seeMoreMedias">{{ $t(mediaTranslationPrefix + 'seeMore') }}</a>
+      <a v-if="mediaResponse.length !== totalMedias" class="flex justify-center text-Blue underline mb-16 cursor-pointer" @click="seeMoreMedias">{{ $t(mediaTranslationPrefix + 'seeMore') }}</a>
 
     </div>
     <div v-show="mediaResponse.length === 0 && loading === false" class="text-FieldGray p-16">{{ $t(mediaTranslationPrefix + 'noMediasFound') }}</div>
@@ -99,6 +119,10 @@ export default {
     multiSelectPlaceholder: {
       type: String,
       default: ""
+    },
+    lineSeparatorStyle: {
+      type: String,
+      default: "background: #EDEDED"
     },
     showCreateMediaButton: {
       type: Boolean,
@@ -243,6 +267,7 @@ export default {
       allMedias: [],
       imageMedias: [],
       videoMedias: [],
+      documentMedias: [],
       showMoreIndex: 0,
       filterClear: false,
       filterOptions: [
@@ -309,7 +334,8 @@ export default {
       pageNumber: 1,
       sectionsUserId: '',
       accessLimitedVal: false,
-      filtersQuery: ''
+      filtersQuery: '',
+      selectedFolder: 'all'
     }
   },
   computed: {
@@ -348,7 +374,8 @@ export default {
         this.mediaUri = val
         if(this.$route.query.filters && this.$route.query.filters !== "") {
           this.filterMedias(JSON.parse(this.$route.query.filters))
-        } else if (val && process.client) this.getAllMedias()
+        }
+        // else if (val && process.client) this.getAllMedias()
       },
       deep: true,
       immediate: true
@@ -371,18 +398,23 @@ export default {
     mediaResponseProp: {
       handler(res) {
         if(res.result) {
+          this.mediaResponse = []
+          this.totalMedias = 0
           this.mediaResponse = res.result
           this.totalMedias = res.total
 
           this.allMedias = []
           this.imageMedias = []
           this.videoMedias = []
+          this.documentMedias = []
           res.result.forEach((media) => {
             this.allMedias.push(media.files[0])
             if(media.type === 'image') {
               this.imageMedias.push(media.files[0])
             } else if(media.type === 'video') {
               this.videoMedias.push(media.files[0])
+            } else if(media.type === 'document') {
+              this.documentMedias.push(media.files[0])
             }
           })
         }
@@ -390,9 +422,69 @@ export default {
       deep: true,
       immediate: true
     },
+    selectedFolder: {
+      handler(val) {
+        if (val === 'image' || val === 'document' || val === 'all') {
+          this.getAllMedias(val)
+        }
+      },
+      deep: true,
+      immediate: true
+    },
+  },
+  mounted() {
+    if (!this.nuxtSections) {
+      if(this.$route.query.folder && this.$route.query.folder !== "") {
+        this.$nextTick(() => {
+          this.selectedFolder = this.$route.query.folder
+        })
+      }
+    }
   },
   methods: {
-    async getAllMedias() {
+    hasObjectWithKey(arr, key, value) {
+      for (const item of arr) {
+        if (item.hasOwnProperty(key) && item[key] === value) {
+          return true;
+        }
+      }
+      return false;
+    },
+    async getAllMedias(folderMediaType, filtered) {
+      if (!this.nuxtSections && filtered !== true) {
+        if(this.$route.query.filters && this.$route.query.filters !== "") {
+          this.$router.push(this.localePath({path: this.mediasPath, query: {filters: this.$route.query.filters, folder: folderMediaType}}))
+        } else {
+          this.$router.push(this.localePath({path: this.mediasPath, query: {folder: folderMediaType}}))
+        }
+      }
+      if (folderMediaType) {
+        if (folderMediaType === 'document') {
+          if (this.hasObjectWithKey(this.payloadData.filters, 'key', 'type')) {
+            this.payloadData.filters.find(filter => filter.key === 'type').value = 'document'
+          } else {
+            this.payloadData.filters.push(
+              {
+                key: "type",
+                value: "document"
+              }
+            )
+          }
+        } else if (folderMediaType === 'image') {
+          if (this.hasObjectWithKey(this.payloadData.filters, 'key', 'type')) {
+            this.payloadData.filters.find(filter => filter.key === 'type').value = 'image'
+          } else {
+            this.payloadData.filters.push(
+              {
+                key: "type",
+                value: "image"
+              }
+            )
+          }
+        } else {
+          this.payloadData.filters = this.payloadData.filters.filter((filter) => filter.key !== "type")
+        }
+      }
       this.loading = true
       const token = this.token
       const response = await this.$axios.post(this.mediaUri,
@@ -404,24 +496,44 @@ export default {
       this.mediaResponse = response.data.result
       this.totalMedias = response.data.total
 
-      this.allMedias = []
-      this.imageMedias = []
-      this.videoMedias = []
-      response.data.result.forEach((media) => {
-        this.allMedias.push(media.files[0])
-        if(media.type === 'image') {
-          this.imageMedias.push(media.files[0])
-        } else if(media.type === 'video') {
-          this.videoMedias.push(media.files[0])
-        }
-      })
+      if (!folderMediaType || folderMediaType === 'all') {
+        this.allMedias = []
+        this.imageMedias = []
+        this.videoMedias = []
+        this.documentMedias = []
+        response.data.result.forEach((media) => {
+          this.allMedias.push(media.files[0])
+          if(media.type === 'image') {
+            this.imageMedias.push(media.files[0])
+          } else if(media.type === 'video') {
+            this.videoMedias.push(media.files[0])
+          } else if(media.type === 'document') {
+            this.documentMedias.push(media.files[0])
+          }
+        })
+      } else if (folderMediaType === 'document') {
+        this.documentMedias = []
+        response.data.result.forEach((media) => {
+          if(media.type === 'document') {
+            this.documentMedias.push(media.files[0])
+          }
+        })
+      } else if (folderMediaType === 'image') {
+        this.imageMedias = []
+        response.data.result.forEach((media) => {
+          if(media.type === 'image') {
+            this.imageMedias.push(media.files[0])
+          }
+        })
+      }
+
       this.$nuxt.$emit('setModel')
       this.loading = false
     },
     seeMoreMedias() {
       if(this.mediaUri !== '') {
         this.payloadData.per_page += 9
-        this.getAllMedias()}
+        this.getAllMedias(this.selectedFolder)}
     },
     async getAuthors() {
       this.loading = true
@@ -451,7 +563,7 @@ export default {
     filterMedias(filter) {
       this.filtersQuery = JSON.stringify(filter)
       if (!this.nuxtSections) {
-        this.$router.push(this.localePath({path: this.mediasPath, query: {filters: this.filtersQuery}}))
+        this.$router.push(this.localePath({path: this.mediasPath, query: {filters: this.filtersQuery, folder: this.selectedFolder}}))
       }
       this.loading = true
       for(const i in filter) {
@@ -471,22 +583,20 @@ export default {
         }
       }
       if(this.mediaUri !== '') {
-        this.getAllMedias()
+        this.getAllMedias(this.selectedFolder, true)
       }
     },
     removeFilter(i, item){
       if (this.payloadData.filters.length !== 1) {
         this.payloadData.filters = this.payloadData.filters.filter(object => object.key !== this.payloadData.filters[i].key).slice()
         if(this.mediaUri !== '') {
-          this.getAllMedias()
+          this.getAllMedias(this.selectedFolder, true)
         }
-      } else if(this.mediaUri !== '') {
-        this.getAllMedias()
       }
       if (!this.nuxtSections) {
         try {
           const filtersQuery = JSON.stringify(JSON.parse(this.filtersQuery).filter(filter => filter.key !== item.key))
-          this.$router.push(this.localePath({ path: this.mediasPath , query: {filters: filtersQuery} }))
+          this.$router.push(this.localePath({ path: this.mediasPath , query: {filters: filtersQuery, folder: this.selectedFolder} }))
         } catch {}
       }
     },
@@ -494,15 +604,15 @@ export default {
       this.payloadData.filters.splice(0)
       this.filterClear === false ? this.filterClear = true : this.filterClear = false
       if(this.mediaUri !== '') {
-        this.getAllMedias()
+        this.getAllMedias(this.selectedFolder, true)
         if (!this.nuxtSections) {
-          this.$router.push(this.localePath({ path: this.mediasPath }))
+          this.$router.push(this.localePath({ path: this.mediasPath, query: {folder: this.selectedFolder} }))
         }
       }
     },
     openMedia(mediaID) {
       if(this.editMediaPath) {
-        this.$router.push(this.localePath({path: this.editMediaPath, query: {id: mediaID, filters: this.filtersQuery}}))
+        this.$router.push(this.localePath({path: this.editMediaPath, query: {id: mediaID, filters: this.filtersQuery, folder: this.selectedFolder}}))
       } else {
         this.$emit('updateMediaComponent', {name: 'MediaEditMedia', mediaId: mediaID})
       }
@@ -511,14 +621,14 @@ export default {
       this.currentPage = pageNumber
       this.pageNumber = pageNumber
       this.payloadData.page = (pageNumber - 1) * this.payloadData.per_page
-      this.getAllMedias()
+      this.getAllMedias(this.selectedFolder)
     },
     handlePageChange(e) {
       if (e.key === 'Enter') {
         if(this.pageNumber >= 1 && this.pageNumber <= this.totalPages) {
           this.currentPage = this.pageNumber
           this.payloadData.page = (this.pageNumber - 1) * this.payloadData.per_page
-          this.getAllMedias()
+          this.getAllMedias(this.selectedFolder)
         }
       }
     },

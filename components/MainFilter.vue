@@ -67,20 +67,20 @@
 
     <div style = "display: flex;padding-top: 2%">
       <a
-        class = "apply_btn"
+        class = "apply_btn text-Dark"
         style = "margin-bottom: 10px;text-decoration:underline;cursor:pointer;"
         @click = "add_filter()"
       >+ {{ addFilterLabel }}</a
       >
       <a
         v-if = "filters.length > 1"
-        class = "clear apply_btn"
+        class = "clear apply_btn text-Dark"
         style = "margin-bottom: 10px;text-decoration:underline;margin-left:20px;cursor:pointer;"
         @click = "clearFilters"
       >{{ clearFiltersLabel }}</a
       >
       <a
-        class = "clear apply_btn"
+        class = "clear apply_btn text-Dark"
         style = "cursor: pointer;margin-bottom: 10px;text-decoration:underline;margin-left:20px; "
         @click = "apply_filter()"
       >{{ applyFilterLabel }}</a

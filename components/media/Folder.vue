@@ -2,11 +2,18 @@
   <div class="cursor-pointer max-w-max" @click="folderClicked">
     <div class="relative">
       <div>
-        <span class="icon-folder" :style="folderStyle"></span>
+        <span :class="isSelected ? 'icon-folder' : 'icon-folderGrey'" :style="folderStyle"></span>
       </div>
       <div :class="containerStyle">
         <div class="flex">
-          <img v-for="(media, i) in medias.slice(0, mediasNumber)" :key="i" :src="media.url" :width="mediasWidth" :height="mediasHeight" :class="mediaStyle"/>
+          <div v-for="(media, i) in medias.slice(0, mediasNumber)" :key="i">
+            <div v-if="!media.type.includes('image')" :class="[mediaStyle, documentClass]" :style="documentStyle">
+              <span class="icon-mediaDocument text-xl"></span>
+            </div>
+            <div v-else>
+              <img :src="media.url" :width="mediasWidth" :height="mediasHeight" :class="mediaStyle"/>
+            </div>
+          </div>
           <div class="self-end">...</div>
         </div>
 
@@ -121,6 +128,14 @@ export default {
       type: String,
       default: 'rounded-full ml-2'
     },
+    documentClass: {
+      type: String,
+      default: 'flex justify-center items-center'
+    },
+    documentStyle: {
+      type: String,
+      default: 'background: #61035B'
+    },
     allStyle: {
       type: String,
       default: 'text-xl text-Blue font-medium'
@@ -130,6 +145,10 @@ export default {
       default: 'absolute top-12 left-1'
     },
     all: {
+      type: Boolean,
+      default: false
+    },
+    isSelected: {
       type: Boolean,
       default: false
     },
