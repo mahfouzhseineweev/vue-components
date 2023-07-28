@@ -18,7 +18,7 @@
           <div v-if="selectedFolder === 'all'" class="h-10px bg-Blue flex mt-6">
           </div>
         </div>
-        <div v-show="imageMedias.length !== 0">
+        <div>
           <Folder :is-selected="selectedFolder === 'image'" :medias="imageMedias" :total-label="$t(mediaTranslationPrefix + 'total')" :category-label="$t(mediaTranslationPrefix + 'category')" :category-value="$t(mediaTranslationPrefix + 'images')" :total-value="imageMedias.length.toString()" folder-style="font-size: 185px" :media-style="'rounded-full ml-2 h-40px w-40px'" :folder-clicked="() => {selectedFolder = 'image'; getAllMedias('image')}" />
           <div v-if="selectedFolder === 'image'" class="h-10px bg-Blue flex mt-6">
           </div>
@@ -28,7 +28,7 @@
           <div v-if="selectedFolder === 'video'" class="h-10px bg-Blue flex mt-6">
           </div>
         </div>
-        <div v-show="documentMedias.length !== 0">
+        <div>
           <Folder :is-selected="selectedFolder === 'document'" :medias="documentMedias" :total-label="$t(mediaTranslationPrefix + 'total')" :category-label="$t(mediaTranslationPrefix + 'category')" :category-value="$t(mediaTranslationPrefix + 'documents')" :total-value="documentMedias.length.toString()" :category-icon="'icon-mediaDocumentBlue pr-2'" folder-style="font-size: 185px" :media-style="'rounded-full ml-2 h-40px w-40px'" :folder-clicked="() => {selectedFolder = 'document'; getAllMedias('document')}" />
           <div v-if="selectedFolder === 'document'" class="h-10px bg-Blue flex mt-6">
           </div>
@@ -575,7 +575,8 @@ export default {
       }
       this.loading = true
       for(const i in filter) {
-        if(this.payloadData.filters.findIndex(x => x.key === filter[i].key) === -1) {
+        const filterIndex = this.payloadData.filters.findIndex(x => x.key === filter[i].key)
+        if(filterIndex === -1) {
           this.payloadData.filters.push({
             key: filter[i].key,
             value: filter[i].key === 'number_of_contents' ? parseInt(filter[i].value) : filter[i].key === "author" ? filter[i].value.substring(
@@ -584,7 +585,7 @@ export default {
             ) : filter[i].value
           })
         } else {
-          this.payloadData.filters[i].value = filter[i].key === 'number_of_contents' ? parseInt(filter[i].value) : filter[i].key === "author" ? filter[i].value.substring(
+          this.payloadData.filters[filterIndex].value = filter[i].key === 'number_of_contents' ? parseInt(filter[i].value) : filter[i].key === "author" ? filter[i].value.substring(
             filter[i].value.indexOf("(") + 1,
             filter[i].value.lastIndexOf(")")
           ) : filter[i].value
