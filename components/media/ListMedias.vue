@@ -13,17 +13,19 @@
 
     <div>
       <div class="flex pt-8 gap-16" :class="nuxtSections ? '' : 'pl-16'">
-        <div class="flex flex-col">
-          <Folder :is-selected="selectedFolder === 'all'" :all="true" :medias="allMedias" :total-label="$t(mediaTranslationPrefix + 'total')" :category-label="$t(mediaTranslationPrefix + 'category')" :category-value="$t(mediaTranslationPrefix + 'all')" :all-text="$t(mediaTranslationPrefix + 'all')" :total-value="allMedias.length.toString()" folder-style="font-size: 185px" :media-style="'rounded-full ml-2 h-40px w-40px'" :folder-clicked="() => {selectedFolder = 'all'; getAllMedias('all')}" />
-          <div v-if="selectedFolder === 'all'" class="h-10px bg-Blue flex mt-6">
+        <div v-show="mediaCategory !== 'document'">
+          <div class="flex flex-col">
+            <Folder :is-selected="selectedFolder === 'all'" :all="true" :medias="allMedias" :total-label="$t(mediaTranslationPrefix + 'total')" :category-label="$t(mediaTranslationPrefix + 'category')" :category-value="$t(mediaTranslationPrefix + 'all')" :all-text="$t(mediaTranslationPrefix + 'all')" :total-value="allMedias.length.toString()" folder-style="font-size: 185px" :media-style="'rounded-full ml-2 h-40px w-40px'" :folder-clicked="() => {selectedFolder = 'all'; getAllMedias('all')}" />
+            <div v-if="selectedFolder === 'all'" class="h-10px bg-Blue flex mt-6">
+            </div>
           </div>
         </div>
-        <div>
+        <div v-show="mediaCategory !== 'document'">
           <Folder :is-selected="selectedFolder === 'image'" :medias="imageMedias" :total-label="$t(mediaTranslationPrefix + 'total')" :category-label="$t(mediaTranslationPrefix + 'category')" :category-value="$t(mediaTranslationPrefix + 'images')" :total-value="imageMedias.length.toString()" folder-style="font-size: 185px" :media-style="'rounded-full ml-2 h-40px w-40px'" :folder-clicked="() => {selectedFolder = 'image'; getAllMedias('image')}" />
           <div v-if="selectedFolder === 'image'" class="h-10px bg-Blue flex mt-6">
           </div>
         </div>
-        <div v-show="videoMedias.length !== 0">
+        <div v-show="videoMedias.length !== 0 && mediaCategory !== 'document'">
           <Folder :is-selected="selectedFolder === 'video'" :medias="videoMedias" :total-label="$t(mediaTranslationPrefix + 'total')" :category-label="$t(mediaTranslationPrefix + 'category')" :category-value="$t(mediaTranslationPrefix + 'videos')" :total-value="videoMedias.length.toString()" :category-icon="'icon-play pr-2'" folder-style="font-size: 185px" :media-style="'rounded-full ml-2 h-40px w-40px'" :folder-clicked="() => {selectedFolder = 'video'; getAllMedias('video')}" />
           <div v-if="selectedFolder === 'video'" class="h-10px bg-Blue flex mt-6">
           </div>
@@ -125,6 +127,10 @@ export default {
     lineSeparatorStyle: {
       type: String,
       default: "background: #EDEDED"
+    },
+    mediaCategory: {
+      type: String,
+      default: ""
     },
     showCreateMediaButton: {
       type: Boolean,
@@ -434,6 +440,9 @@ export default {
       return false;
     },
     async getAllMedias(folderMediaType, filtered) {
+      if (this.nuxtSections && this.mediaCategory === 'document') {
+        this.selectedFolder = 'document'
+      }
       this.loading = true
       const token = this.token
       this.$axios.post(this.mediaUri,
