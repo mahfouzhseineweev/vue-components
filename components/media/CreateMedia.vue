@@ -14,7 +14,7 @@
             {{ $t(mediaTranslationPrefix + 'dragDrop') }} <a class="text-Blue underline">{{ $t(mediaTranslationPrefix + 'browse') }}</a> {{ $t(mediaTranslationPrefix + 'yourMedia') }}
           </div>
         </div>
-        <input id="dropzone-file" ref="imageUploaded" type="file" class="hidden" @change="onFileSelected" />
+        <input id="dropzone-file" ref="imageUploaded" type="file" :accept="mediaCategory === 'document' ? '.pdf, .doc, .docx, .zip, .json, .css, .scss, .xlsx, .xlsb, .xltx' : null" class="hidden" @change="onFileSelected" />
       </label>
     </div>
 
@@ -69,6 +69,10 @@ export default {
     nuxtSections: {
       type: Boolean,
       default: false
+    },
+    mediaCategory: {
+      type: String,
+      default: ""
     }
   },
   data() {
