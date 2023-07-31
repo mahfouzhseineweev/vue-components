@@ -140,7 +140,7 @@ export default {
               errorMessage = e.response.data.error ? `${e.response.data.error}, ${e.response.data.message}` : e.response.data.message
             }
             if (this.nuxtSections) {
-              showSectionsToast(this.$toast, 'error', errorMessage, e.response.data.options)
+              showSectionsToast(this.$toast, 'error', `${e.response.data.error}, ${e.response.data.message}`, e.response.data.options)
             } else {
               this.$toast.show(
                 {
