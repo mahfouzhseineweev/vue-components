@@ -14,7 +14,7 @@
             {{ $t(mediaTranslationPrefix + 'dragDrop') }} <a class="text-Blue underline">{{ $t(mediaTranslationPrefix + 'browse') }}</a> {{ $t(mediaTranslationPrefix + 'yourMedia') }}
           </div>
         </div>
-        <input id="dropzone-file" ref="imageUploaded" type="file" :accept="mediaCategory === 'document' ? '.pdf, .doc, .docx, .zip, .json, .css, .scss, .xlsx, .xlsb, .xltx' : null" class="hidden" @change="onFileSelected" />
+        <input id="dropzone-file" ref="imageUploaded" type="file" :accept="mediaCategory === 'document' ? fileTypes : null" class="hidden" @change="onFileSelected" />
       </label>
     </div>
 
@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import {mediaHeader, showSectionsToast} from "./medias";
+import {acceptedFileTypes, mediaHeader, showSectionsToast} from "./medias";
 import AnimatedLoading from "../AnimatedLoading";
 
 export default {
@@ -81,7 +81,8 @@ export default {
       projectId: '',
       token: '',
       loading: false,
-      backLabel: '<'
+      backLabel: '<',
+      fileTypes: acceptedFileTypes
     }
   },
   watch: {
