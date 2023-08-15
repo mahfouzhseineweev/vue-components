@@ -14,7 +14,7 @@
             {{ $t(mediaTranslationPrefix + 'dragDrop') }} <a class="text-Blue underline">{{ $t(mediaTranslationPrefix + 'browse') }}</a> {{ $t(mediaTranslationPrefix + 'yourMedia') }}
           </div>
         </div>
-        <input id="dropzone-file" ref="imageUploaded" type="file" class="hidden" @change="onFileSelected" />
+        <input id="dropzone-file" ref="imageUploaded" type="file" :accept="mediaCategory === 'document' ? fileTypes : null" class="hidden" @change="onFileSelected" />
       </label>
     </div>
 
@@ -24,7 +24,7 @@
 </template>
 
 <script>
-import {mediaHeader, showSectionsToast} from "./medias";
+import {acceptedFileTypes, mediaHeader, showSectionsToast} from "./medias";
 import AnimatedLoading from "../AnimatedLoading";
 
 export default {
@@ -69,6 +69,10 @@ export default {
     nuxtSections: {
       type: Boolean,
       default: false
+    },
+    mediaCategory: {
+      type: String,
+      default: ""
     }
   },
   data() {
@@ -77,7 +81,8 @@ export default {
       projectId: '',
       token: '',
       loading: false,
-      backLabel: '<'
+      backLabel: '<',
+      fileTypes: acceptedFileTypes
     }
   },
   watch: {
@@ -115,7 +120,7 @@ export default {
 
         const data = new FormData();
         data.append('files[1][file]', fileData);
-        data.append('type', 'image');
+        data.append('type', fileData.type && fileData.type.includes('image') ? 'image' : 'document');
         if(this.mediaByIdUri !== '') {
           const response = await this.$axios.post(this.mediaByIdUri,
             data,
@@ -136,7 +141,7 @@ export default {
               errorMessage = e.response.data.error ? `${e.response.data.error}, ${e.response.data.message}` : e.response.data.message
             }
             if (this.nuxtSections) {
-              showSectionsToast(this.$toast, 'error', errorMessage, e.response.data.options)
+              showSectionsToast(this.$toast, 'error', `${e.response.data.error}, ${e.response.data.message}`, e.response.data.options)
             } else {
               this.$toast.show(
                 {

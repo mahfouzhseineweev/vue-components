@@ -26,3 +26,5 @@ export const showSectionsToast = (toast, variant, message, options) => {
     onClick: () => options && Object.keys(options).length > 0 ? window.open(`${options.link.root}${options.link.path}`, '_blank') : {}
   });
 }
+
+export const acceptedFileTypes = '.pdf, .doc, .docx, .zip, .json, .css, .scss, .xlsx, .xlsb, .xltx'

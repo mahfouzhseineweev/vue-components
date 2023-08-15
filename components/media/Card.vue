@@ -27,7 +27,14 @@
       </div>
 
       <div v-if="!hidden || (hidden && isAuthor)" class="w-350px cursor-pointer" @click="openMedia">
-        <div v-if="hidden && isAuthor">
+        <div v-if="mediaType === 'document'">
+          <div class="flex w-full h-200px justify-center items-center object-cover" :style="hiddenContainerStyle">
+            <div class="flex flex-col items-center gap-4">
+              <span class="icon-mediaDocument text-6xl"></span>
+            </div>
+          </div>
+        </div>
+        <div v-else-if="hidden && isAuthor">
           <div class="flex w-full h-200px justify-center items-center object-cover" :style="hiddenContainerStyle">
             <div class="flex flex-col items-center gap-4">
               <span class="icon-photograpg text-8xl"></span>
@@ -253,6 +260,10 @@ export default {
     seeMoreLabel: {
       type: String,
       default: 'see more'
+    },
+    mediaType: {
+      type: String,
+      default: ''
     },
     seeMoreClicked: {
       type: Function,

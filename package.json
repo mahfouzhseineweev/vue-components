@@ -1,6 +1,6 @@
 {
   "name": "@geeks.solutions/vue-components",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "author": "Geeks Solutions info@geeks.solutions (https://www.geeks.solutions)",
   "repository": {
     "type": "git",
@@ -67,10 +67,10 @@
     "eslint-plugin-vue": "^7.12.1",
     "eslint-webpack-plugin": "^2.5.4",
     "jest": "^27.0.5",
+    "postcss": "8.3.5",
     "prettier": "^2.3.2",
     "vue-jest": "^3.0.4",
-    "webpack-cli": "^4.9.1",
-    "postcss": "8.3.5"
+    "webpack-cli": "^4.9.1"
   },
   "peerDependencies": {
     "consola": "3.0.1"
