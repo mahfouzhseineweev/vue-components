@@ -15,23 +15,23 @@
       <div class="flex pt-8 gap-16" :class="nuxtSections ? '' : 'pl-16'">
         <div v-show="mediaCategory !== 'document'">
           <div class="flex flex-col">
-            <Folder :is-selected="selectedFolder === 'all'" :all="true" :medias="allMedias" :total-label="$t(mediaTranslationPrefix + 'total')" :category-label="$t(mediaTranslationPrefix + 'category')" :category-value="$t(mediaTranslationPrefix + 'all')" :all-text="$t(mediaTranslationPrefix + 'all')" :total-value="allMedias.length.toString()" folder-style="font-size: 185px" :media-style="'rounded-full ml-2 h-40px w-40px'" :folder-clicked="() => {selectedFolder = 'all'; getAllMedias('all')}" />
+            <Folder :is-selected="selectedFolder === 'all'" :all="true" :medias="allMedias" :total-label="$t(mediaTranslationPrefix + 'total')" :category-label="$t(mediaTranslationPrefix + 'category')" :category-value="$t(mediaTranslationPrefix + 'all')" :all-text="$t(mediaTranslationPrefix + 'all')" :total-value="allMediasLength.toString()" folder-style="font-size: 185px" :media-style="'rounded-full ml-2 h-40px w-40px'" :folder-clicked="() => {selectedFolder = 'all'; getAllMedias('all')}" />
             <div v-if="selectedFolder === 'all'" class="h-10px bg-Blue flex mt-6">
             </div>
           </div>
         </div>
         <div v-show="mediaCategory !== 'document'">
-          <Folder :is-selected="selectedFolder === 'image'" :medias="imageMedias" :total-label="$t(mediaTranslationPrefix + 'total')" :category-label="$t(mediaTranslationPrefix + 'category')" :category-value="$t(mediaTranslationPrefix + 'images')" :total-value="imageMedias.length.toString()" folder-style="font-size: 185px" :media-style="'rounded-full ml-2 h-40px w-40px'" :folder-clicked="() => {selectedFolder = 'image'; getAllMedias('image')}" />
+          <Folder :is-selected="selectedFolder === 'image'" :medias="imageMedias" :total-label="$t(mediaTranslationPrefix + 'total')" :category-label="$t(mediaTranslationPrefix + 'category')" :category-value="$t(mediaTranslationPrefix + 'images')" :total-value="imageMediasLength.toString()" folder-style="font-size: 185px" :media-style="'rounded-full ml-2 h-40px w-40px'" :folder-clicked="() => {selectedFolder = 'image'; getAllMedias('image')}" />
           <div v-if="selectedFolder === 'image'" class="h-10px bg-Blue flex mt-6">
           </div>
         </div>
         <div v-show="videoMedias.length !== 0 && mediaCategory !== 'document'">
-          <Folder :is-selected="selectedFolder === 'video'" :medias="videoMedias" :total-label="$t(mediaTranslationPrefix + 'total')" :category-label="$t(mediaTranslationPrefix + 'category')" :category-value="$t(mediaTranslationPrefix + 'videos')" :total-value="videoMedias.length.toString()" :category-icon="'icon-play pr-2'" folder-style="font-size: 185px" :media-style="'rounded-full ml-2 h-40px w-40px'" :folder-clicked="() => {selectedFolder = 'video'; getAllMedias('video')}" />
+          <Folder :is-selected="selectedFolder === 'video'" :medias="videoMedias" :total-label="$t(mediaTranslationPrefix + 'total')" :category-label="$t(mediaTranslationPrefix + 'category')" :category-value="$t(mediaTranslationPrefix + 'videos')" :total-value="videoMediasLength.toString()" :category-icon="'icon-play pr-2'" folder-style="font-size: 185px" :media-style="'rounded-full ml-2 h-40px w-40px'" :folder-clicked="() => {selectedFolder = 'video'; getAllMedias('video')}" />
           <div v-if="selectedFolder === 'video'" class="h-10px bg-Blue flex mt-6">
           </div>
         </div>
         <div>
-          <Folder :is-selected="selectedFolder === 'document'" :medias="documentMedias" :total-label="$t(mediaTranslationPrefix + 'total')" :category-label="$t(mediaTranslationPrefix + 'category')" :category-value="$t(mediaTranslationPrefix + 'documents')" :total-value="documentMedias.length.toString()" :category-icon="'icon-mediaDocumentBlue pr-2'" folder-style="font-size: 185px" :media-style="'rounded-full ml-2 h-40px w-40px'" :folder-clicked="() => {selectedFolder = 'document'; getAllMedias('document')}" />
+          <Folder :is-selected="selectedFolder === 'document'" :medias="documentMedias" :total-label="$t(mediaTranslationPrefix + 'total')" :category-label="$t(mediaTranslationPrefix + 'category')" :category-value="$t(mediaTranslationPrefix + 'documents')" :total-value="documentMediasLength.toString()" :category-icon="'icon-mediaDocumentBlue pr-2'" folder-style="font-size: 185px" :media-style="'rounded-full ml-2 h-40px w-40px'" :folder-clicked="() => {selectedFolder = 'document'; getAllMedias('document')}" />
           <div v-if="selectedFolder === 'document'" class="h-10px bg-Blue flex mt-6">
           </div>
         </div>
@@ -276,6 +276,10 @@ export default {
       imageMedias: [],
       videoMedias: [],
       documentMedias: [],
+      allMediasLength: '',
+      imageMediasLength: '',
+      videoMediasLength: '',
+      documentMediasLength: '',
       showMoreIndex: 0,
       filterClear: false,
       filterOptions: [
@@ -468,6 +472,11 @@ export default {
             this.documentMedias.push(media.files[0])
           }
         })
+
+        this.allMediasLength = this.allMedias.length
+        this.imageMediasLength = this.imageMedias.length
+        this.videoMediasLength = this.videoMedias.length
+        this.documentMediasLength = this.documentMedias.length
       })
 
       if (!this.nuxtSections && filtered !== true) {
