@@ -3,6 +3,14 @@
 ---
 
 
+### v1.0.4 (24/8/2023)
+
+---
+
+- [x] Bug fix for total medias in folders in media meta components
+
+
+
 ### v1.0.3 (30/6/2023)
 
 ---
