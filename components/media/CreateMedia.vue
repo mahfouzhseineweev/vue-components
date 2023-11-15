@@ -1,12 +1,12 @@
 <template>
   <div class="mr-8" :class="nuxtSections ? '' : 'ml-4'">
-    <div class="cursor-pointer text-4xl text-Blue" :class="nuxtSections ? 'fixed top-3 left-12' : 'pl-8'" @click="backClicked">
+    <div class="cursor-pointer text-4xl text-Blue" :class="nuxtSections ? 'fixed top-3 left-12' : 'md:pl-8'" @click="backClicked">
       {{ backLabel }}
     </div>
-    <div class="text-mediaTextGray mt-8" :class="nuxtSections ? '' : 'ml-8'">
+    <div class="text-mediaTextGray mt-8" :class="nuxtSections ? '' : 'md:ml-8'">
       {{ $t(mediaTranslationPrefix + 'dragDropMedia') }}
     </div>
-    <div class="flex justify-center items-center w-2/3 mt-8" :class="nuxtSections ? '' : 'ml-8'" @drop.prevent="onFileSelected" @dragenter.prevent @dragover.prevent>
+    <div class="flex justify-center w-full md:w-auto items-center w-2/3 mt-8 md:ml-8" :class="nuxtSections ? '' : 'md:ml-8'" @drop.prevent="onFileSelected" @dragenter.prevent @dragover.prevent>
       <label for="dropzone-file" class="flex flex-col justify-center items-center w-full h-64 bg-gray-50 rounded-lg border-2 border-BorderGray border-dashed cursor-pointer bg-mediaUploadGray">
         <div class="flex flex-col justify-center items-center pt-5 pb-6">
           <img src="../../assets/images/upload.svg" alt="" class="pb-4" width="100">

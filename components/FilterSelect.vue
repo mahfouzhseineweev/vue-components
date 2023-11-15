@@ -1,7 +1,7 @@
 <template>
   <div>
-    <div class="flex" :class="filterContainerStyle">
-      <div class="flex-col">
+    <div class="flex flex-col md:flex-row" :class="filterContainerStyle">
+      <div class="flex-col self-start">
         <AutoComplete
           :main-filter="mainFilter"
           :select-label="filterByText"
@@ -39,7 +39,7 @@
           @itemSelected="(item) => {emitFilter(item)}"
         ></AutoComplete>
       </div>
-      <div class="flex-col">
+      <div class="flex-col self-start">
         <div v-if="filter_map[mainFilter].type === 'text'">
           <input v-model = "filter_val[mainFilter]"
             type = "text"
@@ -294,7 +294,7 @@ export default {
     },
     inputStyle: {
       type: String,
-      default: 'py-4 pl-6 mr-1 border border-FieldGray rounded-xl h-49px w-300px focus:outline-none'
+      default: 'py-4 pl-6 mr-1 border border-FieldGray rounded-xl h-49px md:w-300px w-220px focus:outline-none'
     },
     subFilterStyle: {
       type: String,
