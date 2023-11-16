@@ -3,6 +3,13 @@
 ---
 
 
+### v1.0.5 (16/11/2023)
+
+---
+
+- [x] Add Mobile responsiveness support for the components
+
+
 ### v1.0.4 (24/8/2023)
 
 ---
