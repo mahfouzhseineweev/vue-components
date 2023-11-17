@@ -126,7 +126,7 @@
           ></AutoComplete>
         </div>
 
-        <div v-if="filter_map[mainFilter].type === 'range'" class="flex">
+        <div v-if="filter_map[mainFilter].type === 'range'" class="flex flex-col md:flex-row gap-4 md:gap-0">
           <input v-model = "filter_val[filter_map[mainFilter].key1]"
                  type = "text"
                  :placeholder = "filter_map[mainFilter].subTitle1 | capitalize" :class = "inputStyle" @input="emitFilter()" />
@@ -290,7 +290,7 @@ export default {
     },
     mainFilterStyle: {
       type: String,
-      default: 'flex items-center pl-2 mr-6 ml-2 border border-FieldGray rounded-xl h-49px w-244px focus:outline-none mb-6'
+      default: 'flex items-center pl-2 mr-6 md:ml-2 border border-FieldGray rounded-xl h-49px w-244px focus:outline-none mb-6'
     },
     inputStyle: {
       type: String,
