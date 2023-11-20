@@ -112,7 +112,7 @@
                       <span class="icon-cross cursor-pointer" @click="showPopupCode = false"></span>
                     </div>
                   </div>
-                  <div v-if="popupContent && popupContent.content" class="mt-2" style="overflow: scroll !important;">
+                  <div v-if="popupContent && popupContent.content" class="mt-2" style="overflow: auto !important; max-height: 450px;">
                     <div v-for="content in popupContent.content" :key="content.id" class="flex flex-row items-center p-1">
                       <div class="md:w-2.5 w-5 h-2.5 mr-3 rounded-full bg-darkBlue"></div>
                       <div class="font-medium text-lg pr-3">
@@ -236,7 +236,7 @@
 
     </div>
 
-    <AlertPopup :errors-container-style="'mt-10 mb-14 self-center h-70px overflow-y-auto'" :apply-button-text="$t(mediaTranslationPrefix + 'EditMedia.deleteMedia')" :cancel-button-text="$t(mediaTranslationPrefix + 'EditMedia.cancel')" :title-delete="$t(mediaTranslationPrefix + 'EditMedia.deleteMediaMsg')" :title-no-delete="$t(mediaTranslationPrefix + 'EditMedia.cannotDelete')" :sub-title-no-delete="$t(mediaTranslationPrefix + 'EditMedia.cannotDeleteExtra')" :show-popup-code="showPopup" :can-be-deleted="media.meta ? !(media.meta.content && media.meta.content.length > 0) : false" :errors="noDeleteErrors" @cancel="showPopup = false" @apply="deleteMediaByID" />
+    <AlertPopup :errors-container-style="'mt-10 mb-14 self-center h-auto max-h-72 overflow-y-auto'" :apply-button-text="$t(mediaTranslationPrefix + 'EditMedia.deleteMedia')" :cancel-button-text="$t(mediaTranslationPrefix + 'EditMedia.cancel')" :title-delete="$t(mediaTranslationPrefix + 'EditMedia.deleteMediaMsg')" :title-no-delete="$t(mediaTranslationPrefix + 'EditMedia.cannotDelete')" :sub-title-no-delete="$t(mediaTranslationPrefix + 'EditMedia.cannotDeleteExtra')" :show-popup-code="showPopup" :can-be-deleted="media.meta ? !(media.meta.content && media.meta.content.length > 0) : false" :errors="noDeleteErrors" @cancel="showPopup = false" @apply="deleteMediaByID" />
 
     <AnimatedLoading :loading="loading" :animated-loading-icon="require('../../assets/images/loading_animated.svg')" />
 
