@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="flex flex-col md:flex-row" :class="filterContainerStyle">
-      <div class="flex-col self-start">
+      <div class="flex-col self-start md:self-end">
         <AutoComplete
           :main-filter="mainFilter"
           :select-label="filterByText"
@@ -39,7 +39,7 @@
           @itemSelected="(item) => {emitFilter(item)}"
         ></AutoComplete>
       </div>
-      <div class="flex-col self-start">
+      <div class="flex-col self-start md:self-end">
         <div v-if="filter_map[mainFilter].type === 'text'">
           <input v-model = "filter_val[mainFilter]"
             type = "text"
@@ -266,7 +266,7 @@ export default {
     },
     filterContainerStyle: {
       type: String,
-      default: 'items-end gap-4'
+      default: 'md:items-end gap-4'
     },
     filterByStyle: {
       type: String,
