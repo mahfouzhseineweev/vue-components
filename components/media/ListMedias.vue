@@ -84,6 +84,14 @@ export default {
     Buttons
   },
   props: {
+    appliedFilters: {
+      type: String,
+      default: ""
+    },
+    folderType: {
+      type: String,
+      default: ""
+    },
     mediaUriProp: {
       type: String,
       default: ""
@@ -347,7 +355,7 @@ export default {
       sectionsUserId: '',
       accessLimitedVal: false,
       filtersQuery: '',
-      selectedFolder: this.$route.query.folder ? this.$route.query.folder : 'all'
+      selectedFolder: this.$route.query.folder ? this.$route.query.folder : this.folderType ? this.folderType : 'all'
     }
   },
   computed: {
@@ -386,6 +394,8 @@ export default {
         this.mediaUri = val
         if(this.$route.query.filters && this.$route.query.filters !== "") {
           this.filterMedias(JSON.parse(this.$route.query.filters))
+        } else if (this.nuxtSections && this.appliedFilters) {
+          this.filterMedias(JSON.parse(this.appliedFilters))
         } else if (val && process.client) this.getAllMedias()
       },
       deep: true,
@@ -634,6 +644,8 @@ export default {
         this.getAllMedias(this.selectedFolder, true)
         if (!this.nuxtSections) {
           this.$router.push(this.localePath({ path: this.mediasPath, query: {folder: this.selectedFolder} }))
+        } else {
+          this.filtersQuery = ''
         }
       }
     },
@@ -645,7 +657,7 @@ export default {
           this.$router.push(this.localePath({path: this.editMediaPath, query: {id: mediaID, folder: this.selectedFolder}}))
         }
       } else {
-        this.$emit('updateMediaComponent', {name: 'MediaEditMedia', mediaId: mediaID})
+        this.$emit('updateMediaComponent', {name: 'MediaEditMedia', mediaId: mediaID, appliedFilters: this.filtersQuery, folderType: this.selectedFolder})
       }
     },
     setPage(pageNumber) {
@@ -666,7 +678,7 @@ export default {
     openCreateMedia() {
       if (this.createMediaPath) {
         this.$router.push(this.localePath({path: this.createMediaPath, query: {filters: this.$route.query.filters, folder: this.selectedFolder}}))
-      } else this.$emit('updateMediaComponent', {name: 'MediaCreateMedia'})
+      } else this.$emit('updateMediaComponent', {name: 'MediaCreateMedia', appliedFilters: this.filtersQuery, folderType: this.selectedFolder})
     },
     updateFilterValues(value) {
       if(value === 'public' || value === 'private' || value === 'locked' || value === 'unlocked') {

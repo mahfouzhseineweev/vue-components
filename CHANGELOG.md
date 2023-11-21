@@ -9,6 +9,8 @@
 
 - [x] Add Mobile responsiveness support for the components
 
+- [x] Fix for Media component filter to preserve filters
+
 
 ### v1.0.4 (24/8/2023)
 
