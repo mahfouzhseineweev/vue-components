@@ -265,6 +265,14 @@ export default {
     AnimatedLoading
   },
   props: {
+    appliedFilters: {
+      type: String,
+      default: ""
+    },
+    folderType: {
+      type: String,
+      default: ""
+    },
     mediaByIdUriProp: {
       type: String,
       default: ""
@@ -646,7 +654,7 @@ export default {
         this.loading = false
         if (this.mediasPath) {
           this.$router.push(this.localePath({path: this.mediasPath}))
-        } else this.$emit('updateMediaComponent', {name: 'MediaListMedias'})
+        } else this.$emit('updateMediaComponent', {name: 'MediaListMedias', appliedFilters: this.appliedFilters, folderType: this.folderType})
       }
     },
     onFileSelected(e) {
@@ -682,7 +690,7 @@ export default {
       this.isEditingMedia = false
       if (this.mediasPath) {
         this.$router.push(this.localePath({path: this.mediasPath, query: {filters: this.$route.query.filters, folder: this.$route.query.folder}}))
-      } else this.$emit('updateMediaComponent', {name: 'MediaListMedias'})
+      } else this.$emit('updateMediaComponent', {name: 'MediaListMedias', appliedFilters: this.appliedFilters, folderType: this.folderType})
     },
     // The below function is used to split the media fileName string into 3 parts separated with space, it was done for design purpose as the fileName of media can be very long and cause design problems
     handleFileName(fileName) {

@@ -38,6 +38,14 @@ export default {
     }
   },
   props: {
+    appliedFilters: {
+      type: String,
+      default: ""
+    },
+    folderType: {
+      type: String,
+      default: ""
+    },
     mediaByIdUriProp: {
       type: String,
       default: ""
@@ -167,7 +175,7 @@ export default {
             }
             if(this.editMediaPath) {
               this.$router.push(this.localePath({path: this.editMediaPath, query: {id: response.data.id, isCreate: true}}))
-            } else this.$emit('updateMediaComponent', {name: 'MediaEditMedia', mediaId: response.data.id, isCreateMedia: true})
+            } else this.$emit('updateMediaComponent', {name: 'MediaEditMedia', mediaId: response.data.id, isCreateMedia: true, appliedFilters: this.appliedFilters, folderType: this.folderType})
           }
         }
         this.loading = false
@@ -176,7 +184,7 @@ export default {
     backClicked() {
       if (this.mediasPath) {
         this.$router.push(this.localePath({path: this.mediasPath, query: {filters: this.$route.query.filters}}))
-      } else this.$emit('updateMediaComponent', {name: 'MediaListMedias'})
+      } else this.$emit('updateMediaComponent', {name: 'MediaListMedias', appliedFilters: this.appliedFilters, folderType: this.folderType})
     }
   }
 }
