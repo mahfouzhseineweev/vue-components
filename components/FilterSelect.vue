@@ -43,7 +43,10 @@
         <div v-if="filter_map[mainFilter].type === 'text'">
           <input v-model = "filter_val[mainFilter]"
             type = "text"
-            :placeholder = "filter_map[mainFilter].title | capitalize" :class = "inputStyle" @input="emitFilter()" />
+            :placeholder = "filter_map[mainFilter].placeholder ? filter_map[mainFilter].placeholder : filter_map[mainFilter].title | capitalize" :class = "inputStyle" @input="emitFilter()" />
+          <div v-if="filter_map[mainFilter].description" :class="filter_map[mainFilter].descriptionStyle ? filter_map[mainFilter].descriptionStyle : ''">
+            {{ filter_map[mainFilter].description }}
+          </div>
         </div>
 
         <div v-if="filter_map[mainFilter].type === 'select'">
@@ -83,6 +86,9 @@
             :withIcon="singleSelectFilterOptions.withIcon"
             @itemSelected="(item) => {updateFilterValue(item); emitAll ? emitFilter() : $emit('getFilter', updateFilter())}"
           ></AutoComplete>
+          <div v-if="filter_map[mainFilter].description" :class="filter_map[mainFilter].descriptionStyle ? filter_map[mainFilter].descriptionStyle : ''">
+            {{ filter_map[mainFilter].description }}
+          </div>
         </div>
 
         <div v-if="filter_map[mainFilter].type === 'multiSelect'">
@@ -124,15 +130,28 @@
             :withIcon="multiSelectFilterOptions.withIcon"
             @itemSelected="(item) => {updateFilterValue(item); $emit('getFilter', updateFilter()); $emit('itemsSelected', filter_val[mainFilter])}"
           ></AutoComplete>
+          <div v-if="filter_map[mainFilter].description" :class="filter_map[mainFilter].descriptionStyle ? filter_map[mainFilter].descriptionStyle : ''">
+            {{ filter_map[mainFilter].description }}
+          </div>
         </div>
 
         <div v-if="filter_map[mainFilter].type === 'range'" class="flex flex-col md:flex-row gap-4 md:gap-0">
-          <input v-model = "filter_val[filter_map[mainFilter].key1]"
-                 type = "text"
-                 :placeholder = "filter_map[mainFilter].subTitle1 | capitalize" :class = "inputStyle" @input="emitFilter()" />
-          <input v-model = "filter_val[filter_map[mainFilter].key2]"
-                 type = "text"
-                 :placeholder = "filter_map[mainFilter].subTitle2 | capitalize" :class = "inputStyle" @input="emitFilter()" />
+          <div>
+            <input v-model = "filter_val[filter_map[mainFilter].key1]"
+                   type = "text"
+                   :placeholder = "filter_map[mainFilter].subTitle1 | capitalize" :class = "inputStyle" @input="emitFilter()" />
+            <div v-if="filter_map[mainFilter].description1" :class="filter_map[mainFilter].descriptionStyle1 ? filter_map[mainFilter].descriptionStyle1 : ''">
+              {{ filter_map[mainFilter].description1 }}
+            </div>
+          </div>
+          <div>
+            <input v-model = "filter_val[filter_map[mainFilter].key2]"
+                   type = "text"
+                   :placeholder = "filter_map[mainFilter].subTitle2 | capitalize" :class = "inputStyle" @input="emitFilter()" />
+            <div v-if="filter_map[mainFilter].description2" :class="filter_map[mainFilter].descriptionStyle2 ? filter_map[mainFilter].descriptionStyle2 : ''">
+              {{ filter_map[mainFilter].description2 }}
+            </div>
+          </div>
         </div>
 
       </div>
