@@ -3,6 +3,13 @@
 ---
 
 
+### v1.0.6 (11/07/2024)
+
+---
+
+- [x] Add support for sub filters placeholders and descriptions in FilterSelect component
+
+
 ### v1.0.5 (16/11/2023)
 
 ---
