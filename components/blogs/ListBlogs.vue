@@ -21,7 +21,7 @@
 
         <div class="py-8 flex flex-wrap" :class="nuxtSections ? '' : 'md:pl-16'">
           <div v-for="blog in blogsResponse" :key="`blog--${blog.id}`" class="m-2">
-            <Card :published="blog.published" :media-src="blog.medias && blog.medias[0] && blog.medias[0].files ? blog.medias[0].files[0].url : ''" :blog-title="blog.title && blog.title !== '' && blog.title !== 'null' ? blog.title : blog.medias && blog.medias[0] && blog.medias[0].files ? blog.medias[0].files[0].filename : ''" :blog-title-style="'w-200px overflow-hidden text-ellipsis white whitespace-nowrap'" :blog-author="blog.meta && blog.meta.author_name ? $t(mediaTranslationPrefix + 'by') + blog.meta.author_name : blog.author_id" :is-author="blog.author === sectionsUserId" :last-update-date="blog.updated ? $t(mediaTranslationPrefix + 'blogs.lastUpdateDate') + parseDate(blog.updated) : ''" :open-blog="() => openBlog(blog.id)" />
+            <Card :published="blog.published" :media-src="blog.medias && blog.medias[0] && blog.medias[0].files ? blog.medias[0].files[0].url : ''" :blog-title="blog.title && blog.title !== '' && blog.title !== 'null' ? blog.title : blog.medias && blog.medias[0] && blog.medias[0].files ? blog.medias[0].files[0].filename : ''" :blog-title-style="'w-200px overflow-hidden text-ellipsis white whitespace-nowrap'" :blog-author="blog.meta && blog.meta.author_name ? $t(mediaTranslationPrefix + 'by') + blog.meta.author_name : blog.author_id" :is-author="blog.author === blogsUserId" :last-update-date="blog.updated ? $t(mediaTranslationPrefix + 'blogs.lastUpdateDate') + parseDate(blog.updated) : ''" :open-blog="() => openBlog(blog.id)" :edit-blog="() => openBlog(blog.id)" />
           </div>
         </div>
 
@@ -68,9 +68,11 @@ export default {
       type: String,
       default: ""
     },
-    categoriesUriProp: {
-      type: String,
-      default: ""
+    categories: {
+      type: Array,
+      default() {
+        return []
+      }
     },
     projectIdProp: {
       type: String,
@@ -80,7 +82,7 @@ export default {
       type: String,
       default: ""
     },
-    sectionsUserIdProp: {
+    blogsUserIdProp: {
       type: String,
       default: ""
     },
@@ -237,7 +239,6 @@ export default {
       loading: false,
       blogsUri: '',
       authorsUri: '',
-      categoriesUri: '',
       projectId: '',
       token: '',
       blogsResponse: [],
@@ -315,7 +316,7 @@ export default {
       totalBlogs: 0,
       currentPage: 1,
       pageNumber: 1,
-      sectionsUserId: '',
+      blogsUserId: '',
       filtersQuery: ''
     }
   },
@@ -363,17 +364,16 @@ export default {
       deep: true,
       immediate: true
     },
-    categoriesUriProp: {
+    categories: {
       handler(val) {
-        this.categoriesUri = val
-        if (val && process.client) this.getCategories()
+        this.filterMap.categories.filterOptions = val
       },
       deep: true,
       immediate: true
     },
-    sectionsUserIdProp: {
+    blogsUserIdProp: {
       handler(val) {
-        this.sectionsUserId = val
+        this.blogsUserId = val
       },
       deep: true,
       immediate: true
@@ -453,24 +453,6 @@ export default {
           {
             key: project.id,
             translation: project.full_name ? project.full_name + ` (${project.id})` : `(${project.id})`
-          }
-        )
-      })
-      this.loading = false
-    },
-    async getCategories() {
-      this.loading = true
-      const token = this.token
-      const response = await this.$axios.get(this.categoriesUri,
-        {
-        headers: mediaHeader({token}, this.projectId)
-      })
-
-      response.data.data.forEach((category) => {
-        this.filterMap.categories.filterOptions.push(
-          {
-            key: category.id.toString(),
-            translation: category.title
           }
         )
       })
@@ -560,8 +542,8 @@ export default {
     },
     openCreateBlog() {
       if (this.createBlogPath) {
-        this.$router.push(this.localePath({path: this.createBlogPath, query: {filters: this.$route.query.filters}}))
-      } else this.$emit('updateBlogsComponent', {name: 'BlogsCreateBlog', appliedFilters: this.filtersQuery})
+        this.$router.push(this.localePath({path: this.createBlogPath, query: {filters: this.$route.query.filters, isCreateBlog: true}}))
+      } else this.$emit('updateBlogsComponent', {name: 'BlogsEditBlog', appliedFilters: this.filtersQuery, isCreateBlog: true})
     },
     updateFilterValues(value) {
       if(value === 'public' || value === 'private' || value === 'locked' || value === 'unlocked') {

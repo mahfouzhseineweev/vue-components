@@ -20,7 +20,7 @@ export default {
 
   // Plugins to run before rendering page:  https://go.nuxtjs.dev/config-plugins
   plugins: [
-
+    { src: '~/plugins/quill-editor', ssr: false }
   ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
@@ -67,24 +67,24 @@ export default {
       }
     ],
     ['nuxt-tailvue', {toast: true}],
-    // '@nuxtjs/proxy'
+    '@nuxtjs/proxy'
   ],
 
-  // axios: {
-  //   proxy: true
-  // },
+  axios: {
+    proxy: true
+  },
 
-  // proxy: {
-  //   '/api/': {
-  //     target: 'https://blogs.k8s-dev.geeks.solutions',
-  //     pathRewrite: { '^/api/': '/api/' },
-  //     changeOrigin: true,
-  //     secure: false,
-  //     headers: {
-  //       origin: 'https://blogmaiori.com'
-  //     }
-  //   }
-  // },
+  proxy: {
+    '/api/': {
+      target: 'https://blogs.k8s-dev.geeks.solutions',
+      pathRewrite: { '^/api/': '/api/' },
+      changeOrigin: true,
+      secure: false,
+      headers: {
+        origin: 'https://blogmaiori.com'
+      }
+    }
+  },
 
   // PWA module configuration: https://go.nuxtjs.dev/pwa
   pwa: {

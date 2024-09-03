@@ -1,8 +1,10 @@
 <template>
-  <component :is="componentsPrefix + componentName" :blogs-uri-prop="blogsUriProp" :authors-uri-prop="authorsUriProp" :categories-uri-prop="categoriesUriProp" :project-id-prop="projectIdProp" :auth-token="authToken" :sections-user-id-prop="sectionsUserIdProp" :media-translation-prefix="mediaTranslationPrefix" :show-create-blog-button="showCreateBlogButton" :blogs-response-prop="blogsResponseProp" :blog-by-id-uri-prop="blogByIdUriProp" :blog-by-id-response-prop="blogByIdResponseProp" :blog-id-prop="blogId" :create-blog-path="createBlogPath" :edit-blog-path="editBlogPath" :blogs-path="blogsPath" :bo-usage="boUsage" :access-limited="accessLimited" @updateBlogsComponent="onBlogsComponentUpdate" :with-select-blog-button="withSelectBlogButton" :nuxt-sections="nuxtSections" :is-create-blog="isCreateBlog" :blog-id-editing="blogIdEditing" :applied-filters="appliedFilters" :folder-type="folderType" @onBlogSelected="(blog) => $emit('getSelectedBlog', blog)"  />
+  <component :is="componentsPrefix + componentName" :blogs-uri-prop="blogsUriProp" :create-blog-uri-prop="createBlogUriProp" :authors-uri-prop="authorsUriProp" :categories-uri-prop="categoriesUriProp" :project-id-prop="projectIdProp" :auth-token="authToken" :blogs-user-id-prop="blogsUserIdProp" :media-translation-prefix="mediaTranslationPrefix" :show-create-blog-button="showCreateBlogButton" :blogs-response-prop="blogsResponseProp" :blog-by-id-uri-prop="blogByIdUriProp" :blog-by-id-response-prop="blogByIdResponseProp" :blog-id-prop="blogId" :create-blog-path="createBlogPath" :edit-blog-path="editBlogPath" :blogs-path="blogsPath" :bo-usage="boUsage" :categories="categories" :server-url="serverUrl" @updateBlogsComponent="onBlogsComponentUpdate" :with-select-blog-button="withSelectBlogButton" :nuxt-sections="nuxtSections" :is-create-blog="isCreateBlog" :blog-id-editing="blogIdEditing" :applied-filters="appliedFilters" @onBlogSelected="(blog) => $emit('getSelectedBlog', blog)"  />
 </template>
 
 <script>
+
+import {mediaHeader} from "~/components/media/medias";
 
 export default {
   name: "Blogs",
@@ -12,7 +14,8 @@ export default {
       blogId: '',
       isCreateBlog: false,
       appliedFilters: '',
-      folderType: ''
+      categoriesUri: '',
+      categories: []
     }
   },
   props: {
@@ -21,6 +24,10 @@ export default {
       default: ""
     },
     blogsUriProp: {
+      type: String,
+      default: ""
+    },
+    createBlogUriProp: {
       type: String,
       default: ""
     },
@@ -44,7 +51,11 @@ export default {
       type: String,
       default: ""
     },
-    sectionsUserIdProp: {
+    serverUrl: {
+      type: String,
+      default: ""
+    },
+    blogsUserIdProp: {
       type: String,
       default: ""
     },
@@ -69,10 +80,6 @@ export default {
       default: ""
     },
     showCreateBlogButton: {
-      type: Boolean,
-      default: false
-    },
-    accessLimited: {
       type: Boolean,
       default: false
     },
@@ -123,19 +130,30 @@ export default {
       } else return false
     },
     isCreateBlogPath() {
-      if (this.$route.params && this.$route.params.pathMatch) {
-        return this.$route.params.pathMatch.includes('CreateBlog')
+      if (this.$route.params && this.$route.params.pathMatch && this.$route.query.isCreateBlog === 'true') {
+        return this.$route.params.pathMatch.includes('EditBlog')
       } else return false
     }
+  },
+  watch: {
+    categoriesUriProp: {
+      handler(val) {
+        this.categoriesUri = val
+        if (val && process.client) this.getCategories()
+      },
+      deep: true,
+      immediate: true
+    },
   },
   created() {
     if (this.isBlogsPath) {
       this.componentName = 'BlogsListBlogs'
+    } else if (this.isCreateBlogPath) {
+      this.isCreateBlog = true
+      this.componentName = 'BlogsEditBlog'
     } else if (this.isEditBlogPath) {
       this.blogId = this.$route.query.id
       this.componentName = 'BlogsEditBlog'
-    } else if (this.isCreateBlogPath) {
-      this.componentName = 'BlogsCreateBlog'
     }
     if (this.nuxtSections) {
       if (this.blogIdEditing && this.blogIdEditing !== '') {
@@ -151,7 +169,24 @@ export default {
       this.blogId = component.blogId
       this.isCreateBlog = component.isCreateBlog
       this.appliedFilters = component.appliedFilters
-      this.folderType = component.folderType
+    },
+    async getCategories() {
+      this.loading = true
+      const token = this.authToken
+      const response = await this.$axios.get(this.categoriesUri,
+          {
+            headers: mediaHeader({token}, this.projectIdProp)
+          })
+
+      response.data.data.forEach((category) => {
+        this.categories.push(
+            {
+              key: category.id.toString(),
+              translation: category.title
+            }
+        )
+      })
+      this.loading = false
     }
   }
 }
