@@ -1,0 +1,154 @@
+<template>
+  <div class="max-w-max">
+    <div :class="containerStyle">
+
+      <div class="flex p-3 justify-between items-center w-full">
+
+        <div class="flex">
+          <span v-if="!published" :class="iconNotPublished"></span>
+          <span v-else :class="iconPublished"></span>
+        </div>
+
+        <div class="flex items-center cursor-pointer" @click="deleteBlog">
+          <span :class="iconDelete"></span>
+          <div @click.stop.prevent="editBlog">
+            <Buttons :button-text="editLabel" :button-style="editStyle" :with-icon="false" />
+          </div>
+        </div>
+
+      </div>
+
+      <div class="w-350px cursor-pointer" @click="openBlog">
+        <div v-if="mediaSrc">
+          <img :src="mediaSrc" class="w-full h-200px object-cover">
+        </div>
+        <div v-else>
+          <div class="flex w-full h-200px justify-center items-center object-cover">
+            <div class="flex flex-col items-center gap-4">
+              <span class="icon-photograpg text-8xl"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap w-350px items-center pt-3 pr-3 pl-3">
+        <div :class="blogTitleStyle">
+          {{ blogTitle }}
+        </div>
+        <div :class="blogAuthorStyle">
+          {{ blogAuthor }}
+        </div>
+      </div>
+
+      <div class="flex items-center pt-1 pl-3 pr-3">
+        <div :class="descriptionStyle">
+          {{ description }}
+        </div>
+      </div>
+
+      <div class="flex justify-end items-center pt-1 pl-3 pr-3">
+        <div v-if="lastUpdateDate" :class="lastUpdateStyle">
+          {{ lastUpdateDate }}
+        </div>
+      </div>
+
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: "Card",
+  props: {
+    containerStyle: {
+      type: String,
+      default: 'shadow rounded-xl h-390px'
+    },
+    published: {
+      type: Boolean,
+      default: false
+    },
+    isAuthor: {
+      type: Boolean,
+      default: false
+    },
+    iconNotPublished: {
+      type: String,
+      default: 'icon-hidden text-2xl'
+    },
+    iconPublished: {
+      type: String,
+      default: 'icon-seen text-2xl'
+    },
+    iconDelete: {
+      type: String,
+      default: 'icon-trashCan2 text-md'
+    },
+    editLabel: {
+      type: String,
+      default: 'EDIT CONTENT'
+    },
+    editStyle: {
+      type: String,
+      default: 'py-1.5 px-3 ml-2 text-white rounded-xl bg-Blue hover:bg-white hover:text-Blue border border-Blue hover:border-Blue'
+    },
+    blogTitle: {
+      type: String,
+      default: 'Title of blog'
+    },
+    blogTitleStyle: {
+      type: String,
+      default: 'w-200px overflow-hidden overflow-ellipsis whitespace-nowrap'
+    },
+    blogAuthor: {
+      type: String,
+      default: '- By Lorem ipsum'
+    },
+    blogAuthorStyle: {
+      type: String,
+      default: 'pl-1 italic text-sm font-extralight w-126px overflow-hidden text-ellipsis'
+    },
+    mediaSrc: {
+      type: String,
+      default: '../assets/images/temp2.svg'
+    },
+    descriptionStyle: {
+      type: String,
+      default: 'text-sm font-extralight pr-1 w-350px h-60px text-ellipsis overflow-hidden'
+    },
+    description: {
+      type: String,
+      default: 'Blog description'
+    },
+    lastUpdateStyle: {
+      type: String,
+      default: 'text-xs font-extralight pr-1 text-ellipsis overflow-hidden'
+    },
+    lastUpdateDate: {
+      type: String,
+      default: ''
+    },
+    deleteBlog: {
+      type: Function,
+      default: (item) => {}
+    },
+    editBlog: {
+      type: Function,
+      default: (item) => {}
+    },
+    openBlog: {
+      type: Function,
+      default: (item) => {}
+    }
+  }
+}
+</script>
+
+<style scoped>
+.bg-mediaUnLocked {
+  background-color: #DDEBFF;
+}
+.bg-mediaLocked {
+  background-color: #FFE5DD;
+}
+</style>

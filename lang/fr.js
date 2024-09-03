@@ -197,6 +197,13 @@ export default {
   "linkedProject": "Projet(s) assigné(s): ",
   // Media Translations START
   "mediaT": {
+    "blogs": {
+      "filterBlogs": "Filtrer les blogs",
+      "noBlogsFound": "Aucun blog trouvé",
+      "createNew": "+ Créer un nouveau contenu",
+      "blogs": "blogs",
+      "lastUpdateDate": "Dernière mise à jour : "
+    },
     "table": {
       "filterBy": "Filtrer par:",
       "filterDefault": "Sélectionner un filtre",
@@ -227,16 +234,25 @@ export default {
     "seeMore": "VOIR PLUS",
     "noMediasFound": "Aucun média trouvé",
     "filterOptions": {
-    "title": "Titre",
-    "createdBy": "Créé par",
-    "contentsNumber": "Nombre de contenus",
-    "privateStatus": "Statut privé",
-    "lockedStatus": "Statut verrouillé"
+      "title": "Titre",
+      "createdBy": "Créé par",
+      "contentsNumber": "Nombre de contenus",
+      "privateStatus": "Statut privé",
+      "lockedStatus": "Statut verrouillé",
+      "publishedStatus": "Statut publié",
+      "viewsNumber": "Nombre de vues",
+      "type": "Type",
+      "categories": "Catégories",
+      "selectStatus": "Sélectionnez le statut",
+      "selectCategory": "Sélectionnez la catégorie"
     },
     "public": "public",
     "private": "privé",
     "locked": "bloqué",
     "unlocked": "débloqué",
+    "published": "Publié",
+    "notPublished": "Non publié",
+    "selectAuthor": "Sélectionner l'auteur",
     "by": "par ",
     "noPermission": "Vous n'avez pas la permission",
     "editMediaLabel": "d'éditer le média",

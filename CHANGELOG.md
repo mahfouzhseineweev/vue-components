@@ -3,6 +3,14 @@
 ---
 
 
+### v1.0.7 (3/09/2024)
+
+---
+
+- [x] Introduced Blogs meta component to add/edit/publish/delete and show articles
+
+
+
 ### v1.0.6 (11/07/2024)
 
 ---

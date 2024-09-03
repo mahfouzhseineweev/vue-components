@@ -28,3 +28,13 @@ export const showSectionsToast = (toast, variant, message, options) => {
 }
 
 export const acceptedFileTypes = '.pdf, .doc, .docx, .zip, .json, .css, .scss, .xlsx, .xlsb, .xltx'
+
+export const parseDate = (timestamp) => {
+  const timestampInMs = timestamp * 1000;
+  const date = new Date(timestampInMs);
+  return date.toLocaleDateString('en-GB', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  })
+}
