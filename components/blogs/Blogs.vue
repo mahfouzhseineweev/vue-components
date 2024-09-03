@@ -1,0 +1,162 @@
+<template>
+  <component :is="componentsPrefix + componentName" :blogs-uri-prop="blogsUriProp" :authors-uri-prop="authorsUriProp" :categories-uri-prop="categoriesUriProp" :project-id-prop="projectIdProp" :auth-token="authToken" :sections-user-id-prop="sectionsUserIdProp" :media-translation-prefix="mediaTranslationPrefix" :show-create-blog-button="showCreateBlogButton" :blogs-response-prop="blogsResponseProp" :blog-by-id-uri-prop="blogByIdUriProp" :blog-by-id-response-prop="blogByIdResponseProp" :blog-id-prop="blogId" :create-blog-path="createBlogPath" :edit-blog-path="editBlogPath" :blogs-path="blogsPath" :bo-usage="boUsage" :access-limited="accessLimited" @updateBlogsComponent="onBlogsComponentUpdate" :with-select-blog-button="withSelectBlogButton" :nuxt-sections="nuxtSections" :is-create-blog="isCreateBlog" :blog-id-editing="blogIdEditing" :applied-filters="appliedFilters" :folder-type="folderType" @onBlogSelected="(blog) => $emit('getSelectedBlog', blog)"  />
+</template>
+
+<script>
+
+export default {
+  name: "Blogs",
+  data() {
+    return {
+      componentName: 'BlogsListBlogs',
+      blogId: '',
+      isCreateBlog: false,
+      appliedFilters: '',
+      folderType: ''
+    }
+  },
+  props: {
+    componentsPrefix: {
+      type: String,
+      default: ""
+    },
+    blogsUriProp: {
+      type: String,
+      default: ""
+    },
+    blogByIdUriProp: {
+      type: String,
+      default: ""
+    },
+    authorsUriProp: {
+      type: String,
+      default: ""
+    },
+    categoriesUriProp: {
+      type: String,
+      default: ""
+    },
+    projectIdProp: {
+      type: String,
+      default: ""
+    },
+    authToken: {
+      type: String,
+      default: ""
+    },
+    sectionsUserIdProp: {
+      type: String,
+      default: ""
+    },
+    blogIdProp: {
+      type: String,
+      default: ""
+    },
+    mediaTranslationPrefix: {
+      type: String,
+      default: "mediaT."
+    },
+    createBlogPath: {
+      type: String,
+      default: ""
+    },
+    editBlogPath: {
+      type: String,
+      default: ""
+    },
+    blogsPath: {
+      type: String,
+      default: ""
+    },
+    showCreateBlogButton: {
+      type: Boolean,
+      default: false
+    },
+    accessLimited: {
+      type: Boolean,
+      default: false
+    },
+    blogsResponseProp: {
+      type: Object,
+      default() {
+        return {}
+      }
+    },
+    blogByIdResponseProp: {
+      type: Object,
+      default() {
+        return {}
+      }
+    },
+    boUsage: {
+      type: Boolean,
+      default: true
+    },
+    withSelectBlogButton: {
+      type: Boolean,
+      default: false
+    },
+    selectedBlog: {
+      type: Object,
+      default() {
+        return {}
+      }
+    },
+    nuxtSections: {
+      type: Boolean,
+      default: false
+    },
+    blogIdEditing: {
+      type: String,
+      default: ""
+    }
+  },
+  computed: {
+    isBlogsPath() {
+      if (this.$route.params && this.$route.params.pathMatch) {
+        return this.$route.params.pathMatch.includes('blogs')
+      } else return false
+    },
+    isEditBlogPath() {
+      if (this.$route.params && this.$route.params.pathMatch) {
+        return this.$route.params.pathMatch.includes('EditBlog')
+      } else return false
+    },
+    isCreateBlogPath() {
+      if (this.$route.params && this.$route.params.pathMatch) {
+        return this.$route.params.pathMatch.includes('CreateBlog')
+      } else return false
+    }
+  },
+  created() {
+    if (this.isBlogsPath) {
+      this.componentName = 'BlogsListBlogs'
+    } else if (this.isEditBlogPath) {
+      this.blogId = this.$route.query.id
+      this.componentName = 'BlogsEditBlog'
+    } else if (this.isCreateBlogPath) {
+      this.componentName = 'BlogsCreateBlog'
+    }
+    if (this.nuxtSections) {
+      if (this.blogIdEditing && this.blogIdEditing !== '') {
+        this.componentName = 'BlogsEditBlog'
+        this.blogId = this.blogIdEditing
+      }
+    }
+  },
+  methods: {
+    onBlogsComponentUpdate(component) {
+      this.$emit('blogsComponentUpdated', component)
+      this.componentName = component.name
+      this.blogId = component.blogId
+      this.isCreateBlog = component.isCreateBlog
+      this.appliedFilters = component.appliedFilters
+      this.folderType = component.folderType
+    }
+  }
+}
+</script>
+
+<style scoped>
+
+</style>

@@ -70,6 +70,22 @@ export default {
     // '@nuxtjs/proxy'
   ],
 
+  // axios: {
+  //   proxy: true
+  // },
+
+  // proxy: {
+  //   '/api/': {
+  //     target: 'https://blogs.k8s-dev.geeks.solutions',
+  //     pathRewrite: { '^/api/': '/api/' },
+  //     changeOrigin: true,
+  //     secure: false,
+  //     headers: {
+  //       origin: 'https://blogmaiori.com'
+  //     }
+  //   }
+  // },
+
   // PWA module configuration: https://go.nuxtjs.dev/pwa
   pwa: {
     manifest: {
