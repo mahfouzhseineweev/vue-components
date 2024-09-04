@@ -10,7 +10,7 @@
         </div>
 
         <div class="flex items-center cursor-pointer" @click="deleteBlog">
-          <span :class="iconDelete"></span>
+          <span :class="iconDelete" @click="$emit('delete-blog')"></span>
           <div @click.stop.prevent="editBlog">
             <Buttons :button-text="editLabel" :button-style="editStyle" :with-icon="false" />
           </div>
@@ -46,8 +46,11 @@
         </div>
       </div>
 
-      <div class="flex justify-end items-center pt-1 pl-3 pr-3">
-        <div v-if="lastUpdateDate" :class="lastUpdateStyle">
+      <div class="flex flex-col items-end pt-1 pl-3 pr-3">
+        <div v-if="draftOf" :class="draftOfStyle" style="text-align: end">
+          {{ draftOf }}
+        </div>
+        <div v-if="lastUpdateDate" :class="[lastUpdateStyle, draftOf ? '' : 'pt-4']">
           {{ lastUpdateDate }}
         </div>
       </div>
@@ -62,7 +65,7 @@ export default {
   props: {
     containerStyle: {
       type: String,
-      default: 'shadow rounded-xl h-390px'
+      default: 'shadow rounded-xl h-410px'
     },
     published: {
       type: Boolean,
@@ -125,6 +128,14 @@ export default {
       default: 'text-xs font-extralight pr-1 text-ellipsis overflow-hidden'
     },
     lastUpdateDate: {
+      type: String,
+      default: ''
+    },
+    draftOfStyle: {
+      type: String,
+      default: 'text-xs font-extralight w-340px text-end whitespace-nowrap pr-1 text-ellipsis overflow-hidden'
+    },
+    draftOf: {
       type: String,
       default: ''
     },

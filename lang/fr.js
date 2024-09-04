@@ -224,7 +224,18 @@ export default {
       "uploadMedia": "Attacher un média",
       "changeMedia": "Modifier votre média",
       "seoTag": "Tag SEO: ",
-      "addMedia": "Ajouter un média"
+      "addMedia": "Ajouter un média",
+      "articleCreated": "Article créé avec succès",
+      "articleUpdated": "Article mis à jour avec succès",
+      "articleDeleted": "Article supprimé avec succès",
+      "articlePublished": "Le statut de publication de l'article a été mis à jour avec succès",
+      "deleteArticle": "SUPPRIMER L'ARTICLE",
+      "cancel": "Annuler",
+      "deleteArticleMsg": "Êtes vous sur de vouloir supprimer ce média?",
+      "articleNotFound": "Article non trouvé",
+      "publish": "Publier",
+      "unpublish": "Annuler la publication",
+      "draftOf": "Brouillon d'article id {id} nom {name}"
     },
     "table": {
       "filterBy": "Filtrer par:",

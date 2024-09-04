@@ -1,8 +1,13 @@
 <template>
   <div class="flex flex-col h-full justify-start">
 
-    <div class="cursor-pointer text-4xl text-Blue" :class="nuxtSections ? 'fixed top-3 left-12' : 'pl-8'" @click="backClicked">
-      {{ backLabel }}
+    <div class="flex flex-row gap-4 items-center">
+      <div class="cursor-pointer text-4xl text-Blue" :class="nuxtSections ? 'fixed top-3 left-12' : 'pl-8'" @click="backClicked">
+        {{ backLabel }}
+      </div>
+      <div class="text-2xl">
+        {{ computedDraft }}
+      </div>
     </div>
 
     <MediaComponent ref="sectionsMediaComponent" :auth-token="token" :server-url="serverUrl" :project-id="projectId" :blogs-user-id="blogsUserId" :selected-media-id="$route.query.id" @emittedMedia="(media) => selectedMedia = media"></MediaComponent>
@@ -99,7 +104,12 @@
         <fieldset class="fieldSetStyle border border-solid border-gray-300 p-3 mt-2">
           <legend class="w-auto px-16">{{ $t(mediaTranslationPrefix + 'blogs.medias') }}</legend>
           <div v-for="(object, index) in article.medias" :key="`media-upload-${index}`" class="mb-4">
-            <UploadMedia :media-label="$t(mediaTranslationPrefix + 'blogs.media') + '*'" :upload-text="$t(mediaTranslationPrefix + 'blogs.uploadMedia')" :change-text="$t(mediaTranslationPrefix + 'blogs.changeMedia')" :seo-tag="$t(mediaTranslationPrefix + 'blogs.seoTag')" :media="object && Object.keys(object).length > 0 && object.files && object.files[0] ? [{...object, url: object.files[0].url}] : []" @uploadContainerClicked="selectedMediaIndex = index; $refs.sectionsMediaComponent.openModal(object && Object.keys(object).length > 0 ? object.id : null)" @removeUploadedImage="removeMedia(index)" />
+            <div class="flex flex-row items-center">
+              <UploadMedia :media-label="$t(mediaTranslationPrefix + 'blogs.media')" :upload-text="$t(mediaTranslationPrefix + 'blogs.uploadMedia')" :change-text="$t(mediaTranslationPrefix + 'blogs.changeMedia')" :seo-tag="$t(mediaTranslationPrefix + 'blogs.seoTag')" :media="object && Object.keys(object).length > 0 && object.files && object.files[0] ? [{...object, url: object.files[0].url}] : []" @uploadContainerClicked="selectedMediaIndex = index; $refs.sectionsMediaComponent.openModal(object && Object.keys(object).length > 0 ? object.id : null)" @removeUploadedImage="removeMedia(index)" />
+              <div @click="removeMedia(index)">
+                <IconsCross v-if="Object.keys(object).length === 0 || (object.files && object.files[0] && object.files[0].url === '')" alt="" class="section-module-upload-media-cross"/>
+              </div>
+            </div>
           </div>
           <div
               class="add-button underline cursor-pointer mt-2"
@@ -140,6 +150,10 @@
             :multiple="true"
             @itemSelected="(val) => {article.suggested = val}"
         ></AutoComplete>
+        <div v-if="blogByIdUri !== '' && isCreateBlog !== true" class="flex flex-row gap-2 text-sm">
+          <div>{{ $t(mediaTranslationPrefix + 'filterOptions.publishedStatus') }}: </div>
+          <div>{{ article.published ? $t(mediaTranslationPrefix + 'published') : $t(mediaTranslationPrefix + 'notPublished') }} </div>
+        </div>
 
 
       </div>
@@ -149,21 +163,24 @@
     <div class="sticky bottom-0 py-2 m-4 rounded-md shadow">
 
       <div class="flex w-full items-center justify-end">
-<!--        <div class="cursor-pointer flex items-center" @click="showPopup = true">-->
-<!--          <div class="text-error text-sm md:text-lg">{{ $t(mediaTranslationPrefix + 'EditMedia.deleteMedia') }}</div>-->
-<!--          <span class="icon-trashCan2 text-md pb-1 px-2"></span>-->
-<!--        </div>-->
-        <div @click.stop.prevent="blogByIdUri !== '' && isCreateBlog !== true ? updateMediaByID() : createArticle()">
+        <div v-if="blogByIdUri !== '' && isCreateBlog !== true" class="cursor-pointer flex items-center" @click="showPopup = true">
+          <div class="text-error text-sm md:text-lg">{{ $t(mediaTranslationPrefix + 'blogs.deleteArticle') }}</div>
+          <span class="icon-trashCan2 text-md pb-1 px-2"></span>
+        </div>
+        <div v-if="blogByIdUri !== '' && isCreateBlog !== true" @click.stop.prevent="publishBlogByID(article.published)">
+          <Buttons :button-text="article.published ? $t(mediaTranslationPrefix + 'blogs.unpublish') : $t(mediaTranslationPrefix + 'blogs.publish')" :button-style="saveButtonStyle" class="ml-12" :with-icon="false" />
+        </div>
+        <div @click.stop.prevent="blogByIdUri !== '' && isCreateBlog !== true ? updateBlogByID() : createArticle()">
           <Buttons :button-text="$t(mediaTranslationPrefix + 'save')" :button-style="saveButtonStyle" :with-icon="false" />
         </div>
-        <div @click.stop.prevent="(privateStatus === 'private' && media.author !== sectionsUserIdProp) ? null : $emit('onBlogSelected', article)">
-          <Buttons v-if="withSelectBlogButton" :active="!(privateStatus === 'private' && media.author !== sectionsUserIdProp)" :button-text="$t(mediaTranslationPrefix + 'selectMedia')" :button-style="selectMediaButtonStyle" :with-icon="false" />
+        <div @click.stop.prevent="$emit('onBlogSelected', article)">
+          <Buttons v-if="withSelectBlogButton" :button-text="$t(mediaTranslationPrefix + 'selectMedia')" :button-style="selectMediaButtonStyle" :with-icon="false" />
         </div>
       </div>
 
     </div>
 
-<!--    <AlertPopup :errors-container-style="'mt-10 mb-14 self-center h-auto max-h-72 overflow-y-auto'" :apply-button-text="$t(mediaTranslationPrefix + 'EditMedia.deleteMedia')" :cancel-button-text="$t(mediaTranslationPrefix + 'EditMedia.cancel')" :title-delete="$t(mediaTranslationPrefix + 'EditMedia.deleteMediaMsg')" :title-no-delete="$t(mediaTranslationPrefix + 'EditMedia.cannotDelete')" :sub-title-no-delete="$t(mediaTranslationPrefix + 'EditMedia.cannotDeleteExtra')" :show-popup-code="showPopup" :can-be-deleted="media.meta ? !(media.meta.content && media.meta.content.length > 0) : false" :errors="noDeleteErrors" @cancel="showPopup = false" @apply="deleteMediaByID" />-->
+    <AlertPopup :errors-container-style="'mt-10 mb-14 self-center h-auto max-h-72 overflow-y-auto'" :apply-button-text="$t(mediaTranslationPrefix + 'blogs.deleteArticle')" :cancel-button-text="$t(mediaTranslationPrefix + 'blogs.cancel')" :title-delete="$t(mediaTranslationPrefix + 'blogs.deleteArticleMsg')" :show-popup-code="showPopup" :can-be-deleted="true" @cancel="showPopup = false" @apply="deleteBlogByID" />
 
     <AnimatedLoading :loading="loading" :animated-loading-icon="require('../../assets/images/loading_animated.svg')" />
 
@@ -176,6 +193,7 @@ import Buttons from "../Buttons";
 import AnimatedLoading from "../AnimatedLoading";
 import HeaderContainer from "../HeaderContainer";
 import {mediaHeader, showSectionsToast} from "../media/medias";
+import {scrollToFirstError} from "~/utils/constants";
 
 /* eslint-disable vue/return-in-computed-property */
 export default {
@@ -272,6 +290,14 @@ export default {
       type: String,
       default: ""
     },
+    blogsUserNameProp: {
+      type: String,
+      default: ""
+    },
+    blogsUserRoleProp: {
+      type: String,
+      default: ""
+    },
     createBlogUriProp: {
       type: String,
       default: ""
@@ -280,7 +306,7 @@ export default {
   data() {
     return {
       loading: false,
-      saveButtonStyle: "py-2.5 px-12 ml-12 mr-2 text-white rounded-xl bg-Blue hover:bg-white hover:text-Blue border border-Blue hover:border-Blue",
+      saveButtonStyle: "py-2.5 px-12 ml-2 mr-2 text-white rounded-xl bg-Blue hover:bg-white hover:text-Blue border border-Blue hover:border-Blue",
       selectMediaButtonStyle: "py-2.5 px-12 ml-2 mr-2 text-white rounded-xl bg-Blue hover:bg-white hover:text-Blue border border-Blue hover:border-Blue",
       blogsUserId: '',
       blogId: '',
@@ -319,8 +345,20 @@ export default {
       errors: {},
       showPopup: false,
       popupContent: '',
-      backLabel: '<',
-      isEditingMedia: false
+      backLabel: '<'
+    }
+  },
+  computed: {
+    computedDraft() {
+      try {
+        if (this.article.draft_of) {
+          return this.$t(this.mediaTranslationPrefix + 'blogs.draftOf', {name: `${this.filterMap.suggested.find(bl => bl.key === this.article.draft_of.toString()).translation}`, id: `${this.filterMap.suggested.find(bl => bl.key === this.article.draft_of.toString()).key}`})
+        } else {
+          return ''
+        }
+      } catch {
+        return ''
+      }
     }
   },
   watch: {
@@ -402,6 +440,13 @@ export default {
       deep: true,
       immediate: true
     },
+    blogsUserNameProp: {
+      handler(val) {
+        this.authorName = val
+      },
+      deep: true,
+      immediate: true
+    },
     selectedMedia(mediaObject) {
       this.$set(this.article.medias, this.selectedMediaIndex, mediaObject)
       this.$emit('closeMediaModal')
@@ -418,6 +463,7 @@ export default {
     },
     removeMedia(idx) {
       this.article.medias[idx] = {}
+      this.article.medias.splice(idx, 1)
     },
     addTag() {
       this.article.tags.push('')
@@ -430,19 +476,25 @@ export default {
       this.loading = true
       const token = this.token
 
+      this.article.tags = this.article.tags.filter(str => str && str.trim())
+      if (this.article.metadata.duration) {
+        this.article.metadata.duration = Number(this.article.metadata.duration)
+      }
+      const { author_id, created, draft_of, id, promo_image, promo_video, published, published_date, updated, viewing_time, views, ...articlePayload } = this.article
       const response = await this.$axios.post(this.createBlogUri,
-          this.article,
+          articlePayload,
           {
             headers: mediaHeader({token}, this.projectId)
           }).catch((e) => {
         this.loading = false
         if (e.response.data.errors) {
           this.errors = e.response.data.errors
+          scrollToFirstError(this.errors, 'article-')
         }
-        let errorMessage = e.response.data.error ? `${e.response.data.error}, ${e.response.data.message}` : e.response.data.message
+        let errorMessage = e.response.data.error ? `${e.response.data.error}` : e.response.data.message
         if (this.nuxtSections) {
-          showSectionsToast(this.$toast, 'error', `${e.response.data.error}, ${e.response.data.message}`, e.response.data.options)
-        } else {
+          showSectionsToast(this.$toast, 'error', `${e.response.data.error}`)
+        } else if (errorMessage) {
           this.$toast.show(
               {
                 message: errorMessage,
@@ -455,15 +507,12 @@ export default {
       })
       if(response) {
         if (this.nuxtSections) {
-          await this.getBlogByID()
-          if (this.isEditingMedia) {
-            this.$emit('onBlogSelected', this.article)
-          }
-          showSectionsToast(this.$toast, 'success', this.$t(this.mediaTranslationPrefix + 'blogs.blogCreated'))
+          showSectionsToast(this.$toast, 'success', this.$t(this.mediaTranslationPrefix + 'blogs.articleCreated'))
         } else {
+          this.backClicked()
           this.$toast.show(
               {
-                message: this.$t(this.mediaTranslationPrefix + 'blogs.blogCreated'),
+                message: this.$t(this.mediaTranslationPrefix + 'blogs.articleCreated'),
                 classToast: 'bg-Blue',
                 classMessage: 'text-white',
               }
@@ -481,11 +530,11 @@ export default {
         }).catch((e) => {
         this.loading = false
         if (this.nuxtSections) {
-          showSectionsToast(this.$toast, 'error', e.response.data.message)
+          showSectionsToast(this.$toast, 'error', e.response.data.message ? e.response.data.message : this.$t(this.mediaTranslationPrefix + 'blogs.articleNotFound'))
         } else {
           this.$toast.show(
             {
-              message: e.response.data.message,
+              message: e.response.data.message ? e.response.data.message : this.$t(this.mediaTranslationPrefix + 'blogs.articleNotFound'),
               timeout: 5,
               classToast: 'bg-error',
               classMessage: 'text-white',
@@ -495,56 +544,52 @@ export default {
         this.backClicked()
       })
       if(response && response.data) {
-        this.media = response.data
-        if(this.media.title === "null") this.media.title = ""
-        if(this.media.seo_tag === "null") this.media.seo_tag = ""
-        this.privateStatus = this.media.private_status
-        this.lockedStatus = this.media.locked_status
-        this.popupContent = this.media.meta
-        if (this.privateStatus === 'private' && this.media.author === this.sectionsUserIdProp) {
-          this.getMediaImage(this.media.files[0].url)
-        }
-        if (this.nuxtSections && this.mediaIdEditing && this.mediaIdEditing !== '' && this.mediaIdEditing === this.media.id) {
-          this.isEditingMedia = true
-        }
+        this.article = [response.data].map(article => {
+          article.suggested = article.suggested.map(sug => sug.id.toString())
+          article.categories = article.categories.map(cat => cat.id.toString())
+          if (!article.tags || article.tags.length === 0) {
+            article.tags = [""]
+          }
+          if (article.metadata && article.metadata.duration !== null) {
+            article.metadata.duration = article.metadata.duration.toString()
+          }
+          if (article.metadata === null) {
+            article.metadata = {
+              label: "",
+              unit: "",
+              duration: ""
+            }
+          }
+          return article
+        })[0]
+        this.authorName = response.data.author_id
       }
       this.loading = false
     },
-    async updateMediaByID() {
+    async updateBlogByID() {
       this.loading = true
       const token = this.token
 
-      const data = new FormData();
-      if(this.file) {
-        data.append('files[1][file]', this.file);
-        data.append('type', this.file.type && this.file.type.includes('image') ? 'image' : 'document');
+      this.article.tags = this.article.tags.filter(str => str && str.trim())
+      if (this.article.metadata.duration) {
+        this.article.metadata.duration = Number(this.article.metadata.duration)
       }
-      if(this.media.title && this.media.title !== '') data.append('title', this.media.title);
-      if(this.media.seo_tag && this.media.seo_tag !== '') data.append('seo_tag', this.media.seo_tag);
-      data.append('private_status', this.media.private_status);
-      data.append('locked_status', this.media.locked_status);
-
+      const { categories, suggested, author_id, created, draft_of, id, promo_image, promo_video, published, published_date, updated, viewing_time, views, ...articlePayload } = this.article
       const response = await this.$axios.put(this.blogByIdUri + this.blogId,
-        data,
+          articlePayload,
         {
           headers: mediaHeader({token}, this.projectId)
         }).catch((e) => {
         this.loading = false
         let errorMessage = ''
-        if (e.response.data.options) {
-          if (this.boUsage === true) {
-            errorMessage = `<a href='/admin${e.response.data.options.link.path}' >${e.response.data.error}, ${e.response.data.message}</a>`
-          } else {
-            errorMessage = `<a href='${e.response.data.options.link.root}${e.response.data.options.link.path}' target=\\'_blank\\'>${e.response.data.error}, ${e.response.data.message}</a>`
-          }
-        } else if (e.response.data.errors) {
+        if (e.response.data.errors) {
           errorMessage = e.response.data.errors.files[0]
         } else {
-          errorMessage = e.response.data.error ? `${e.response.data.error}, ${e.response.data.message}` : e.response.data.message
+          errorMessage = e.response.data.error ? `${e.response.data.error}` : e.response.data.message
         }
           if (this.nuxtSections) {
-            showSectionsToast(this.$toast, 'error', `${e.response.data.error}, ${e.response.data.message}`, e.response.data.options)
-          } else {
+            showSectionsToast(this.$toast, 'error', `${e.response.data.error}`)
+          } else if (errorMessage) {
             this.$toast.show(
               {
                 message: errorMessage,
@@ -557,15 +602,12 @@ export default {
       })
       if(response) {
         if (this.nuxtSections) {
-          await this.getBlogByID()
-          if (this.isEditingMedia) {
-            this.$emit('onBlogSelected', this.media)
-          }
-          showSectionsToast(this.$toast, 'success', this.$t(this.mediaTranslationPrefix + 'mediaUpdated'))
+          showSectionsToast(this.$toast, 'success', this.$t(this.mediaTranslationPrefix + 'blogs.articleUpdated'))
         } else {
+          this.backClicked()
           this.$toast.show(
             {
-              message: this.$t(this.mediaTranslationPrefix + 'mediaUpdated'),
+              message: this.$t(this.mediaTranslationPrefix + 'blogs.articleUpdated'),
               classToast: 'bg-Blue',
               classMessage: 'text-white',
             }
@@ -574,7 +616,53 @@ export default {
       }
       this.loading = false
     },
-    async deleteMediaByID() {
+    async publishBlogByID(status) {
+      this.loading = true
+      const token = this.token
+
+      const response = await this.$axios.put(status && status === true ? this.blogByIdUri + this.blogId + '/unpublish' : this.blogByIdUri + this.blogId + '/publish',
+          {},
+        {
+          headers: mediaHeader({token}, this.projectId)
+        }).catch((e) => {
+        this.loading = false
+        let errorMessage = ''
+        if (e.response.data.errors) {
+          errorMessage = e.response.data.errors.files[0]
+        } else {
+          errorMessage = e.response.data.error ? `${e.response.data.error}` : e.response.data.message
+        }
+          if (this.nuxtSections) {
+            showSectionsToast(this.$toast, 'error', `${e.response.data.error}`)
+          } else if (errorMessage) {
+            this.$toast.show(
+              {
+                message: errorMessage,
+                timeout: 5,
+                classToast: 'bg-error',
+                classMessage: 'text-white',
+              }
+            )
+          }
+      })
+      if(response) {
+        this.article.published = response.data.published
+        if (this.nuxtSections) {
+          showSectionsToast(this.$toast, 'success', this.$t(this.mediaTranslationPrefix + 'blogs.articlePublished'))
+        } else {
+          this.backClicked()
+          this.$toast.show(
+            {
+              message: this.$t(this.mediaTranslationPrefix + 'blogs.articlePublished'),
+              classToast: 'bg-Blue',
+              classMessage: 'text-white',
+            }
+          )
+        }
+      }
+      this.loading = false
+    },
+    async deleteBlogByID() {
       if(this.blogByIdUri !== '') {
         this.loading = true
         const token = this.token
@@ -600,7 +688,6 @@ export default {
       }
     },
     backClicked() {
-      this.isEditingMedia = false
       if (this.blogsPath) {
         this.$router.push(this.localePath({path: this.blogsPath, query: {filters: this.$route.query.filters}}))
       } else this.$emit('updateBlogsComponent', {name: 'BlogsListBlogs', appliedFilters: this.appliedFilters})
@@ -609,10 +696,9 @@ export default {
       this.loading = true
       const token = this.token
 
-      const response = await this.$axios.post(this.blogsUri,
-          {},
+      const response = await this.$axios.get(this.blogByIdUri + 'author',
           {
-            headers: mediaHeader({}, this.projectId)
+            headers: mediaHeader({token}, this.projectId)
           })
       this.filterMap.suggested = []
       response.data.data.forEach((article) => {

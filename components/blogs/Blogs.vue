@@ -1,5 +1,5 @@
 <template>
-  <component :is="componentsPrefix + componentName" :blogs-uri-prop="blogsUriProp" :create-blog-uri-prop="createBlogUriProp" :authors-uri-prop="authorsUriProp" :categories-uri-prop="categoriesUriProp" :project-id-prop="projectIdProp" :auth-token="authToken" :blogs-user-id-prop="blogsUserIdProp" :media-translation-prefix="mediaTranslationPrefix" :show-create-blog-button="showCreateBlogButton" :blogs-response-prop="blogsResponseProp" :blog-by-id-uri-prop="blogByIdUriProp" :blog-by-id-response-prop="blogByIdResponseProp" :blog-id-prop="blogId" :create-blog-path="createBlogPath" :edit-blog-path="editBlogPath" :blogs-path="blogsPath" :bo-usage="boUsage" :categories="categories" :server-url="serverUrl" @updateBlogsComponent="onBlogsComponentUpdate" :with-select-blog-button="withSelectBlogButton" :nuxt-sections="nuxtSections" :is-create-blog="isCreateBlog" :blog-id-editing="blogIdEditing" :applied-filters="appliedFilters" @onBlogSelected="(blog) => $emit('getSelectedBlog', blog)"  />
+  <component :is="componentsPrefix + componentName" :blogs-uri-prop="blogsUriProp" :create-blog-uri-prop="createBlogUriProp" :authors-uri-prop="authorsUriProp" :categories-uri-prop="categoriesUriProp" :project-id-prop="projectIdProp" :auth-token="authToken" :blogs-user-id-prop="blogsUserIdProp" :blogs-user-name-prop="blogsUserNameProp" :media-translation-prefix="mediaTranslationPrefix" :show-create-blog-button="showCreateBlogButton" :blogs-response-prop="blogsResponseProp" :blog-by-id-uri-prop="blogByIdUriProp" :blog-by-id-response-prop="blogByIdResponseProp" :blog-id-prop="blogId" :create-blog-path="createBlogPath" :edit-blog-path="editBlogPath" :blogs-path="blogsPath" :bo-usage="boUsage" :categories="categories" :server-url="serverUrl" @updateBlogsComponent="onBlogsComponentUpdate" :with-select-blog-button="withSelectBlogButton" :nuxt-sections="nuxtSections" :is-create-blog="isCreateBlog" :blog-id-editing="blogIdEditing" :applied-filters="appliedFilters" @onBlogSelected="(blog) => $emit('getSelectedBlog', blog)"  />
 </template>
 
 <script>
@@ -56,6 +56,14 @@ export default {
       default: ""
     },
     blogsUserIdProp: {
+      type: String,
+      default: ""
+    },
+    blogsUserNameProp: {
+      type: String,
+      default: ""
+    },
+    blogsUserRoleProp: {
       type: String,
       default: ""
     },

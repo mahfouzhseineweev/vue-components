@@ -4,6 +4,7 @@ export default {
   component: Blogs,
   title: 'Components/Blogs/Blogs',
   args: {
+    showCreateBlogButton: true,
     blogsResponseProp: {
       "total": 144,
       "result": [

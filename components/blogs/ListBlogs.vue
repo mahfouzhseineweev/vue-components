@@ -21,7 +21,7 @@
 
         <div class="py-8 flex flex-wrap" :class="nuxtSections ? '' : 'md:pl-16'">
           <div v-for="blog in blogsResponse" :key="`blog--${blog.id}`" class="m-2">
-            <Card :published="blog.published" :media-src="blog.medias && blog.medias[0] && blog.medias[0].files ? blog.medias[0].files[0].url : ''" :blog-title="blog.title && blog.title !== '' && blog.title !== 'null' ? blog.title : blog.medias && blog.medias[0] && blog.medias[0].files ? blog.medias[0].files[0].filename : ''" :blog-title-style="'w-200px overflow-hidden text-ellipsis white whitespace-nowrap'" :blog-author="blog.meta && blog.meta.author_name ? $t(mediaTranslationPrefix + 'by') + blog.meta.author_name : blog.author_id" :is-author="blog.author === blogsUserId" :last-update-date="blog.updated ? $t(mediaTranslationPrefix + 'blogs.lastUpdateDate') + parseDate(blog.updated) : ''" :open-blog="() => openBlog(blog.id)" :edit-blog="() => openBlog(blog.id)" />
+            <Card :published="blog.published" :draft-of="blog.draft_of ? $t(mediaTranslationPrefix + 'blogs.draftOf', {name: `${blogsResponse.find(bl => bl.id === blog.draft_of).title}`, id: `${blogsResponse.find(bl => bl.id === blog.draft_of).id}`}) : ''" :media-src="blog.medias && blog.medias[0] && blog.medias[0].files ? blog.medias[0].files[0].url : ''" :blog-title="blog.title && blog.title !== '' && blog.title !== 'null' ? blog.title : blog.medias && blog.medias[0] && blog.medias[0].files ? blog.medias[0].files[0].filename : ''" :blog-title-style="'w-200px overflow-hidden text-ellipsis white whitespace-nowrap'" :blog-author="blog.meta && blog.meta.author_name ? $t(mediaTranslationPrefix + 'by') + blog.meta.author_name : blog.author_id" :is-author="blog.author === blogsUserId" :last-update-date="blog.updated ? $t(mediaTranslationPrefix + 'blogs.lastUpdateDate') + parseDate(blog.updated) : ''" :open-blog="() => openBlog(blog.id)" :edit-blog="() => openBlog(blog.id)" @delete-blog="blogId = blog.id; showPopup = true" />
           </div>
         </div>
 
@@ -31,6 +31,7 @@
     </div>
     <div v-show="blogsResponse.length === 0 && loading === false" class="text-FieldGray p-16">{{ $t(mediaTranslationPrefix + 'blogs.noBlogsFound') }}</div>
 
+    <AlertPopup :errors-container-style="'mt-10 mb-14 self-center h-auto max-h-72 overflow-y-auto'" :apply-button-text="$t(mediaTranslationPrefix + 'blogs.deleteArticle')" :cancel-button-text="$t(mediaTranslationPrefix + 'blogs.cancel')" :title-delete="$t(mediaTranslationPrefix + 'blogs.deleteArticleMsg')" :show-popup-code="showPopup" :can-be-deleted="true" @cancel="showPopup = false" @apply="deleteBlogByID(blogId)" />
     <AnimatedLoading :loading="loading" :animated-loading-icon="require('assets/images/loading_animated.svg')" />
   </div>
 </template>
@@ -40,7 +41,7 @@ import MainFilter from "../MainFilter.vue";
 import AnimatedLoading from "../AnimatedLoading.vue";
 import Buttons from "../Buttons.vue";
 import Card from "../blogs/Card.vue";
-import {mediaHeader, parseDate} from "../media/medias";
+import {mediaHeader, parseDate, showSectionsToast} from "../media/medias";
 
 export default {
   name: "ListBlogs",
@@ -83,6 +84,10 @@ export default {
       default: ""
     },
     blogsUserIdProp: {
+      type: String,
+      default: ""
+    },
+    blogsUserRoleProp: {
       type: String,
       default: ""
     },
@@ -237,6 +242,8 @@ export default {
   data() {
     return {
       loading: false,
+      showPopup: false,
+      blogId: '',
       blogsUri: '',
       authorsUri: '',
       projectId: '',
@@ -412,22 +419,23 @@ export default {
           this.$router.push(this.localePath({path: this.blogsPath}))
         }
       }
-      const response = await this.$axios.post(this.blogsUri,
-          {
-            ...this.payloadData,
-            filters: this.payloadData.filters.map(filter => {
-              if (filter.key === 'views' || filter.key === 'author_id') {
-                filter.operation = '='
-              } else if (filter.key === 'published') {
-                filter.value = filter.value === 'true'
-              } else if (filter.key === 'categories') {
-                filter.value = filter.value.map(val => val.key)
-              }
-              return filter
-            })
-          },
+      // const response = await this.$axios.post(this.blogsUri,
+      const response = await this.$axios.get(this.blogsUri + 'author',
+          // {
+          //   ...this.payloadData,
+          //   filters: this.payloadData.filters.map(filter => {
+          //     if (filter.key === 'views' || filter.key === 'author_id') {
+          //       filter.operation = '='
+          //     } else if (filter.key === 'published') {
+          //       filter.value = filter.value === 'true'
+          //     } else if (filter.key === 'categories') {
+          //       filter.value = filter.value.map(val => val.key)
+          //     }
+          //     return filter
+          //   })
+          // },
         {
-        headers: mediaHeader({}, this.projectId)
+        headers: mediaHeader({token}, this.projectId)
       })
 
       this.blogsResponse = response.data.data
@@ -522,7 +530,7 @@ export default {
           this.$router.push(this.localePath({path: this.editBlogPath, query: {id: blogID}}))
         }
       } else {
-        this.$emit('updateBlogsComponent', {name: 'BlogsEditBlog', blogId: blogID, appliedFilters: this.filtersQuery})
+        this.$emit('updateBlogsComponent', {name: 'BlogsEditBlog', blogId: blogID.toString(), appliedFilters: this.filtersQuery})
       }
     },
     setPage(pageNumber) {
@@ -549,6 +557,30 @@ export default {
       if(value === 'public' || value === 'private' || value === 'locked' || value === 'unlocked') {
         return this.$t(value)
       } else return value
+    },
+    async deleteBlogByID(id) {
+      if(this.blogByIdUri !== '') {
+        this.loading = true
+        const token = this.token
+        const response = await this.$axios.delete(this.blogsUri + id,
+            {
+              headers: mediaHeader({token}, this.projectId)
+            })
+        if (this.nuxtSections) {
+          showSectionsToast(this.$toast, 'success', response.data.message)
+        } else {
+          this.$toast.show(
+              {
+                message: response.data.message,
+                classToast: 'bg-Blue',
+                classMessage: 'text-white',
+              }
+          )
+        }
+        this.showPopup = false
+        await this.getAllBlogs()
+        this.loading = false
+      }
     }
   }
 }

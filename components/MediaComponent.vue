@@ -43,7 +43,6 @@ export default {
       authorsUri: '',
       mediasUri: '',
       mediaByIdUri: '',
-      selectedMediaId: '',
       loading: false,
       isOpen: false,
       mediaIdEditing: '',

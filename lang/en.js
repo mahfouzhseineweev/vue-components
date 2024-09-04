@@ -224,7 +224,18 @@ export default {
       "uploadMedia": "Attach a media",
       "changeMedia": "Modify your media",
       "seoTag": "SEO tag: ",
-      "addMedia": "Add media"
+      "addMedia": "Add media",
+      "articleCreated": "Article created successfully",
+      "articleUpdated": "Article updated successfully",
+      "articleDeleted": "Article deleted successfully",
+      "articlePublished": "Article publish status updated successfully",
+      "deleteArticle": "DELETE ARTICLE",
+      "cancel": "Cancel",
+      "deleteArticleMsg": "Are you sure you want to delete this article?",
+      "articleNotFound": "Article not found",
+      "publish": "Publish",
+      "unpublish": "Unpublish",
+      "draftOf": "Draft of article id {id} name {name}"
     },
     "table": {
       "filterBy": "Filter by:",
