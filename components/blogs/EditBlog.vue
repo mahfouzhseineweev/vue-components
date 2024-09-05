@@ -150,7 +150,7 @@
             :multiple="true"
             @itemSelected="(val) => {article.suggested = val}"
         ></AutoComplete>
-        <div v-if="blogByIdUri !== '' && isCreateBlog !== true" class="flex flex-row gap-2 text-sm">
+        <div v-if="blogsUri !== '' && isCreateBlog !== true" class="flex flex-row gap-2 text-sm">
           <div>{{ $t(mediaTranslationPrefix + 'filterOptions.publishedStatus') }}: </div>
           <div>{{ article.published ? $t(mediaTranslationPrefix + 'published') : $t(mediaTranslationPrefix + 'notPublished') }} </div>
         </div>
@@ -163,14 +163,14 @@
     <div class="sticky bottom-0 py-2 m-4 rounded-md shadow">
 
       <div class="flex w-full items-center justify-end">
-        <div v-if="blogByIdUri !== '' && isCreateBlog !== true" class="cursor-pointer flex items-center" @click="showPopup = true">
+        <div v-if="blogsUri !== '' && isCreateBlog !== true" class="cursor-pointer flex items-center" @click="showPopup = true">
           <div class="text-error text-sm md:text-lg">{{ $t(mediaTranslationPrefix + 'blogs.deleteArticle') }}</div>
           <span class="icon-trashCan2 text-md pb-1 px-2"></span>
         </div>
-        <div v-if="blogByIdUri !== '' && isCreateBlog !== true" @click.stop.prevent="publishBlogByID(article.published)">
+        <div v-if="blogsUri !== '' && isCreateBlog !== true" @click.stop.prevent="publishBlogByID(article.published)">
           <Buttons :button-text="article.published ? $t(mediaTranslationPrefix + 'blogs.unpublish') : $t(mediaTranslationPrefix + 'blogs.publish')" :button-style="saveButtonStyle" class="ml-12" :with-icon="false" />
         </div>
-        <div @click.stop.prevent="blogByIdUri !== '' && isCreateBlog !== true ? updateBlogByID() : createArticle()">
+        <div @click.stop.prevent="blogsUri !== '' && isCreateBlog !== true ? updateBlogByID() : createArticle()">
           <Buttons :button-text="$t(mediaTranslationPrefix + 'save')" :button-style="saveButtonStyle" :with-icon="false" />
         </div>
         <div @click.stop.prevent="$emit('onBlogSelected', article)">
@@ -340,6 +340,8 @@ export default {
         categories: [],
         suggested: []
       },
+      selectedCategories: [],
+      selectedSuggested: [],
       selectedMedia: {},
       selectedMediaIndex: 0,
       errors: {},
@@ -453,7 +455,7 @@ export default {
     }
   },
   mounted() {
-    if(this.blogByIdUri !== '' && this.isCreateBlog !== true) {
+    if(this.blogsUri !== '' && this.isCreateBlog !== true) {
       this.getBlogByID()
     }
   },
@@ -481,7 +483,7 @@ export default {
         this.article.metadata.duration = Number(this.article.metadata.duration)
       }
       const { author_id, created, draft_of, id, promo_image, promo_video, published, published_date, updated, viewing_time, views, ...articlePayload } = this.article
-      const response = await this.$axios.post(this.createBlogUri,
+      const response = await this.$axios.post(this.blogsUri,
           articlePayload,
           {
             headers: mediaHeader({token}, this.projectId)
@@ -524,7 +526,7 @@ export default {
     async getBlogByID() {
       this.loading = true
       const token = this.token
-      const response = await this.$axios.get(this.blogByIdUri + this.blogId,
+      const response = await this.$axios.get(`${this.blogsUri}/${this.blogId}`,
         {
           headers: mediaHeader({token}, this.projectId)
         }).catch((e) => {
@@ -562,12 +564,16 @@ export default {
           }
           return article
         })[0]
+        this.selectedSuggested = this.article.suggested
+        this.selectedCategories = this.article.categories
+        console.log(this.article)
         this.authorName = response.data.author_id
       }
       this.loading = false
     },
     async updateBlogByID() {
       this.loading = true
+      await this.checkCategoriesAndSuggested()
       const token = this.token
 
       this.article.tags = this.article.tags.filter(str => str && str.trim())
@@ -575,8 +581,12 @@ export default {
         this.article.metadata.duration = Number(this.article.metadata.duration)
       }
       const { categories, suggested, author_id, created, draft_of, id, promo_image, promo_video, published, published_date, updated, viewing_time, views, ...articlePayload } = this.article
-      const response = await this.$axios.put(this.blogByIdUri + this.blogId,
-          articlePayload,
+      const response = await this.$axios.put(`${this.blogsUri}/${this.blogId}`,
+          {
+            ...articlePayload,
+            categories: categories.filter(item => !this.selectedCategories.includes(item)),
+            suggested: suggested.filter(item => !this.selectedSuggested.includes(item))
+          },
         {
           headers: mediaHeader({token}, this.projectId)
         }).catch((e) => {
@@ -616,11 +626,38 @@ export default {
       }
       this.loading = false
     },
+    async checkCategoriesAndSuggested() {
+      const token = this.token
+      const removedSuggested = this.selectedSuggested.filter(item => !this.article.suggested.includes(item))
+      if (removedSuggested && removedSuggested.length > 0) {
+       await this.$axios.delete(`${this.blogsUri}/${this.blogId}/suggested`,
+           {
+             data: {
+            suggested: removedSuggested.map(Number)
+          },
+             headers: mediaHeader({token}, this.projectId)
+           }
+        ).catch(() => {
+      })
+      }
+      const removedCategories = this.selectedCategories.filter(item => !this.article.categories.includes(item))
+      if (removedCategories && removedCategories.length > 0) {
+       await this.$axios.delete(`${this.blogsUri}/${this.blogId}/categories`,
+           {
+             data: {
+            categories: removedCategories.map(Number)
+          },
+             headers: mediaHeader({token}, this.projectId)
+           }
+        ).catch(() => {
+      })
+      }
+    },
     async publishBlogByID(status) {
       this.loading = true
       const token = this.token
 
-      const response = await this.$axios.put(status && status === true ? this.blogByIdUri + this.blogId + '/unpublish' : this.blogByIdUri + this.blogId + '/publish',
+      const response = await this.$axios.put(status && status === true ? `${this.blogsUri}/${this.blogId}/unpublish` : `${this.blogsUri}/${this.blogId}/publish`,
           {},
         {
           headers: mediaHeader({token}, this.projectId)
@@ -663,10 +700,10 @@ export default {
       this.loading = false
     },
     async deleteBlogByID() {
-      if(this.blogByIdUri !== '') {
+      if(this.blogsUri !== '') {
         this.loading = true
         const token = this.token
-        const response = await this.$axios.delete(this.blogByIdUri + this.blogId,
+        const response = await this.$axios.delete(`${this.blogsUri}/${this.blogId}`,
           {
             headers: mediaHeader({token}, this.projectId)
           })
@@ -696,7 +733,7 @@ export default {
       this.loading = true
       const token = this.token
 
-      const response = await this.$axios.get(this.blogByIdUri + 'author',
+      const response = await this.$axios.get(`${this.blogsUri}/author`,
           {
             headers: mediaHeader({token}, this.projectId)
           })

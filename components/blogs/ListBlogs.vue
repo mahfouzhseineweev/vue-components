@@ -420,7 +420,7 @@ export default {
         }
       }
       // const response = await this.$axios.post(this.blogsUri,
-      const response = await this.$axios.get(this.blogsUri + 'author',
+      const response = await this.$axios.get(`${this.blogsUri}/author`,
           // {
           //   ...this.payloadData,
           //   filters: this.payloadData.filters.map(filter => {
@@ -562,7 +562,7 @@ export default {
       if(this.blogByIdUri !== '') {
         this.loading = true
         const token = this.token
-        const response = await this.$axios.delete(this.blogsUri + id,
+        const response = await this.$axios.delete(`${this.blogsUri}/${id}`,
             {
               headers: mediaHeader({token}, this.projectId)
             })
