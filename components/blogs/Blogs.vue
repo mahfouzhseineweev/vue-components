@@ -4,7 +4,7 @@
 
 <script>
 
-import {mediaHeader} from "~/components/media/medias";
+import {mediaHeader} from "../media/medias";
 
 export default {
   name: "Blogs",

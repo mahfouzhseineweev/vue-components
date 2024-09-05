@@ -41,6 +41,7 @@ import MainFilter from "../MainFilter.vue";
 import AnimatedLoading from "../AnimatedLoading.vue";
 import Buttons from "../Buttons.vue";
 import Card from "../blogs/Card.vue";
+import AlertPopup from "../AlertPopup.vue";
 import {mediaHeader, parseDate, showSectionsToast} from "../media/medias";
 
 export default {
@@ -54,7 +55,8 @@ export default {
     MainFilter,
     Card,
     AnimatedLoading,
-    Buttons
+    Buttons,
+    AlertPopup
   },
   props: {
     appliedFilters: {

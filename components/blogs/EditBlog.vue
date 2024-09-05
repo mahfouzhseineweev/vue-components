@@ -189,11 +189,16 @@
 
 <script>
 import AlertPopup from "../AlertPopup";
+import AutoComplete from "../AutoComplete";
+import Inputs from "../Inputs";
 import Buttons from "../Buttons";
 import AnimatedLoading from "../AnimatedLoading";
 import HeaderContainer from "../HeaderContainer";
+import MediaComponent from "../MediaComponent";
+import UploadMedia from "../UploadMedia";
+import IconsCross from "../icons/cross.vue";
 import {mediaHeader, showSectionsToast} from "../media/medias";
-import {scrollToFirstError} from "~/utils/constants";
+import {scrollToFirstError} from "../../utils/constants";
 
 /* eslint-disable vue/return-in-computed-property */
 export default {
@@ -205,9 +210,14 @@ export default {
   },
   components: {
     HeaderContainer,
+    AutoComplete,
+    Inputs,
     Buttons,
     AlertPopup,
-    AnimatedLoading
+    AnimatedLoading,
+    MediaComponent,
+    UploadMedia,
+    IconsCross
   },
   props: {
     appliedFilters: {
@@ -566,8 +576,9 @@ export default {
         })[0]
         this.selectedSuggested = this.article.suggested
         this.selectedCategories = this.article.categories
-        console.log(this.article)
-        this.authorName = response.data.author_id
+        if (this.isCreateBlog !== true) {
+          this.authorName = response.data.author_id
+        }
       }
       this.loading = false
     },

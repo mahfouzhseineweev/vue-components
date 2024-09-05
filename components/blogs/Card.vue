@@ -60,8 +60,13 @@
 </template>
 
 <script>
+import Buttons from "../Buttons.vue";
+
 export default {
   name: "Card",
+  components: {
+    Buttons
+  },
   props: {
     containerStyle: {
       type: String,
