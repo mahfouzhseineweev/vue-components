@@ -574,6 +574,7 @@ export default {
 
       const data = new FormData();
       if(this.file) {
+        data.append('files[1][platform_id]', '1');
         data.append('files[1][file]', this.file);
         data.append('type', this.file.type && this.file.type.includes('image') ? 'image' : 'document');
       }
@@ -601,7 +602,7 @@ export default {
           errorMessage = e.response.data.error ? `${e.response.data.error}, ${e.response.data.message}` : e.response.data.message
         }
           if (this.nuxtSections) {
-            showSectionsToast(this.$toast, 'error', `${e.response.data.error}, ${e.response.data.message}`, e.response.data.options)
+            showSectionsToast(this.$toast, 'error', `${e.response.data.error}, ${e.response.data.message}`, e.response.data.options, errorMessage)
           } else {
             this.$toast.show(
               {
