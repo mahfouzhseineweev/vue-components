@@ -198,6 +198,8 @@ export default {
   // Media Translations START
   "mediaT": {
     "blogs": {
+      "editContent": "EDIT CONTENT",
+      "editArticleWarn": "If a published article is edited, a draft of this article is created and you need to publish this draft to have the initial article updated and the draft will be removed",
       "filterBlogs": "Filter blogs",
       "noBlogsFound": "No blogs found",
       "createNew": "+ Create New Content",
@@ -227,6 +229,7 @@ export default {
       "addMedia": "Add media",
       "articleCreated": "Article created successfully",
       "articleUpdated": "Article updated successfully",
+      "draftUpdated": "A draft of article {name} has been created with the update",
       "articleDeleted": "Article deleted successfully",
       "articlePublished": "Article publish status updated successfully",
       "deleteArticle": "DELETE ARTICLE",

@@ -9,8 +9,8 @@
           <span v-else :class="iconPublished"></span>
         </div>
 
-        <div class="flex items-center cursor-pointer" @click="deleteBlog">
-          <span :class="iconDelete" @click="$emit('delete-blog')"></span>
+        <div class="flex items-center cursor-pointer">
+          <span v-if="canDelete" :class="iconDelete" @click="$emit('delete-blog')"></span>
           <div @click.stop.prevent="editBlog">
             <Buttons :button-text="editLabel" :button-style="editStyle" :with-icon="false" />
           </div>
@@ -87,6 +87,10 @@ export default {
     iconPublished: {
       type: String,
       default: 'icon-seen text-2xl'
+    },
+    canDelete: {
+      type: Boolean,
+      default: true
     },
     iconDelete: {
       type: String,

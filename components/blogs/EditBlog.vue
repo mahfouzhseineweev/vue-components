@@ -38,14 +38,17 @@
           />
           <span v-if="errors.path && errors.path[0]" class="text-center text-error text-sm pt-4">{{ errors.path[0] }}</span>
         </div>
-        <Inputs
+        <div>
+          <Inputs
             id="article-type"
             :input-model="article.type"
             :tout-appareil="false"
             :active="true"
             :placeholder="$t(mediaTranslationPrefix + 'blogs.type')"
             @input="(newVal) => {article.type = newVal}"
-        />
+          />
+          <span v-if="errors.type && errors.type[0]" class="text-center text-error text-sm pt-4">{{ errors.type[0] }}</span>
+        </div>
         <fieldset class="fieldSetStyle border border-solid border-gray-300 p-3 mt-2">
           <legend class="w-auto px-16">{{ $t(mediaTranslationPrefix + 'blogs.metadata') }}</legend>
           <div class="flex flex-col gap-4">
@@ -61,7 +64,7 @@
                 id="article-unit"
                 :input-model="article.metadata.unit"
                 :tout-appareil="false"
-                :active="true"
+                :active="false"
                 :placeholder="$t(mediaTranslationPrefix + 'blogs.unit')"
                 @input="(newVal) => {article.metadata.unit = newVal}"
             />
@@ -75,13 +78,15 @@
             />
           </div>
         </fieldset>
-        <Inputs
+        <div v-if="isCreateBlog !== true">
+          <Inputs
             id="article-author"
             :input-model="authorName"
             :tout-appareil="false"
             :active="false"
             :placeholder="$t(mediaTranslationPrefix + 'blogs.authorName')"
-        />
+          />
+        </div>
         <div id="article-tags" class="flex flex-col gap-2">
           <div class="text-sm">{{ $t(mediaTranslationPrefix + 'blogs.tags') }}</div>
           <div v-for="(tag,k) in article.tags" :key="k" class="flex flex-col mb-4">
@@ -92,7 +97,7 @@
                   :tout-appareil="false"
                   :active="true"
                   :placeholder="`${$t(mediaTranslationPrefix + 'blogs.tag')} #${k+1}`"
-                  @input="(newVal) => {tag = newVal;}"
+                  @input="(newVal) => {$set(article.tags, k, newVal);}"
               />
               <span class="flex flex-row pl-2 items-center">
               <span v-show="k || ( !k && article.tags.length > 1)" id="remove-project-url" class="icon-remove cursor-pointer text-2xl" @click="removeTag(k)"></span>
@@ -126,30 +131,38 @@
           <div class="text-sm mb-2">{{ $t(mediaTranslationPrefix + 'blogs.description') }}</div>
           <quill-editor class="wyzywig" v-model="article.description" />
         </div>
-        <AutoComplete
+        <div>
+          <div class="text-sm mb-2">{{ $t(mediaTranslationPrefix + 'blogs.categories') }}</div>
+          <AutoComplete
             :main-filter="article.categories"
             :select-placeholder="$t(mediaTranslationPrefix + 'blogs.selectCategories')"
             :filter-label-prop="'translation'"
             :reduce="(option) => option.key"
             :filter-options="filterMap.categories"
             :filter-searchable="false"
+            :close-on-select="false"
             :track-by="'key'"
             :preselect-first="true"
             :multiple="true"
             @itemSelected="(val) => {article.categories = val}"
-        ></AutoComplete>
-        <AutoComplete
+          ></AutoComplete>
+        </div>
+        <div>
+          <div class="text-sm mb-2">{{ $t(mediaTranslationPrefix + 'blogs.suggestedArticles') }}</div>
+          <AutoComplete
             :main-filter="article.suggested"
             :select-placeholder="$t(mediaTranslationPrefix + 'blogs.selectArticles')"
             :filter-label-prop="'translation'"
             :reduce="(option) => option.key"
             :filter-options="filterMap.suggested"
             :filter-searchable="false"
+            :close-on-select="false"
             :track-by="'key'"
             :preselect-first="true"
             :multiple="true"
             @itemSelected="(val) => {article.suggested = val}"
-        ></AutoComplete>
+          ></AutoComplete>
+        </div>
         <div v-if="blogsUri !== '' && isCreateBlog !== true" class="flex flex-row gap-2 text-sm">
           <div>{{ $t(mediaTranslationPrefix + 'filterOptions.publishedStatus') }}: </div>
           <div>{{ article.published ? $t(mediaTranslationPrefix + 'published') : $t(mediaTranslationPrefix + 'notPublished') }} </div>
@@ -167,7 +180,7 @@
           <div class="text-error text-sm md:text-lg">{{ $t(mediaTranslationPrefix + 'blogs.deleteArticle') }}</div>
           <span class="icon-trashCan2 text-md pb-1 px-2"></span>
         </div>
-        <div v-if="blogsUri !== '' && isCreateBlog !== true" @click.stop.prevent="publishBlogByID(article.published)">
+        <div v-if="blogsUri !== '' && isCreateBlog !== true && (blogsUserRoleProp === 'publisher' || (blogsUserRoleProp === 'admin' && article.published === false))" @click.stop.prevent="publishBlogByID(article.published)">
           <Buttons :button-text="article.published ? $t(mediaTranslationPrefix + 'blogs.unpublish') : $t(mediaTranslationPrefix + 'blogs.publish')" :button-style="saveButtonStyle" class="ml-12" :with-icon="false" />
         </div>
         <div @click.stop.prevent="blogsUri !== '' && isCreateBlog !== true ? updateBlogByID() : createArticle()">
@@ -333,7 +346,7 @@ export default {
         type: "",
         metadata: {
           label: "",
-          unit: "",
+          unit: "s",
           duration: ""
         },
         tags: [
@@ -488,13 +501,15 @@ export default {
       this.loading = true
       const token = this.token
 
-      this.article.tags = this.article.tags.filter(str => str && str.trim())
       if (this.article.metadata.duration) {
         this.article.metadata.duration = Number(this.article.metadata.duration)
       }
       const { author_id, created, draft_of, id, promo_image, promo_video, published, published_date, updated, viewing_time, views, ...articlePayload } = this.article
       const response = await this.$axios.post(this.blogsUri,
-          articlePayload,
+        {
+          ...articlePayload,
+          tags: articlePayload.tags ? articlePayload.tags.filter(str => str && str.trim()) : []
+        },
           {
             headers: mediaHeader({token}, this.projectId)
           }).catch((e) => {
@@ -587,39 +602,41 @@ export default {
       await this.checkCategoriesAndSuggested()
       const token = this.token
 
-      this.article.tags = this.article.tags.filter(str => str && str.trim())
       if (this.article.metadata.duration) {
         this.article.metadata.duration = Number(this.article.metadata.duration)
+      }
+      if (this.article.metadata.unit) {
+        this.article.metadata.unit = "s"
       }
       const { categories, suggested, author_id, created, draft_of, id, promo_image, promo_video, published, published_date, updated, viewing_time, views, ...articlePayload } = this.article
       const response = await this.$axios.put(`${this.blogsUri}/${this.blogId}`,
           {
             ...articlePayload,
             categories: categories.filter(item => !this.selectedCategories.includes(item)),
-            suggested: suggested.filter(item => !this.selectedSuggested.includes(item))
+            suggested: suggested.filter(item => !this.selectedSuggested.includes(item)),
+            tags: articlePayload.tags ? articlePayload.tags.filter(str => str && str.trim()) : []
           },
         {
           headers: mediaHeader({token}, this.projectId)
         }).catch((e) => {
         this.loading = false
-        let errorMessage = ''
         if (e.response.data.errors) {
-          errorMessage = e.response.data.errors.files[0]
-        } else {
-          errorMessage = e.response.data.error ? `${e.response.data.error}` : e.response.data.message
+          this.errors = e.response.data.errors
+          scrollToFirstError(this.errors, 'article-')
         }
-          if (this.nuxtSections) {
-            showSectionsToast(this.$toast, 'error', `${e.response.data.error}`)
-          } else if (errorMessage) {
-            this.$toast.show(
-              {
-                message: errorMessage,
-                timeout: 5,
-                classToast: 'bg-error',
-                classMessage: 'text-white',
-              }
-            )
-          }
+        let errorMessage = e.response.data.error ? `${e.response.data.error}` : e.response.data.message
+        if (this.nuxtSections) {
+          showSectionsToast(this.$toast, 'error', `${e.response.data.error}`)
+        } else if (errorMessage) {
+          this.$toast.show(
+            {
+              message: errorMessage,
+              timeout: 5,
+              classToast: 'bg-error',
+              classMessage: 'text-white',
+            }
+          )
+        }
       })
       if(response) {
         if (this.nuxtSections) {
@@ -628,7 +645,7 @@ export default {
           this.backClicked()
           this.$toast.show(
             {
-              message: this.$t(this.mediaTranslationPrefix + 'blogs.articleUpdated'),
+              message: this.article.draft_of ? this.$t(this.mediaTranslationPrefix + 'blogs.draftUpdated', {name: `${this.filterMap.suggested.find(bl => bl.key === this.article.draft_of.toString()).translation}`}) : this.$t(this.mediaTranslationPrefix + 'blogs.articleUpdated'),
               classToast: 'bg-Blue',
               classMessage: 'text-white',
             }

@@ -6,7 +6,7 @@ export const mediaHeader = (header, projectId) => {
       header['access-control-request-headers'] = headerKey;
     }
     return header
-  }
+  } else return header
 }
 
 export const showSectionsToast = (toast, variant, message, options, extraMessage) => {

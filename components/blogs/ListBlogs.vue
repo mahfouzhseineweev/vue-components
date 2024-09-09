@@ -1,6 +1,10 @@
 <template>
   <div class="mt-4" :class="nuxtSections ? 'ml-4' : ''">
 
+    <div class="pr-4 pb-4" :class="nuxtSections ? '' : 'md:pl-16'">
+      <span class="icon-alert pr-2"></span>{{ $t(mediaTranslationPrefix + 'blogs.editArticleWarn') }}
+    </div>
+
     <div class="flex flex-col md:flex-row items-start md:items-start w-full justify-between md:pr-4 pl-2 md:pl-0">
 
       <div class="flex" :class="nuxtSections ? '' : 'md:pl-16'">
@@ -8,7 +12,7 @@
           <MainFilter :filters-query="filtersQuery" :add-filter-label="$t(mediaTranslationPrefix + 'table.addFilter')" :clear-filters-label="$t(mediaTranslationPrefix + 'table.clearFilters')" :apply-filter-label="$t(mediaTranslationPrefix + 'table.applyFilters')" :filtered-values-style="'color: white; background: #03B1C7; padding: 5px 15px; margin: 15px 5px 0 0; border-radius: 10px; position: relative; display: flex; width: fit-content;'" :filter-icon-icomoon="'icon-filterIcon'" :filter-icon-style="''" :main-filter-style="'flex items-center pl-2 mr-6 ml-2 border border-FieldGray rounded-xl h-48px w-284px focus:outline-none'" :select-style="'h-35px w-220px ml-8'" :filter-select-default="$t(mediaTranslationPrefix + 'selectFilter')" :filter-by-text="$t(mediaTranslationPrefix + 'blogs.filterBlogs')" :clear-filters="filterClear" :sub-filter-style="'flex items-center pl-2 mr-6 ml-2 border border-FieldGray rounded-xl h-48px w-244px focus:outline-none'" :input-style="'py-4 pl-6 ml-2 pr-3.5 border border-FieldGray rounded-xl h-48px w-220px focus:outline-none'" :filter-options="filterOptions" :filter_map="filterMap" :emit-all="false" :alter-value="updateFilterValues" :main-filter-options="mainFilterOptions" :multi-select-placeholder="multiSelectPlaceholder" :single-select-filter-options="singleSelectFilterOptions" :multi-select-filter-options="multiSelectFilterOptions" @getFilter = "getFilter" @remove_filter="removeFilter" @clearFilters="clearFilters" @apply_filter="filterBlogs" />
         </client-only>
       </div>
-      <Buttons v-show="showCreateBlogButton === true" :button-text="$t(mediaTranslationPrefix + 'blogs.createNew')" :button-style="createButtonsStyle" :with-icon="false" :submit-function="openCreateBlog" />
+      <Buttons v-show="showCreateBlogButton === true && blogsUserRoleProp !== 'publisher'" :button-text="$t(mediaTranslationPrefix + 'blogs.createNew')" :button-style="createButtonsStyle" :with-icon="false" :submit-function="openCreateBlog" />
 
     </div>
 
@@ -20,8 +24,8 @@
         </div>
 
         <div class="py-8 flex flex-wrap" :class="nuxtSections ? '' : 'md:pl-16'">
-          <div v-for="blog in blogsResponse" :key="`blog--${blog.id}`" class="m-2">
-            <Card :published="blog.published" :draft-of="blog.draft_of ? $t(mediaTranslationPrefix + 'blogs.draftOf', {name: `${blogsResponse.find(bl => bl.id === blog.draft_of).title}`, id: `${blogsResponse.find(bl => bl.id === blog.draft_of).id}`}) : ''" :media-src="blog.medias && blog.medias[0] && blog.medias[0].files ? blog.medias[0].files[0].url : ''" :blog-title="blog.title && blog.title !== '' && blog.title !== 'null' ? blog.title : blog.medias && blog.medias[0] && blog.medias[0].files ? blog.medias[0].files[0].filename : ''" :blog-title-style="'w-200px overflow-hidden text-ellipsis white whitespace-nowrap'" :blog-author="blog.meta && blog.meta.author_name ? $t(mediaTranslationPrefix + 'by') + blog.meta.author_name : blog.author_id" :is-author="blog.author === blogsUserId" :last-update-date="blog.updated ? $t(mediaTranslationPrefix + 'blogs.lastUpdateDate') + parseDate(blog.updated) : ''" :open-blog="() => openBlog(blog.id)" :edit-blog="() => openBlog(blog.id)" @delete-blog="blogId = blog.id; showPopup = true" />
+          <div v-for="(blog, idx) in blogsResponse" :key="`blog--${blog.id}`" class="m-2">
+            <Card :can-delete="blogsUserRoleProp !== 'publisher'" :edit-label="blogsUserRoleProp === 'publisher' ? blog.published ? $t(mediaTranslationPrefix + 'blogs.unpublish') : $t(mediaTranslationPrefix + 'blogs.publish') : $t(mediaTranslationPrefix + 'blogs.editContent')" :published="blog.published" :draft-of="blog.draft_of ? $t(mediaTranslationPrefix + 'blogs.draftOf', {name: `${blogsResponse.find(bl => bl.id === blog.draft_of).title}`, id: `${blogsResponse.find(bl => bl.id === blog.draft_of).id}`}) : ''" :media-src="blog.medias && blog.medias[0] && blog.medias[0].files ? blog.medias[0].files[0].url : ''" :blog-title="blog.title && blog.title !== '' && blog.title !== 'null' ? blog.title : blog.medias && blog.medias[0] && blog.medias[0].files ? blog.medias[0].files[0].filename : ''" :blog-title-style="'w-200px overflow-hidden text-ellipsis white whitespace-nowrap'" :blog-author="blog.meta && blog.meta.author_name ? $t(mediaTranslationPrefix + 'by') + blog.meta.author_name : blog.author_id" :is-author="blog.author === blogsUserId" :last-update-date="blog.updated ? $t(mediaTranslationPrefix + 'blogs.lastUpdateDate') + parseDate(blog.updated) : ''" :open-blog="() => {blogsUserRoleProp === 'publisher' ? null : openBlog(blog.id)}" :edit-blog="() => {blogsUserRoleProp === 'publisher' ? publishBlogByID(blog.id, blog.published, idx) : openBlog(blog.id)}" @delete-blog="blogId = blog.id; showPopup = true" />
           </div>
         </div>
 
@@ -534,6 +538,51 @@ export default {
       } else {
         this.$emit('updateBlogsComponent', {name: 'BlogsEditBlog', blogId: blogID.toString(), appliedFilters: this.filtersQuery})
       }
+    },
+    async publishBlogByID(blogId, status, idx) {
+      this.loading = true
+      const token = this.token
+
+      const response = await this.$axios.put(status && status === true ? `${this.blogsUri}/${blogId}/unpublish` : `${this.blogsUri}/${blogId}/publish`,
+        {},
+        {
+          headers: mediaHeader({token}, this.projectId)
+        }).catch((e) => {
+        this.loading = false
+        let errorMessage = ''
+        if (e.response.data.errors) {
+          errorMessage = e.response.data.errors.files[0]
+        } else {
+          errorMessage = e.response.data.error ? `${e.response.data.error}` : e.response.data.message
+        }
+        if (this.nuxtSections) {
+          showSectionsToast(this.$toast, 'error', `${e.response.data.error}`)
+        } else if (errorMessage) {
+          this.$toast.show(
+            {
+              message: errorMessage,
+              timeout: 5,
+              classToast: 'bg-error',
+              classMessage: 'text-white',
+            }
+          )
+        }
+      })
+      if(response) {
+        this.$set(this.blogsResponse[idx], 'published', response.data.published)
+        if (this.nuxtSections) {
+          showSectionsToast(this.$toast, 'success', this.$t(this.mediaTranslationPrefix + 'blogs.articlePublished'))
+        } else {
+          this.$toast.show(
+            {
+              message: this.$t(this.mediaTranslationPrefix + 'blogs.articlePublished'),
+              classToast: 'bg-Blue',
+              classMessage: 'text-white',
+            }
+          )
+        }
+      }
+      this.loading = false
     },
     setPage(pageNumber) {
       this.currentPage = pageNumber
