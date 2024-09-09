@@ -87,25 +87,25 @@
             :placeholder="$t(mediaTranslationPrefix + 'blogs.authorName')"
           />
         </div>
-        <div id="article-tags" class="flex flex-col gap-2">
-          <div class="text-sm">{{ $t(mediaTranslationPrefix + 'blogs.tags') }}</div>
-          <div v-for="(tag,k) in article.tags" :key="k" class="flex flex-col mb-4">
-            <div class="flex">
-              <Inputs
-                  :id="`article-tag-${k}`"
-                  :input-model="tag"
-                  :tout-appareil="false"
-                  :active="true"
-                  :placeholder="`${$t(mediaTranslationPrefix + 'blogs.tag')} #${k+1}`"
-                  @input="(newVal) => {$set(article.tags, k, newVal);}"
-              />
-              <span class="flex flex-row pl-2 items-center">
-              <span v-show="k || ( !k && article.tags.length > 1)" id="remove-project-url" class="icon-remove cursor-pointer text-2xl" @click="removeTag(k)"></span>
-              <span v-show="k === article.tags.length-1" id="add-project-url" class="icon-add cursor-pointer text-2xl" @click="addTag()"></span>
-            </span>
-            </div>
-          </div>
-        </div>
+<!--        <div id="article-tags" class="flex flex-col gap-2">-->
+<!--          <div class="text-sm">{{ $t(mediaTranslationPrefix + 'blogs.tags') }}</div>-->
+<!--          <div v-for="(tag,k) in article.tags" :key="k" class="flex flex-col mb-4">-->
+<!--            <div class="flex">-->
+<!--              <Inputs-->
+<!--                  :id="`article-tag-${k}`"-->
+<!--                  :input-model="tag"-->
+<!--                  :tout-appareil="false"-->
+<!--                  :active="true"-->
+<!--                  :placeholder="`${$t(mediaTranslationPrefix + 'blogs.tag')} #${k+1}`"-->
+<!--                  @input="(newVal) => {$set(article.tags, k, newVal);}"-->
+<!--              />-->
+<!--              <span class="flex flex-row pl-2 items-center">-->
+<!--              <span v-show="k || ( !k && article.tags.length > 1)" id="remove-project-url" class="icon-remove cursor-pointer text-2xl" @click="removeTag(k)"></span>-->
+<!--              <span v-show="k === article.tags.length-1" id="add-project-url" class="icon-add cursor-pointer text-2xl" @click="addTag()"></span>-->
+<!--            </span>-->
+<!--            </div>-->
+<!--          </div>-->
+<!--        </div>-->
         <fieldset class="fieldSetStyle border border-solid border-gray-300 p-3 mt-2">
           <legend class="w-auto px-16">{{ $t(mediaTranslationPrefix + 'blogs.medias') }}</legend>
           <div v-for="(object, index) in article.medias" :key="`media-upload-${index}`" class="mb-4">
@@ -349,9 +349,9 @@ export default {
           unit: "s",
           duration: ""
         },
-        tags: [
-            ''
-        ],
+        // tags: [
+        //     ''
+        // ],
         medias: [],
         description: "",
         categories: [],
@@ -490,12 +490,12 @@ export default {
       this.article.medias[idx] = {}
       this.article.medias.splice(idx, 1)
     },
-    addTag() {
-      this.article.tags.push('')
-    },
-    removeTag(index) {
-      this.article.tags.splice(index, 1);
-    },
+    // addTag() {
+    //   this.article.tags.push('')
+    // },
+    // removeTag(index) {
+    //   this.article.tags.splice(index, 1);
+    // },
     async createArticle() {
       this.errors = {}
       this.loading = true
@@ -508,7 +508,7 @@ export default {
       const response = await this.$axios.post(this.blogsUri,
         {
           ...articlePayload,
-          tags: articlePayload.tags ? articlePayload.tags.filter(str => str && str.trim()) : []
+          // tags: articlePayload.tags ? articlePayload.tags.filter(str => str && str.trim()) : []
         },
           {
             headers: mediaHeader({token}, this.projectId)
@@ -574,16 +574,16 @@ export default {
         this.article = [response.data].map(article => {
           article.suggested = article.suggested.map(sug => sug.id.toString())
           article.categories = article.categories.map(cat => cat.id.toString())
-          if (!article.tags || article.tags.length === 0) {
-            article.tags = [""]
-          }
+          // if (!article.tags || article.tags.length === 0) {
+          //   article.tags = [""]
+          // }
           if (article.metadata && article.metadata.duration !== null) {
             article.metadata.duration = article.metadata.duration.toString()
           }
           if (article.metadata === null) {
             article.metadata = {
               label: "",
-              unit: "",
+              unit: "s",
               duration: ""
             }
           }
@@ -614,7 +614,7 @@ export default {
             ...articlePayload,
             categories: categories.filter(item => !this.selectedCategories.includes(item)),
             suggested: suggested.filter(item => !this.selectedSuggested.includes(item)),
-            tags: articlePayload.tags ? articlePayload.tags.filter(str => str && str.trim()) : []
+            // tags: articlePayload.tags ? articlePayload.tags.filter(str => str && str.trim()) : []
           },
         {
           headers: mediaHeader({token}, this.projectId)
@@ -645,7 +645,7 @@ export default {
           this.backClicked()
           this.$toast.show(
             {
-              message: this.article.draft_of ? this.$t(this.mediaTranslationPrefix + 'blogs.draftUpdated', {name: `${this.filterMap.suggested.find(bl => bl.key === this.article.draft_of.toString()).translation}`}) : this.$t(this.mediaTranslationPrefix + 'blogs.articleUpdated'),
+              message: this.article.published === true ? this.$t(this.mediaTranslationPrefix + 'blogs.draftUpdated', {name: `${this.article.title}`}) : this.$t(this.mediaTranslationPrefix + 'blogs.articleUpdated'),
               classToast: 'bg-Blue',
               classMessage: 'text-white',
             }
