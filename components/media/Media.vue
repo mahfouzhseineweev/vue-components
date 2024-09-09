@@ -148,7 +148,7 @@ export default {
     onMediaComponentUpdate(component) {
       this.$emit('mediaComponentUpdated', component)
       this.componentName = component.name
-      this.mediaId = component.mediaId
+      this.mediaId = component.mediaId ? component.mediaId.toString() : component.mediaId
       this.isCreateMedia = component.isCreateMedia
       this.appliedFilters = component.appliedFilters
       this.folderType = component.folderType

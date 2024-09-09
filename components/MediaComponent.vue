@@ -67,7 +67,7 @@ export default {
     },
     openModal(mediaId, category) {
       if (mediaId && mediaId !== '') {
-        this.mediaIdEditing = mediaId
+        this.mediaIdEditing = mediaId.toString()
       } else {
         this.mediaIdEditing = null
       }

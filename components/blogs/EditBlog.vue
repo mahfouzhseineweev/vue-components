@@ -474,7 +474,7 @@ export default {
     },
     selectedMedia(mediaObject) {
       this.$set(this.article.medias, this.selectedMediaIndex, mediaObject)
-      this.$emit('closeMediaModal')
+      this.$refs['sectionsMediaComponent'].closeModal()
     }
   },
   mounted() {
@@ -501,13 +501,14 @@ export default {
       this.loading = true
       const token = this.token
 
-      if (this.article.metadata.duration) {
-        this.article.metadata.duration = Number(this.article.metadata.duration)
-      }
-      const { author_id, created, draft_of, id, promo_image, promo_video, published, published_date, updated, viewing_time, views, ...articlePayload } = this.article
+      const { metadata, author_id, created, draft_of, id, promo_image, promo_video, published, published_date, updated, viewing_time, views, ...articlePayload } = this.article
       const response = await this.$axios.post(this.blogsUri,
         {
           ...articlePayload,
+          metadata: {
+            ...metadata,
+            duration: Number(metadata.duration)
+          },
           // tags: articlePayload.tags ? articlePayload.tags.filter(str => str && str.trim()) : []
         },
           {
@@ -602,16 +603,17 @@ export default {
       await this.checkCategoriesAndSuggested()
       const token = this.token
 
-      if (this.article.metadata.duration) {
-        this.article.metadata.duration = Number(this.article.metadata.duration)
-      }
       if (this.article.metadata.unit) {
         this.article.metadata.unit = "s"
       }
-      const { categories, suggested, author_id, created, draft_of, id, promo_image, promo_video, published, published_date, updated, viewing_time, views, ...articlePayload } = this.article
+      const { metadata, categories, suggested, author_id, created, draft_of, id, promo_image, promo_video, published, published_date, updated, viewing_time, views, ...articlePayload } = this.article
       const response = await this.$axios.put(`${this.blogsUri}/${this.blogId}`,
           {
             ...articlePayload,
+            metadata: {
+              ...metadata,
+              duration: Number(metadata.duration)
+            },
             categories: categories.filter(item => !this.selectedCategories.includes(item)),
             suggested: suggested.filter(item => !this.selectedSuggested.includes(item)),
             // tags: articlePayload.tags ? articlePayload.tags.filter(str => str && str.trim()) : []
