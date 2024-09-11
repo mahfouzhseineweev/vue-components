@@ -640,10 +640,24 @@ export default {
         const response = await this.$axios.delete(this.mediaByIdUri + this.mediaId,
           {
             headers: mediaHeader({token}, this.projectId)
-          })
-        if (this.nuxtSections) {
+          }).catch(e => {
+          let errorMessage = e.response.data.error
+          if (this.nuxtSections) {
+            showSectionsToast(this.$toast, 'error', `${e.response.data.error}`, e.response.data.options, errorMessage)
+          } else {
+            this.$toast.show(
+              {
+                message: errorMessage,
+                timeout: 5,
+                classToast: 'bg-error',
+                classMessage: 'text-white',
+              }
+            )
+          }
+        })
+        if (this.nuxtSections && response && response.data) {
           showSectionsToast(this.$toast, 'success', response.data.message)
-        } else {
+        } else if (response && response.data) {
           this.$toast.show(
             {
               message: response.data.message,
@@ -653,9 +667,11 @@ export default {
           )
         }
         this.loading = false
-        if (this.mediasPath) {
-          this.$router.push(this.localePath({path: this.mediasPath}))
-        } else this.$emit('updateMediaComponent', {name: 'MediaListMedias', appliedFilters: this.appliedFilters, folderType: this.folderType})
+        if (response && response.data) {
+          if (this.mediasPath) {
+            this.$router.push(this.localePath({path: this.mediasPath}))
+          } else this.$emit('updateMediaComponent', {name: 'MediaListMedias', appliedFilters: this.appliedFilters, folderType: this.folderType})
+        }
       }
     },
     onFileSelected(e) {
