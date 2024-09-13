@@ -118,7 +118,7 @@ export default {
     },
     blogAuthorStyle: {
       type: String,
-      default: 'pl-1 italic text-sm font-extralight w-126px overflow-hidden text-ellipsis'
+      default: 'pl-1 italic text-sm font-extralight w-126px overflow-hidden text-ellipsis whitespace-nowrap text-end'
     },
     mediaSrc: {
       type: String,

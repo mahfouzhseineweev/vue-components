@@ -502,7 +502,7 @@ export default {
       const token = this.token
 
       const { metadata, author_id, created, draft_of, id, promo_image, promo_video, published, published_date, updated, viewing_time, views, ...articlePayload } = this.article
-      const response = await this.$axios.post(this.blogsUri,
+      const response = await this.$axios.post(this.blogsUri + 'articles',
         {
           ...articlePayload,
           metadata: {
@@ -552,7 +552,7 @@ export default {
     async getBlogByID() {
       this.loading = true
       const token = this.token
-      const response = await this.$axios.get(`${this.blogsUri}/${this.blogId}`,
+      const response = await this.$axios.get(`${this.blogsUri}/articles/${this.blogId}`,
         {
           headers: mediaHeader({token}, this.projectId)
         }).catch((e) => {
@@ -607,7 +607,7 @@ export default {
         this.article.metadata.unit = "s"
       }
       const { metadata, categories, suggested, author_id, created, draft_of, id, promo_image, promo_video, published, published_date, updated, viewing_time, views, ...articlePayload } = this.article
-      const response = await this.$axios.put(`${this.blogsUri}/${this.blogId}`,
+      const response = await this.$axios.put(`${this.blogsUri}/articles/${this.blogId}`,
           {
             ...articlePayload,
             metadata: {
@@ -660,7 +660,7 @@ export default {
       const token = this.token
       const removedSuggested = this.selectedSuggested.filter(item => !this.article.suggested.includes(item))
       if (removedSuggested && removedSuggested.length > 0) {
-       await this.$axios.delete(`${this.blogsUri}/${this.blogId}/suggested`,
+       await this.$axios.delete(`${this.blogsUri}/articles/${this.blogId}/suggested`,
            {
              data: {
             suggested: removedSuggested.map(Number)
@@ -672,7 +672,7 @@ export default {
       }
       const removedCategories = this.selectedCategories.filter(item => !this.article.categories.includes(item))
       if (removedCategories && removedCategories.length > 0) {
-       await this.$axios.delete(`${this.blogsUri}/${this.blogId}/categories`,
+       await this.$axios.delete(`${this.blogsUri}/articles/${this.blogId}/categories`,
            {
              data: {
             categories: removedCategories.map(Number)
@@ -687,7 +687,7 @@ export default {
       this.loading = true
       const token = this.token
 
-      const response = await this.$axios.put(status && status === true ? `${this.blogsUri}/${this.blogId}/unpublish` : `${this.blogsUri}/${this.blogId}/publish`,
+      const response = await this.$axios.put(status && status === true ? `${this.blogsUri}/articles/${this.blogId}/unpublish` : `${this.blogsUri}/articles/${this.blogId}/publish`,
           {},
         {
           headers: mediaHeader({token}, this.projectId)
@@ -733,7 +733,7 @@ export default {
       if(this.blogsUri !== '') {
         this.loading = true
         const token = this.token
-        const response = await this.$axios.delete(`${this.blogsUri}/${this.blogId}`,
+        const response = await this.$axios.delete(`${this.blogsUri}/articles/${this.blogId}`,
           {
             headers: mediaHeader({token}, this.projectId)
           })
@@ -763,7 +763,7 @@ export default {
       this.loading = true
       const token = this.token
 
-      const response = await this.$axios.get(`${this.blogsUri}/author`,
+      const response = await this.$axios.get(`${this.blogsUri}/articles/author`,
           {
             headers: mediaHeader({token}, this.projectId)
           })
