@@ -265,6 +265,10 @@ export default {
     AnimatedLoading
   },
   props: {
+    contentUsedKey: {
+      type: String,
+      default: ""
+    },
     appliedFilters: {
       type: String,
       default: ""
@@ -456,7 +460,7 @@ export default {
           errorsArray.push(
             {
               authorName: this.$t(this.mediaTranslationPrefix + 'by') + this.media.meta.author,
-              errorTitle: `${m.name} (${m.id})`
+              errorTitle: this.contentUsedKey ? `${m[this.contentUsedKey]} (${m.id})` : `${m.name} (${m.id})`
             }
           )
         })
@@ -468,7 +472,7 @@ export default {
     media() {
       if(Object.keys(this.media).length > 0) {
         this.headerItems[0].value = this.media.id
-        this.headerItems[1].value = new Date(this.media.creation_date * 1000).toLocaleDateString()
+        this.headerItems[1].value = this.media.creation_date ? new Date(this.media.creation_date * 1000).toLocaleDateString() : new Date(this.media.inserted_at).toLocaleDateString()
         this.headerItems[2].value = this.media.meta.author
         this.headerItems[3].value = this.media.type[0].toUpperCase() + this.media.type.substring(1)
         this.headerItems[4].value = this.media.number_of_contents

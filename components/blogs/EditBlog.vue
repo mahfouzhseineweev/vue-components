@@ -10,7 +10,7 @@
       </div>
     </div>
 
-    <MediaComponent ref="sectionsMediaComponent" :auth-token="token" :server-url="serverUrl" :project-id="projectId" :sections-user-id="blogsUserId" :selected-media-id="$route.query.id" @emittedMedia="(media) => selectedMedia = media"></MediaComponent>
+    <MediaComponent ref="sectionsMediaComponent" :content-used-key="contentUsedKey" :auth-token="token" :server-url="serverUrl" :project-id="projectId" :sections-user-id="blogsUserId" :selected-media-id="$route.query.id" @emittedMedia="(media) => selectedMedia = media"></MediaComponent>
 
     <div class="flex flex-col md:flex-row mt-4 w-full gap-4 md:gap-0 mb-16" :class="nuxtSections ? '' : 'md:pl-6'">
 
@@ -322,6 +322,10 @@ export default {
       default: ""
     },
     createBlogUriProp: {
+      type: String,
+      default: ""
+    },
+    contentUsedKey: {
       type: String,
       default: ""
     }

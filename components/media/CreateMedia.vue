@@ -130,6 +130,8 @@ export default {
         data.append('files[1][platform_id]', '1');
         data.append('files[1][file]', fileData);
         data.append('type', fileData.type && fileData.type.includes('image') ? 'image' : 'document');
+        data.append('private_status', 'public');
+        data.append('locked_status', 'unlocked');
         if(this.mediaByIdUri !== '') {
           const response = await this.$axios.post(this.mediaByIdUri,
             data,
