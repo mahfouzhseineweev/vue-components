@@ -543,6 +543,8 @@ export default {
           },
         {
         headers: mediaHeader({token}, this.projectId)
+      }).catch(() => {
+        this.loading = false
       })
 
       this.blogsResponse = response.data.data

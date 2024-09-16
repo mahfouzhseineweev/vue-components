@@ -305,19 +305,19 @@ export default {
         return []
       }
     },
-    blogsUriProp: {
-      type: String,
-      default: ""
-    },
     blogsUserIdProp: {
       type: String,
       default: ""
     },
-    blogsUserNameProp: {
+    blogsUserRoleProp: {
       type: String,
       default: ""
     },
-    blogsUserRoleProp: {
+    blogsUriProp: {
+      type: String,
+      default: ""
+    },
+    blogsUserNameProp: {
       type: String,
       default: ""
     },
@@ -443,6 +443,13 @@ export default {
       deep: true,
       immediate: true
     },
+    blogsUserIdProp: {
+      handler(val) {
+        this.blogsUserId = val
+      },
+      deep: true,
+      immediate: true
+    },
     blogsUriProp: {
       handler(val) {
         this.blogsUri = val
@@ -454,13 +461,6 @@ export default {
     createBlogUriProp: {
       handler(val) {
         this.createBlogUri = val
-      },
-      deep: true,
-      immediate: true
-    },
-    blogsUserIdProp: {
-      handler(val) {
-        this.blogsUserId = val
       },
       deep: true,
       immediate: true
@@ -763,10 +763,27 @@ export default {
       this.loading = true
       const token = this.token
 
-      const response = await this.$axios.get(`${this.blogsUri}/articles/author`,
+      let filters = [
+        {
+          key: 'published',
+          value: 'true'
+        }
+      ]
+      if (this.blogsUserRoleProp === 'author') {
+        filters.push({
+          key: 'author_id',
+          value: this.blogsUserId
+        })
+      }
+      const response = await this.$axios.post(this.blogsUri + 'any_articles',
+        {
+          filters
+        },
           {
             headers: mediaHeader({token}, this.projectId)
-          })
+          }).catch(() => {
+            this.loading = false
+      })
       this.filterMap.suggested = []
       response.data.data.forEach((article) => {
         this.filterMap.suggested.push(
