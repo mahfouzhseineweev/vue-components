@@ -253,6 +253,10 @@ export default {
       type: String,
       default: ""
     },
+    authorId: {
+      type: String,
+      default: ""
+    },
     blogIdProp: {
       type: String,
       default: ""
@@ -469,13 +473,6 @@ export default {
       deep: true,
       immediate: true
     },
-    blogsUserNameProp: {
-      handler(val) {
-        this.authorName = val
-      },
-      deep: true,
-      immediate: true
-    },
     selectedMedia(mediaObject) {
       this.$set(this.article.medias, this.selectedMediaIndex, mediaObject)
       this.$refs['sectionsMediaComponent'].closeModal()
@@ -484,6 +481,7 @@ export default {
   mounted() {
     if(this.blogsUri !== '' && this.isCreateBlog !== true) {
       this.getBlogByID()
+      this.getAuthorByID()
     }
   },
   methods: {
@@ -553,6 +551,23 @@ export default {
       }
       this.loading = false
     },
+    async getAuthorByID() {
+      this.loading = true
+      const token = this.token
+      const response = await this.$axios.get(`${this.blogsUri}/author/${this.authorId}`,
+        {
+          headers: mediaHeader({token}, this.projectId)
+        }).catch(() => {
+        this.loading = false
+        this.authorName = this.authorId
+      })
+      if(response && response.data) {
+        if (response.data.full_name) {
+          this.authorName = response.data.full_name
+        } else this.authorName = this.authorId
+      }
+      this.loading = false
+    },
     async getBlogByID() {
       this.loading = true
       const token = this.token
@@ -596,9 +611,6 @@ export default {
         })[0]
         this.selectedSuggested = this.article.suggested
         this.selectedCategories = this.article.categories
-        if (this.isCreateBlog !== true) {
-          this.authorName = response.data.author_id
-        }
       }
       this.loading = false
     },

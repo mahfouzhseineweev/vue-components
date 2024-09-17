@@ -27,7 +27,7 @@
 
         <div class="py-8 flex flex-wrap" :class="nuxtSections ? '' : 'md:pl-16'">
           <div v-for="(blog, idx) in blogsResponse" :key="`blog--${blog.id}`" class="m-2">
-            <Card :can-delete="blogsUserRoleProp !== 'publisher'" :edit-label="blogsUserRoleProp === 'publisher' ? blog.published ? $t(mediaTranslationPrefix + 'blogs.unpublish') : $t(mediaTranslationPrefix + 'blogs.publish') : $t(mediaTranslationPrefix + 'blogs.editContent')" :published="blog.published" :draft-of="blog.draft_of ? $t(mediaTranslationPrefix + 'blogs.draftOf', {id: blog.draft_of}) : ''" :media-src="blog.medias && blog.medias[0] && blog.medias[0].files ? blog.medias[0].files[0].url : ''" :blog-title="blog.title && blog.title !== '' && blog.title !== 'null' ? blog.title : blog.medias && blog.medias[0] && blog.medias[0].files ? blog.medias[0].files[0].filename : ''" :blog-title-style="'w-200px overflow-hidden text-ellipsis white whitespace-nowrap'" :blog-author="getAuthorName(blog.author_id)" :is-author="blog.author === blogsUserId" :last-update-date="blog.updated ? $t(mediaTranslationPrefix + 'blogs.lastUpdateDate') + parseDate(blog.updated) : ''" :open-blog="() => {blogsUserRoleProp === 'publisher' ? null : openBlog(blog.id)}" :edit-blog="() => {blogsUserRoleProp === 'publisher' ? publishBlogByID(blog.id, blog.published, idx) : openBlog(blog.id)}" @delete-blog="blogId = blog.id; showPopup = true" />
+            <Card :can-delete="blogsUserRoleProp !== 'publisher'" :edit-label="blogsUserRoleProp === 'publisher' ? blog.published ? $t(mediaTranslationPrefix + 'blogs.unpublish') : $t(mediaTranslationPrefix + 'blogs.publish') : $t(mediaTranslationPrefix + 'blogs.editContent')" :published="blog.published" :draft-of="blog.draft_of ? $t(mediaTranslationPrefix + 'blogs.draftOf', {id: blog.draft_of}) : ''" :media-src="blog.medias && blog.medias[0] && blog.medias[0].files ? blog.medias[0].files[0].url : ''" :blog-title="blog.title && blog.title !== '' && blog.title !== 'null' ? blog.title : blog.medias && blog.medias[0] && blog.medias[0].files ? blog.medias[0].files[0].filename : ''" :blog-title-style="'w-200px overflow-hidden text-ellipsis white whitespace-nowrap'" :blog-author="getAuthorName(blog.author_id)" :is-author="blog.author_id === blogsUserId" :last-update-date="blog.updated ? $t(mediaTranslationPrefix + 'blogs.lastUpdateDate') + parseDate(blog.updated) : ''" :open-blog="() => {blogsUserRoleProp === 'publisher' ? null : openBlog(blog.id, blog.author_id)}" :edit-blog="() => {blogsUserRoleProp === 'publisher' ? publishBlogByID(blog.id, blog.published, idx) : openBlog(blog.id, blog.author_id)}" @delete-blog="blogId = blog.id; showPopup = true" />
           </div>
         </div>
 
@@ -632,22 +632,22 @@ export default {
         }
       }
     },
-    openBlog(blogID) {
+    openBlog(blogID, userId) {
       if(this.editBlogPath) {
         if(this.$route.query.filters && this.$route.query.filters !== "") {
-          this.$router.push(this.localePath({path: this.editBlogPath, query: {id: blogID, filters: this.filtersQuery}}))
+          this.$router.push(this.localePath({path: this.editBlogPath, query: {id: blogID, userId: userId, filters: this.filtersQuery}}))
         } else {
-          this.$router.push(this.localePath({path: this.editBlogPath, query: {id: blogID}}))
+          this.$router.push(this.localePath({path: this.editBlogPath, query: {id: blogID, userId: userId}}))
         }
       } else {
-        this.$emit('updateBlogsComponent', {name: 'BlogsEditBlog', blogId: blogID.toString(), appliedFilters: this.filtersQuery})
+        this.$emit('updateBlogsComponent', {name: 'BlogsEditBlog', blogId: blogID.toString(), userId: userId, appliedFilters: this.filtersQuery})
       }
     },
     async publishBlogByID(blogId, status, idx) {
       this.loading = true
       const token = this.token
 
-      const response = await this.$axios.put(status && status === true ? `${this.blogsUri}/${blogId}/unpublish` : `${this.blogsUri}/${blogId}/publish`,
+      const response = await this.$axios.put(status && status === true ? `${this.blogsUri}/articles/${blogId}/unpublish` : `${this.blogsUri}/articles/${blogId}/publish`,
         {},
         {
           headers: mediaHeader({token}, this.projectId)
