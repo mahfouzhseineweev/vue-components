@@ -9,8 +9,8 @@
           <span v-else :class="iconPublished"></span>
         </div>
 
-        <div class="flex items-center cursor-pointer" @click="deleteBlog">
-          <span :class="iconDelete" @click="$emit('delete-blog')"></span>
+        <div class="flex items-center cursor-pointer">
+          <span v-if="canDelete" :class="iconDelete" @click="$emit('delete-blog')"></span>
           <div @click.stop.prevent="editBlog">
             <Buttons :button-text="editLabel" :button-style="editStyle" :with-icon="false" />
           </div>
@@ -60,8 +60,13 @@
 </template>
 
 <script>
+import Buttons from "../Buttons.vue";
+
 export default {
   name: "Card",
+  components: {
+    Buttons
+  },
   props: {
     containerStyle: {
       type: String,
@@ -82,6 +87,10 @@ export default {
     iconPublished: {
       type: String,
       default: 'icon-seen text-2xl'
+    },
+    canDelete: {
+      type: Boolean,
+      default: true
     },
     iconDelete: {
       type: String,
@@ -109,7 +118,7 @@ export default {
     },
     blogAuthorStyle: {
       type: String,
-      default: 'pl-1 italic text-sm font-extralight w-126px overflow-hidden text-ellipsis'
+      default: 'pl-1 italic text-sm font-extralight w-126px overflow-hidden text-ellipsis whitespace-nowrap text-end'
     },
     mediaSrc: {
       type: String,

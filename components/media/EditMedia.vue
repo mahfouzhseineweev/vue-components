@@ -265,6 +265,10 @@ export default {
     AnimatedLoading
   },
   props: {
+    contentUsedKey: {
+      type: String,
+      default: ""
+    },
     appliedFilters: {
       type: String,
       default: ""
@@ -456,7 +460,7 @@ export default {
           errorsArray.push(
             {
               authorName: this.$t(this.mediaTranslationPrefix + 'by') + this.media.meta.author,
-              errorTitle: `${m.name} (${m.id})`
+              errorTitle: this.contentUsedKey ? `${m[this.contentUsedKey]} (${m.id})` : `${m.name} (${m.id})`
             }
           )
         })
@@ -468,7 +472,7 @@ export default {
     media() {
       if(Object.keys(this.media).length > 0) {
         this.headerItems[0].value = this.media.id
-        this.headerItems[1].value = new Date(this.media.creation_date * 1000).toLocaleDateString()
+        this.headerItems[1].value = this.media.creation_date ? new Date(this.media.creation_date * 1000).toLocaleDateString() : new Date(this.media.inserted_at).toLocaleDateString()
         this.headerItems[2].value = this.media.meta.author
         this.headerItems[3].value = this.media.type[0].toUpperCase() + this.media.type.substring(1)
         this.headerItems[4].value = this.media.number_of_contents
@@ -574,6 +578,7 @@ export default {
 
       const data = new FormData();
       if(this.file) {
+        data.append('files[1][platform_id]', '1');
         data.append('files[1][file]', this.file);
         data.append('type', this.file.type && this.file.type.includes('image') ? 'image' : 'document');
       }
@@ -601,7 +606,7 @@ export default {
           errorMessage = e.response.data.error ? `${e.response.data.error}, ${e.response.data.message}` : e.response.data.message
         }
           if (this.nuxtSections) {
-            showSectionsToast(this.$toast, 'error', `${e.response.data.error}, ${e.response.data.message}`, e.response.data.options)
+            showSectionsToast(this.$toast, 'error', `${e.response.data.error}, ${e.response.data.message}`, e.response.data.options, errorMessage)
           } else {
             this.$toast.show(
               {
@@ -639,10 +644,24 @@ export default {
         const response = await this.$axios.delete(this.mediaByIdUri + this.mediaId,
           {
             headers: mediaHeader({token}, this.projectId)
-          })
-        if (this.nuxtSections) {
+          }).catch(e => {
+          let errorMessage = e.response.data.error
+          if (this.nuxtSections) {
+            showSectionsToast(this.$toast, 'error', `${e.response.data.error}`, e.response.data.options, errorMessage)
+          } else {
+            this.$toast.show(
+              {
+                message: errorMessage,
+                timeout: 5,
+                classToast: 'bg-error',
+                classMessage: 'text-white',
+              }
+            )
+          }
+        })
+        if (this.nuxtSections && response && response.data) {
           showSectionsToast(this.$toast, 'success', response.data.message)
-        } else {
+        } else if (response && response.data) {
           this.$toast.show(
             {
               message: response.data.message,
@@ -652,9 +671,11 @@ export default {
           )
         }
         this.loading = false
-        if (this.mediasPath) {
-          this.$router.push(this.localePath({path: this.mediasPath}))
-        } else this.$emit('updateMediaComponent', {name: 'MediaListMedias', appliedFilters: this.appliedFilters, folderType: this.folderType})
+        if (response && response.data) {
+          if (this.mediasPath) {
+            this.$router.push(this.localePath({path: this.mediasPath}))
+          } else this.$emit('updateMediaComponent', {name: 'MediaListMedias', appliedFilters: this.appliedFilters, folderType: this.folderType})
+        }
       }
     },
     onFileSelected(e) {

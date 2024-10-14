@@ -127,8 +127,11 @@ export default {
         const token = this.token
 
         const data = new FormData();
+        data.append('files[1][platform_id]', '1');
         data.append('files[1][file]', fileData);
         data.append('type', fileData.type && fileData.type.includes('image') ? 'image' : 'document');
+        data.append('private_status', 'public');
+        data.append('locked_status', 'unlocked');
         if(this.mediaByIdUri !== '') {
           const response = await this.$axios.post(this.mediaByIdUri,
             data,
@@ -149,7 +152,7 @@ export default {
               errorMessage = e.response.data.error ? `${e.response.data.error}, ${e.response.data.message}` : e.response.data.message
             }
             if (this.nuxtSections) {
-              showSectionsToast(this.$toast, 'error', `${e.response.data.error}, ${e.response.data.message}`, e.response.data.options)
+              showSectionsToast(this.$toast, 'error', `${e.response.data.error}, ${e.response.data.message}`, e.response.data.options, errorMessage)
             } else {
               this.$toast.show(
                 {

@@ -6,7 +6,7 @@
       </div>
       <div class="section-module-modal-content">
         <div>
-          <Media :show-create-media-button="true" :media-category="mediaCategory" :media-translation-prefix="'mediaT.'" :media-uri-prop="mediasUri" :authors-uri-prop="authorsUri" :project-id-prop="projectId" :auth-token="authToken" :media-by-id-uri-prop="mediaByIdUri" :media-id-prop="selectedMediaId" :sections-user-id-prop="sectionsUserId" :with-select-media-button="true" :nuxt-sections="true" :media-id-editing="mediaIdEditing" @getSelectedMedia="emitMedia" />
+          <Media :components-prefix="'g'" :content-used-key="contentUsedKey" :show-create-media-button="true" :media-category="mediaCategory" :media-translation-prefix="'mediaT.'" :media-uri-prop="mediasUri" :authors-uri-prop="authorsUri" :project-id-prop="projectId" :auth-token="authToken" :media-by-id-uri-prop="mediaByIdUri" :media-id-prop="selectedMediaId" :sections-user-id-prop="sectionsUserId" :with-select-media-button="true" :nuxt-sections="true" :media-id-editing="mediaIdEditing" @getSelectedMedia="emitMedia" />
         </div>
       </div>
     </div>
@@ -14,8 +14,15 @@
 </template>
 
 <script>
+import Media from "./media/Media.vue";
+import IconsClose from "./icons/close.vue";
+
 export default {
   name: "MediaComponent",
+  components: {
+    Media,
+    IconsClose
+  },
   props: {
     authToken: {
       type: String,
@@ -36,6 +43,10 @@ export default {
     selectedMediaId: {
       type: String,
       default: ''
+    },
+    contentUsedKey: {
+      type: String,
+      default: ""
     }
   },
   data() {
@@ -60,7 +71,7 @@ export default {
     },
     openModal(mediaId, category) {
       if (mediaId && mediaId !== '') {
-        this.mediaIdEditing = mediaId
+        this.mediaIdEditing = mediaId.toString()
       } else {
         this.mediaIdEditing = null
       }

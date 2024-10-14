@@ -1,6 +1,13 @@
 <template>
   <div class="mt-4" :class="nuxtSections ? 'ml-4' : ''">
 
+    <div class="flex flex-row justify-between gap-4">
+      <div class="pr-4 pb-4" :class="nuxtSections ? '' : 'md:pl-16'">
+        <span class="icon-alert pr-2"></span>{{ $t(mediaTranslationPrefix + 'blogs.editArticleWarn') }}
+      </div>
+      <Buttons v-show="showCreateBlogButton === true && blogsUserRoleProp !== 'publisher'" :button-text="$t(mediaTranslationPrefix + 'blogs.createNew')" :button-style="createButtonsStyle" :with-icon="false" :submit-function="openCreateBlog" />
+    </div>
+
     <div class="flex flex-col md:flex-row items-start md:items-start w-full justify-between md:pr-4 pl-2 md:pl-0">
 
       <div class="flex" :class="nuxtSections ? '' : 'md:pl-16'">
@@ -8,7 +15,6 @@
           <MainFilter :filters-query="filtersQuery" :add-filter-label="$t(mediaTranslationPrefix + 'table.addFilter')" :clear-filters-label="$t(mediaTranslationPrefix + 'table.clearFilters')" :apply-filter-label="$t(mediaTranslationPrefix + 'table.applyFilters')" :filtered-values-style="'color: white; background: #03B1C7; padding: 5px 15px; margin: 15px 5px 0 0; border-radius: 10px; position: relative; display: flex; width: fit-content;'" :filter-icon-icomoon="'icon-filterIcon'" :filter-icon-style="''" :main-filter-style="'flex items-center pl-2 mr-6 ml-2 border border-FieldGray rounded-xl h-48px w-284px focus:outline-none'" :select-style="'h-35px w-220px ml-8'" :filter-select-default="$t(mediaTranslationPrefix + 'selectFilter')" :filter-by-text="$t(mediaTranslationPrefix + 'blogs.filterBlogs')" :clear-filters="filterClear" :sub-filter-style="'flex items-center pl-2 mr-6 ml-2 border border-FieldGray rounded-xl h-48px w-244px focus:outline-none'" :input-style="'py-4 pl-6 ml-2 pr-3.5 border border-FieldGray rounded-xl h-48px w-220px focus:outline-none'" :filter-options="filterOptions" :filter_map="filterMap" :emit-all="false" :alter-value="updateFilterValues" :main-filter-options="mainFilterOptions" :multi-select-placeholder="multiSelectPlaceholder" :single-select-filter-options="singleSelectFilterOptions" :multi-select-filter-options="multiSelectFilterOptions" @getFilter = "getFilter" @remove_filter="removeFilter" @clearFilters="clearFilters" @apply_filter="filterBlogs" />
         </client-only>
       </div>
-      <Buttons v-show="showCreateBlogButton === true" :button-text="$t(mediaTranslationPrefix + 'blogs.createNew')" :button-style="createButtonsStyle" :with-icon="false" :submit-function="openCreateBlog" />
 
     </div>
 
@@ -20,8 +26,8 @@
         </div>
 
         <div class="py-8 flex flex-wrap" :class="nuxtSections ? '' : 'md:pl-16'">
-          <div v-for="blog in blogsResponse" :key="`blog--${blog.id}`" class="m-2">
-            <Card :published="blog.published" :draft-of="blog.draft_of ? $t(mediaTranslationPrefix + 'blogs.draftOf', {name: `${blogsResponse.find(bl => bl.id === blog.draft_of).title}`, id: `${blogsResponse.find(bl => bl.id === blog.draft_of).id}`}) : ''" :media-src="blog.medias && blog.medias[0] && blog.medias[0].files ? blog.medias[0].files[0].url : ''" :blog-title="blog.title && blog.title !== '' && blog.title !== 'null' ? blog.title : blog.medias && blog.medias[0] && blog.medias[0].files ? blog.medias[0].files[0].filename : ''" :blog-title-style="'w-200px overflow-hidden text-ellipsis white whitespace-nowrap'" :blog-author="blog.meta && blog.meta.author_name ? $t(mediaTranslationPrefix + 'by') + blog.meta.author_name : blog.author_id" :is-author="blog.author === blogsUserId" :last-update-date="blog.updated ? $t(mediaTranslationPrefix + 'blogs.lastUpdateDate') + parseDate(blog.updated) : ''" :open-blog="() => openBlog(blog.id)" :edit-blog="() => openBlog(blog.id)" @delete-blog="blogId = blog.id; showPopup = true" />
+          <div v-for="(blog, idx) in blogsResponse" :key="`blog--${blog.id}`" class="m-2">
+            <Card :can-delete="blogsUserRoleProp !== 'publisher'" :edit-label="blogsUserRoleProp === 'publisher' ? blog.published ? $t(mediaTranslationPrefix + 'blogs.unpublish') : $t(mediaTranslationPrefix + 'blogs.publish') : $t(mediaTranslationPrefix + 'blogs.editContent')" :published="blog.published" :draft-of="blog.draft_of ? $t(mediaTranslationPrefix + 'blogs.draftOf', {id: blog.draft_of}) : ''" :media-src="blog.medias && blog.medias[0] && blog.medias[0].files ? blog.medias[0].files[0].url : ''" :blog-title="blog.title && blog.title !== '' && blog.title !== 'null' ? blog.title : blog.medias && blog.medias[0] && blog.medias[0].files ? blog.medias[0].files[0].filename : ''" :blog-title-style="'w-200px overflow-hidden text-ellipsis white whitespace-nowrap'" :blog-author="getAuthorName(blog.author_id)" :is-author="blog.author_id === blogsUserId" :last-update-date="blog.updated ? $t(mediaTranslationPrefix + 'blogs.lastUpdateDate') + parseDate(blog.updated) : ''" :open-blog="() => {blogsUserRoleProp === 'publisher' ? null : openBlog(blog.id, blog.author_id)}" :edit-blog="() => {blogsUserRoleProp === 'publisher' ? publishBlogByID(blog.id, blog.published, idx) : openBlog(blog.id, blog.author_id)}" @delete-blog="blogId = blog.id; showPopup = true" />
           </div>
         </div>
 
@@ -32,7 +38,7 @@
     <div v-show="blogsResponse.length === 0 && loading === false" class="text-FieldGray p-16">{{ $t(mediaTranslationPrefix + 'blogs.noBlogsFound') }}</div>
 
     <AlertPopup :errors-container-style="'mt-10 mb-14 self-center h-auto max-h-72 overflow-y-auto'" :apply-button-text="$t(mediaTranslationPrefix + 'blogs.deleteArticle')" :cancel-button-text="$t(mediaTranslationPrefix + 'blogs.cancel')" :title-delete="$t(mediaTranslationPrefix + 'blogs.deleteArticleMsg')" :show-popup-code="showPopup" :can-be-deleted="true" @cancel="showPopup = false" @apply="deleteBlogByID(blogId)" />
-    <AnimatedLoading :loading="loading" :animated-loading-icon="require('assets/images/loading_animated.svg')" />
+    <AnimatedLoading :loading="loading" :animated-loading-icon="require('../../assets/images/loading_animated.svg')" />
   </div>
 </template>
 
@@ -41,6 +47,7 @@ import MainFilter from "../MainFilter.vue";
 import AnimatedLoading from "../AnimatedLoading.vue";
 import Buttons from "../Buttons.vue";
 import Card from "../blogs/Card.vue";
+import AlertPopup from "../AlertPopup.vue";
 import {mediaHeader, parseDate, showSectionsToast} from "../media/medias";
 
 export default {
@@ -54,10 +61,19 @@ export default {
     MainFilter,
     Card,
     AnimatedLoading,
-    Buttons
+    Buttons,
+    AlertPopup
   },
   props: {
     appliedFilters: {
+      type: String,
+      default: ""
+    },
+    blogsUserRoleProp: {
+      type: String,
+      default: ""
+    },
+    blogsUserIdProp: {
       type: String,
       default: ""
     },
@@ -80,14 +96,6 @@ export default {
       default: ""
     },
     authToken: {
-      type: String,
-      default: ""
-    },
-    blogsUserIdProp: {
-      type: String,
-      default: ""
-    },
-    blogsUserRoleProp: {
       type: String,
       default: ""
     },
@@ -249,17 +257,9 @@ export default {
       projectId: '',
       token: '',
       blogsResponse: [],
+      usersRes: [],
       showMoreIndex: 0,
       filterClear: false,
-      filterOptions: [
-        {key: 'All', value: this.$t(this.mediaTranslationPrefix + 'selectFilter')},
-        {key: 'title', value: this.$t(this.mediaTranslationPrefix + 'filterOptions.title')},
-        {key: 'author_id', value: this.$t(this.mediaTranslationPrefix + 'filterOptions.createdBy')},
-        {key: 'published', value: this.$t(this.mediaTranslationPrefix + 'filterOptions.publishedStatus')},
-        {key: 'views', value: this.$t(this.mediaTranslationPrefix + 'filterOptions.viewsNumber')},
-        {key: 'type', value: this.$t(this.mediaTranslationPrefix + 'filterOptions.type')},
-        {key: 'categories', value: this.$t(this.mediaTranslationPrefix + 'filterOptions.categories')}
-      ],
       filterMap: {
         All: { key: 'All', size: 3 },
         title: {
@@ -268,9 +268,9 @@ export default {
           size: 5,
           type: 'text'
         },
-        author_id: {
+        author: {
           title: this.$t(this.mediaTranslationPrefix + 'filterOptions.createdBy'),
-          key: 'author_id',
+          key: 'author',
           size: 5,
           type: 'multiSelect',
           multiSelectLabel: 'translation',
@@ -287,21 +287,9 @@ export default {
           selectPlaceholder: this.$t(this.mediaTranslationPrefix + 'filterOptions.selectStatus'),
           options: [{key: 'true', translation: this.$t(this.mediaTranslationPrefix + 'published')},{key: 'false', translation: this.$t(this.mediaTranslationPrefix + 'notPublished')}]
         },
-        views: {
-          title: this.$t(this.mediaTranslationPrefix + 'filterOptions.viewsNumber'),
-          key: 'views',
-          size: 5,
-          type: 'text'
-        },
-        type: {
-          title: this.$t(this.mediaTranslationPrefix + 'filterOptions.type'),
-          key: 'type',
-          size: 5,
-          type: 'text'
-        },
-        categories: {
-          title: this.$t(this.mediaTranslationPrefix + 'filterOptions.categories'),
-          key: 'categories',
+        categories_titles: {
+          title: this.$t(this.mediaTranslationPrefix + 'filterOptions.categoriesByTitle'),
+          key: 'categories_titles',
           size: 5,
           type: 'multiSelect',
           multiSelectLabel: 'translation',
@@ -309,16 +297,82 @@ export default {
           multipleSelect: true,
           selectPlaceholder: this.$t(this.mediaTranslationPrefix + 'filterOptions.selectCategory'),
           filterOptions: []
+        },
+        published_date: {
+          title: this.$t(this.mediaTranslationPrefix + 'filterOptions.publishedDate'),
+          subTitle1: this.$t('from'),
+          subTitle2: this.$t('to'),
+          key1: 'publishedFrom',
+          key2: 'publishedTo',
+          key: 'published_date',
+          size: 5,
+          type: 'range',
+        },
+        publishedFrom: {
+          title: this.$t('from'),
+          key: 'publishedFrom',
+          size: 5,
+          type: 'text',
+        },
+        publishedTo: {
+          title: this.$t('to'),
+          key: 'publishedTo',
+          size: 5,
+          type: 'text',
+        },
+        inserted_at: {
+          title: this.$t(this.mediaTranslationPrefix + 'filterOptions.createdAt'),
+          subTitle1: this.$t('from'),
+          subTitle2: this.$t('to'),
+          key1: 'insertedFrom',
+          key2: 'insertedTo',
+          key: 'inserted_at',
+          size: 5,
+          type: 'range',
+        },
+        insertedFrom: {
+          title: this.$t('from'),
+          key: 'insertedFrom',
+          size: 5,
+          type: 'text',
+        },
+        insertedTo: {
+          title: this.$t('to'),
+          key: 'insertedTo',
+          size: 5,
+          type: 'text',
+        },
+        updated_at: {
+          title: this.$t(this.mediaTranslationPrefix + 'filterOptions.updatedAt'),
+          subTitle1: this.$t('from'),
+          subTitle2: this.$t('to'),
+          key1: 'updatedFrom',
+          key2: 'updatedTo',
+          key: 'updated_at',
+          size: 5,
+          type: 'range',
+        },
+        updatedFrom: {
+          title: this.$t('from'),
+          key: 'updatedFrom',
+          size: 5,
+          type: 'text',
+        },
+        updatedTo: {
+          title: this.$t('to'),
+          key: 'updatedTo',
+          size: 5,
+          type: 'text',
         }
       },
-      createButtonsStyle: "h-53px py-3.5 px-8 text-white rounded-xl bg-Blue hover:bg-white hover:text-Blue border border-Blue hover:border-Blue",
+      createButtonsStyle: "h-53px py-3.5 px-8 text-white rounded-xl bg-Blue hover:bg-white hover:text-Blue border border-Blue hover:border-Blue w-max mr-2",
       payloadData: {
         filters: [],
         sort: {
-          created: "desc"
+          created: "DSC"
         },
         page: 1,
-        per_page: 9
+        limit: 9
       },
       totalBlogs: 0,
       currentPage: 1,
@@ -332,9 +386,28 @@ export default {
       if (this.totalBlogs === 0) {
         return 1
       } else {
-        return Math.ceil(this.totalBlogs / this.payloadData.per_page)
+        return Math.ceil(this.totalBlogs / this.payloadData.limit)
       }
     },
+    filterOptions() {
+      const baseFilters = [
+        {key: 'All', value: this.$t(this.mediaTranslationPrefix + 'selectFilter')},
+        {key: 'title', value: this.$t(this.mediaTranslationPrefix + 'filterOptions.title')},
+        {key: 'published', value: this.$t(this.mediaTranslationPrefix + 'filterOptions.publishedStatus')},
+        {key: 'categories_titles', value: this.$t(this.mediaTranslationPrefix + 'filterOptions.categoriesByTitle')},
+        {key: 'published_date', value: this.$t(this.mediaTranslationPrefix + 'filterOptions.publishedDate')},
+        {key: 'inserted_at', value: this.$t(this.mediaTranslationPrefix + 'filterOptions.createdAt')},
+        {key: 'updated_at', value: this.$t(this.mediaTranslationPrefix + 'filterOptions.updatedAt')}
+      ]
+      if (this.blogsUserRoleProp === 'author') {
+        return baseFilters
+      } else {
+        return [
+          ...baseFilters,
+          {key: 'author', value: this.$t(this.mediaTranslationPrefix + 'filterOptions.createdBy')}
+        ]
+      }
+    }
   },
   watch: {
     projectIdProp: {
@@ -347,6 +420,13 @@ export default {
     authToken: {
       handler(val) {
         this.token = val
+      },
+      deep: true,
+      immediate: true
+    },
+    blogsUserIdProp: {
+      handler(val) {
+        this.blogsUserId = val
       },
       deep: true,
       immediate: true
@@ -373,14 +453,12 @@ export default {
     },
     categories: {
       handler(val) {
-        this.filterMap.categories.filterOptions = val
-      },
-      deep: true,
-      immediate: true
-    },
-    blogsUserIdProp: {
-      handler(val) {
-        this.blogsUserId = val
+        this.filterMap.categories_titles.filterOptions = val.map(cat => {
+          return {
+            key: cat.translation,
+            translation: cat.translation
+          }
+        })
       },
       deep: true,
       immediate: true
@@ -412,6 +490,12 @@ export default {
       this.loading = true
       const token = this.token
 
+      if (this.blogsUserRoleProp === 'author') {
+        this.payloadData.filters.push({
+          key: 'author_id',
+          value: this.blogsUserId
+        })
+      }
       if (!this.nuxtSections && filtered !== true) {
         if(this.$route.query.filters && this.$route.query.filters !== "") {
           this.$router.push(this.localePath({path: this.blogsPath, query: {filters: this.$route.query.filters}}))
@@ -419,23 +503,48 @@ export default {
           this.$router.push(this.localePath({path: this.blogsPath}))
         }
       }
-      // const response = await this.$axios.post(this.blogsUri,
-      const response = await this.$axios.get(this.blogsUri + 'author',
-          // {
-          //   ...this.payloadData,
-          //   filters: this.payloadData.filters.map(filter => {
-          //     if (filter.key === 'views' || filter.key === 'author_id') {
-          //       filter.operation = '='
-          //     } else if (filter.key === 'published') {
-          //       filter.value = filter.value === 'true'
-          //     } else if (filter.key === 'categories') {
-          //       filter.value = filter.value.map(val => val.key)
-          //     }
-          //     return filter
-          //   })
-          // },
+      const response = await this.$axios.post(this.blogsUri + 'any_articles',
+          {
+            ...this.payloadData,
+            filters: this.payloadData.filters.map(filter => {
+              if (filter.key === 'published') {
+                filter.value = filter.value === 'true'
+              } else if (filter.key === 'categories_titles') {
+                filter.value = filter.value.map(val => val.key)
+              } else if (filter.key === 'author') {
+                filter.value = filter.value.substring(
+                  filter.value.indexOf("(") + 1,
+                  filter.value.lastIndexOf(")")
+                )
+              } else if (filter.key === 'publishedFrom-/-publishedTo') {
+                filter.key = 'published_date'
+                filter.operation = "between"
+                const value1 = (new Date(filter.value.split('-/-')[0]).getTime() / 1000).toString()
+                const value2 = (new Date(filter.value.split('-/-')[1]).getTime() / 1000).toString()
+                filter.value = value1
+                filter.value2 = value2
+              } else if (filter.key === 'insertedFrom-/-insertedTo') {
+                filter.key = 'inserted_at'
+                filter.operation = "between"
+                const value1 = (new Date(filter.value.split('-/-')[0]).getTime() / 1000).toString()
+                const value2 = (new Date(filter.value.split('-/-')[1]).getTime() / 1000).toString()
+                filter.value = value1
+                filter.value2 = value2
+              } else if (filter.key === 'updatedFrom-/-updatedTo') {
+                filter.key = 'updated_at'
+                filter.operation = "between"
+                const value1 = (new Date(filter.value.split('-/-')[0]).getTime() / 1000).toString()
+                const value2 = (new Date(filter.value.split('-/-')[1]).getTime() / 1000).toString()
+                filter.value = value1
+                filter.value2 = value2
+              }
+              return filter
+            })
+          },
         {
         headers: mediaHeader({token}, this.projectId)
+      }).catch(() => {
+        this.loading = false
       })
 
       this.blogsResponse = response.data.data
@@ -446,7 +555,7 @@ export default {
     },
     seeMoreBlogs() {
       if(this.blogsUri !== '') {
-        this.payloadData.per_page += 9
+        this.payloadData.limit += 9
         this.getAllBlogs()}
     },
     async getAuthors() {
@@ -456,8 +565,9 @@ export default {
         {
         headers: mediaHeader({token}, this.projectId)
       })
+      this.usersRes = response.data.data
       response.data.data.forEach((project) => {
-        this.filterMap.author_id.filterOptions.push(
+        this.filterMap.author.filterOptions.push(
           {
             key: project.id,
             translation: project.full_name ? project.full_name + ` (${project.id})` : `(${project.id})`
@@ -522,28 +632,73 @@ export default {
         }
       }
     },
-    openBlog(blogID) {
+    openBlog(blogID, userId) {
       if(this.editBlogPath) {
         if(this.$route.query.filters && this.$route.query.filters !== "") {
-          this.$router.push(this.localePath({path: this.editBlogPath, query: {id: blogID, filters: this.filtersQuery}}))
+          this.$router.push(this.localePath({path: this.editBlogPath, query: {id: blogID, userId: userId, filters: this.filtersQuery}}))
         } else {
-          this.$router.push(this.localePath({path: this.editBlogPath, query: {id: blogID}}))
+          this.$router.push(this.localePath({path: this.editBlogPath, query: {id: blogID, userId: userId}}))
         }
       } else {
-        this.$emit('updateBlogsComponent', {name: 'BlogsEditBlog', blogId: blogID.toString(), appliedFilters: this.filtersQuery})
+        this.$emit('updateBlogsComponent', {name: 'BlogsEditBlog', blogId: blogID.toString(), userId: userId, appliedFilters: this.filtersQuery})
       }
+    },
+    async publishBlogByID(blogId, status, idx) {
+      this.loading = true
+      const token = this.token
+
+      const response = await this.$axios.put(status && status === true ? `${this.blogsUri}/articles/${blogId}/unpublish` : `${this.blogsUri}/articles/${blogId}/publish`,
+        {},
+        {
+          headers: mediaHeader({token}, this.projectId)
+        }).catch((e) => {
+        this.loading = false
+        let errorMessage = ''
+        if (e.response.data.errors) {
+          errorMessage = e.response.data.errors.files[0]
+        } else {
+          errorMessage = e.response.data.error ? `${e.response.data.error}` : e.response.data.message
+        }
+        if (this.nuxtSections) {
+          showSectionsToast(this.$toast, 'error', `${e.response.data.error}`)
+        } else if (errorMessage) {
+          this.$toast.show(
+            {
+              message: errorMessage,
+              timeout: 5,
+              classToast: 'bg-error',
+              classMessage: 'text-white',
+            }
+          )
+        }
+      })
+      if(response) {
+        this.$set(this.blogsResponse[idx], 'published', response.data.published)
+        if (this.nuxtSections) {
+          showSectionsToast(this.$toast, 'success', this.$t(this.mediaTranslationPrefix + 'blogs.articlePublished'))
+        } else {
+          this.$toast.show(
+            {
+              message: this.$t(this.mediaTranslationPrefix + 'blogs.articlePublished'),
+              classToast: 'bg-Blue',
+              classMessage: 'text-white',
+            }
+          )
+        }
+      }
+      this.loading = false
     },
     setPage(pageNumber) {
       this.currentPage = pageNumber
       this.pageNumber = pageNumber
-      this.payloadData.page = (pageNumber - 1) * this.payloadData.per_page
+      this.payloadData.page = (pageNumber - 1) * this.payloadData.limit
       this.getAllBlogs()
     },
     handlePageChange(e) {
       if (e.key === 'Enter') {
         if(this.pageNumber >= 1 && this.pageNumber <= this.totalPages) {
           this.currentPage = this.pageNumber
-          this.payloadData.page = (this.pageNumber - 1) * this.payloadData.per_page
+          this.payloadData.page = (this.pageNumber - 1) * this.payloadData.limit
           this.getAllBlogs()
         }
       }
@@ -562,7 +717,7 @@ export default {
       if(this.blogByIdUri !== '') {
         this.loading = true
         const token = this.token
-        const response = await this.$axios.delete(this.blogsUri + id,
+        const response = await this.$axios.delete(`${this.blogsUri}/${id}`,
             {
               headers: mediaHeader({token}, this.projectId)
             })
@@ -580,6 +735,13 @@ export default {
         this.showPopup = false
         await this.getAllBlogs()
         this.loading = false
+      }
+    },
+    getAuthorName(id) {
+      try {
+        return this.usersRes.find(user => user.id === id).full_name
+      } catch {
+        return id
       }
     }
   }

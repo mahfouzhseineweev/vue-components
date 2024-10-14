@@ -198,6 +198,8 @@ export default {
   // Media Translations START
   "mediaT": {
     "blogs": {
+      "editContent": "MODIFIER LE CONTENU",
+      "editArticleWarn": "Si un article publié est modifié, un brouillon de cet article est créé et vous devez publier ce brouillon pour que l'article initial soit mis à jour et le brouillon sera supprimé",
       "filterBlogs": "Filtrer les blogs",
       "noBlogsFound": "Aucun blog trouvé",
       "createNew": "+ Créer un nouveau contenu",
@@ -227,6 +229,7 @@ export default {
       "addMedia": "Ajouter un média",
       "articleCreated": "Article créé avec succès",
       "articleUpdated": "Article mis à jour avec succès",
+      "draftUpdated": "Un brouillon d l'article {name} a été crée avec succès",
       "articleDeleted": "Article supprimé avec succès",
       "articlePublished": "Le statut de publication de l'article a été mis à jour avec succès",
       "deleteArticle": "SUPPRIMER L'ARTICLE",

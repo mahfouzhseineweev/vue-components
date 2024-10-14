@@ -48,9 +48,17 @@
 </template>
 
 <script>
+import IconsEmptyImage from "./icons/EmptyImage.vue";
+import IconsMediaDocument from "./icons/mediaDocument.vue";
+import IconsCross from "./icons/cross.vue";
 
 export default {
   name: 'UploadMedia',
+  components: {
+    IconsEmptyImage,
+    IconsMediaDocument,
+    IconsCross
+  },
   props: {
     mediaLabel: {
       type: String,
