@@ -3,6 +3,14 @@
 ---
 
 
+### v1.0.8 (16/10/2024)
+
+---
+
+- [x] Bug fixes for Blogs meta component add/edit/publish/delete
+
+
+
 ### v1.0.7 (3/09/2024)
 
 ---

@@ -38,7 +38,7 @@
           />
           <span v-if="errors.path && errors.path[0]" class="text-center text-error text-sm pt-4">{{ errors.path[0] }}</span>
         </div>
-        <div>
+        <div class="hidden">
           <Inputs
             id="article-type"
             :input-model="article.type"
@@ -49,7 +49,7 @@
           />
           <span v-if="errors.type && errors.type[0]" class="text-center text-error text-sm pt-4">{{ errors.type[0] }}</span>
         </div>
-        <fieldset class="fieldSetStyle border border-solid border-gray-300 p-3 mt-2">
+        <fieldset class="fieldSetStyle border border-solid border-gray-300 p-3 mt-2 hidden">
           <legend class="w-auto px-16">{{ $t(mediaTranslationPrefix + 'blogs.metadata') }}</legend>
           <div class="flex flex-col gap-4">
             <Inputs
@@ -124,12 +124,12 @@
           </div>
         </fieldset>
         <div id="article-body">
-          <div class="text-sm mb-2">{{ $t(mediaTranslationPrefix + 'blogs.body') }}</div>
-          <quill-editor class="wyzywig" v-model="article.body" />
-        </div>
-        <div id="article-body">
           <div class="text-sm mb-2">{{ $t(mediaTranslationPrefix + 'blogs.description') }}</div>
           <quill-editor class="wyzywig" v-model="article.description" />
+        </div>
+        <div id="article-body">
+          <div class="text-sm mb-2">{{ $t(mediaTranslationPrefix + 'blogs.body') }}</div>
+          <quill-editor class="wyzywig" v-model="article.body" />
         </div>
         <div>
           <div class="text-sm mb-2">{{ $t(mediaTranslationPrefix + 'blogs.categories') }}</div>
@@ -351,7 +351,7 @@ export default {
         title: "",
         body: "",
         path: "",
-        type: "",
+        type: "article",
         metadata: {
           label: "",
           unit: "s",
