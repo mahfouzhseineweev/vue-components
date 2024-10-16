@@ -41,9 +41,7 @@
       </div>
 
       <div class="flex items-center pt-1 pl-3 pr-3">
-        <div :class="descriptionStyle">
-          {{ description }}
-        </div>
+        <div :class="descriptionStyle" v-html="description"></div>
       </div>
 
       <div class="flex flex-col items-end pt-1 pl-3 pr-3">
@@ -130,7 +128,7 @@ export default {
     },
     description: {
       type: String,
-      default: 'Blog description'
+      default: ''
     },
     lastUpdateStyle: {
       type: String,

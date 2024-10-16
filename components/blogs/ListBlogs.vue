@@ -1,10 +1,7 @@
 <template>
   <div class="mt-4" :class="nuxtSections ? 'ml-4' : ''">
 
-    <div class="flex flex-row justify-between gap-4">
-      <div class="pr-4 pb-4" :class="nuxtSections ? '' : 'md:pl-16'">
-        <span class="icon-alert pr-2"></span>{{ $t(mediaTranslationPrefix + 'blogs.editArticleWarn') }}
-      </div>
+    <div class="flex flex-row justify-end gap-4">
       <Buttons v-show="showCreateBlogButton === true && blogsUserRoleProp !== 'publisher'" :button-text="$t(mediaTranslationPrefix + 'blogs.createNew')" :button-style="createButtonsStyle" :with-icon="false" :submit-function="openCreateBlog" />
     </div>
 
@@ -27,7 +24,7 @@
 
         <div class="py-8 flex flex-wrap" :class="nuxtSections ? '' : 'md:pl-16'">
           <div v-for="(blog, idx) in blogsResponse" :key="`blog--${blog.id}`" class="m-2">
-            <Card :can-delete="blogsUserRoleProp !== 'publisher'" :edit-label="blogsUserRoleProp === 'publisher' ? blog.published ? $t(mediaTranslationPrefix + 'blogs.unpublish') : $t(mediaTranslationPrefix + 'blogs.publish') : $t(mediaTranslationPrefix + 'blogs.editContent')" :published="blog.published" :draft-of="blog.draft_of ? $t(mediaTranslationPrefix + 'blogs.draftOf', {id: blog.draft_of}) : ''" :media-src="blog.medias && blog.medias[0] && blog.medias[0].files ? blog.medias[0].files[0].url : ''" :blog-title="blog.title && blog.title !== '' && blog.title !== 'null' ? blog.title : blog.medias && blog.medias[0] && blog.medias[0].files ? blog.medias[0].files[0].filename : ''" :blog-title-style="'w-200px overflow-hidden text-ellipsis white whitespace-nowrap'" :blog-author="getAuthorName(blog.author_id)" :is-author="blog.author_id === blogsUserId" :last-update-date="blog.updated ? $t(mediaTranslationPrefix + 'blogs.lastUpdateDate') + parseDate(blog.updated) : ''" :open-blog="() => {blogsUserRoleProp === 'publisher' ? null : openBlog(blog.id, blog.author_id)}" :edit-blog="() => {blogsUserRoleProp === 'publisher' ? publishBlogByID(blog.id, blog.published, idx) : openBlog(blog.id, blog.author_id)}" @delete-blog="blogId = blog.id; showPopup = true" />
+            <Card :can-delete="blogsUserRoleProp !== 'publisher'" :description="blog.description" :edit-label="blogsUserRoleProp === 'publisher' ? blog.published ? $t(mediaTranslationPrefix + 'blogs.unpublish') : $t(mediaTranslationPrefix + 'blogs.publish') : $t(mediaTranslationPrefix + 'blogs.editContent')" :published="blog.published" :draft-of="blog.draft_of ? $t(mediaTranslationPrefix + 'blogs.draftOf', {id: blog.draft_of}) : ''" :media-src="blog.medias && blog.medias[0] && blog.medias[0].files ? blog.medias[0].files[0].url : ''" :blog-title="blog.title && blog.title !== '' && blog.title !== 'null' ? blog.title : blog.medias && blog.medias[0] && blog.medias[0].files ? blog.medias[0].files[0].filename : ''" :blog-title-style="'w-200px overflow-hidden text-ellipsis white whitespace-nowrap'" :blog-author="getAuthorName(blog.author_id)" :is-author="blog.author_id === blogsUserId" :last-update-date="blog.updated ? $t(mediaTranslationPrefix + 'blogs.lastUpdateDate') + parseDate(blog.updated) : ''" :open-blog="() => {blogsUserRoleProp === 'publisher' ? null : openBlog(blog.id, blog.author_id)}" :edit-blog="() => {blogsUserRoleProp === 'publisher' ? publishBlogByID(blog.id, blog.published, idx) : openBlog(blog.id, blog.author_id)}" @delete-blog="blogId = blog.id; showPopup = true" />
           </div>
         </div>
 
