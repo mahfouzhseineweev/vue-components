@@ -630,8 +630,8 @@ export default {
               ...metadata,
               duration: Number(metadata.duration)
             },
-            categories: categories.filter(item => !this.selectedCategories.includes(item)),
-            suggested: suggested.filter(item => !this.selectedSuggested.includes(item)),
+            categories: categories.filter(item => !this.selectedCategories.includes(item)) && categories.filter(item => !this.selectedCategories.includes(item)).length > 0 ? categories.filter(item => !this.selectedCategories.includes(item)) : undefined,
+            suggested: suggested.filter(item => !this.selectedSuggested.includes(item)) && suggested.filter(item => !this.selectedSuggested.includes(item)).length > 0 ? suggested.filter(item => !this.selectedSuggested.includes(item)) : undefined,
             // tags: articlePayload.tags ? articlePayload.tags.filter(str => str && str.trim()) : []
           },
         {
