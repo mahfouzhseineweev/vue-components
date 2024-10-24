@@ -3,6 +3,15 @@
 ---
 
 
+### v1.0.9 (24/10/2024)
+
+---
+
+- [x] Bug fix for Blogs meta component when editing a published article
+
+
+
+
 ### v1.0.8 (16/10/2024)
 
 ---
