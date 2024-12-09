@@ -6,8 +6,8 @@
         <div class="cursor-pointer text-4xl text-Blue" :class="nuxtSections ? 'fixed top-3 left-12' : 'pl-8'" @click="backClicked">
           {{ backLabel }}
         </div>
-        <div class="flex flex-row gap-2">
-          <div v-for="(lang, langIdx) in projectLangs.filter(lg => lg.key !== defaultLang)" :key="`lang-item-${langIdx}`" class="flex px-2 py-2 uppercase md:cursor-pointer" :class="lang.key === selectedTranslationLang ? langButtonSelectedStyle : langButtonStyle" @click="lang.key === selectedTranslationLang ? selectedTranslationLang = '' : selectedTranslationLang = lang.key">
+        <div v-if="article.default_locale" class="flex flex-row gap-2">
+          <div v-for="(lang, langIdx) in projectLangs.filter(lg => lg.key !== article.default_locale)" :key="`lang-item-${langIdx}`" class="flex px-2 py-2 uppercase md:cursor-pointer" :class="lang.key === selectedTranslationLang ? langButtonSelectedStyle : langButtonStyle" @click="lang.key === selectedTranslationLang ? selectedTranslationLang = '' : selectedTranslationLang = lang.key">
             {{ lang.key }}
           </div>
         </div>
@@ -23,16 +23,28 @@
 
       <div class="flex flex-col w-full gap-4 pl-2 pr-4 md:pr-0 md:mx-4">
 
-        <div>
-          <Inputs
+        <div class="flex flex-row justify-between w-full">
+          <div class="md:w-1/2">
+            <Inputs
               id="article-title"
               :input-model="article.title"
               :tout-appareil="false"
               :active="true"
               :placeholder="$t(mediaTranslationPrefix + 'blogs.title')"
               @input="(newVal) => {article.title = newVal}"
-          />
-          <span v-if="errors.title && errors.title[0]" class="text-center text-error text-sm pt-4">{{ errors.title[0] }}</span>
+            />
+            <span v-if="errors.title && errors.title[0]" class="text-center text-error text-sm pt-4">{{ errors.title[0] }}</span>
+          </div>
+          <div v-if="selectedTranslationLang" class="justify-items-end md:w-1/2">
+            <Inputs
+              id="article-title-translation"
+              :input-model="article.title"
+              :tout-appareil="false"
+              :active="true"
+              :placeholder="`${$t(mediaTranslationPrefix + 'blogs.title')} ${selectedTranslationLang.toUpperCase()}`"
+              @input="(newVal) => {article.title = newVal}"
+            />
+          </div>
         </div>
         <div>
           <Inputs
