@@ -2,8 +2,15 @@
   <div class="flex flex-col h-full justify-start">
 
     <div class="flex flex-row gap-4 items-center">
-      <div class="cursor-pointer text-4xl text-Blue" :class="nuxtSections ? 'fixed top-3 left-12' : 'pl-8'" @click="backClicked">
-        {{ backLabel }}
+      <div class="flex flex-row w-full justify-between">
+        <div class="cursor-pointer text-4xl text-Blue" :class="nuxtSections ? 'fixed top-3 left-12' : 'pl-8'" @click="backClicked">
+          {{ backLabel }}
+        </div>
+        <div class="flex flex-row gap-2">
+          <div v-for="(lang, langIdx) in projectLangs.filter(lg => lg.key !== defaultLang)" :key="`lang-item-${langIdx}`" class="flex px-2 py-2 uppercase md:cursor-pointer" :class="lang.key === selectedTranslationLang ? langButtonSelectedStyle : langButtonStyle" @click="lang.key === selectedTranslationLang ? selectedTranslationLang = '' : selectedTranslationLang = lang.key">
+            {{ lang.key }}
+          </div>
+        </div>
       </div>
       <div class="text-2xl">
         {{ computedDraft }}
@@ -37,6 +44,22 @@
               @input="(newVal) => {article.path = newVal}"
           />
           <span v-if="errors.path && errors.path[0]" class="text-center text-error text-sm pt-4">{{ errors.path[0] }}</span>
+        </div>
+        <div>
+          <div class="text-sm mb-2">{{ $t(mediaTranslationPrefix + 'blogs.defaultLang') }}</div>
+          <AutoComplete
+            :main-filter="article.default_locale"
+            :select-placeholder="$t(mediaTranslationPrefix + 'blogs.selectDefaultLang')"
+            :filter-label-prop="'name'"
+            :reduce="(option) => option.key"
+            :filter-options="projectLangs"
+            :filter-searchable="false"
+            :close-on-select="false"
+            :preselect-first="true"
+            :track-by="'key'"
+            @itemSelected="(val) => {article.default_locale = val}"
+          ></AutoComplete>
+          <span v-if="errors.default_locale && errors.default_locale[0]" class="text-center text-error text-sm pt-4">{{ errors.default_locale[0] }}</span>
         </div>
         <div class="hidden">
           <Inputs
@@ -211,7 +234,7 @@ import MediaComponent from "../MediaComponent";
 import UploadMedia from "../UploadMedia";
 import IconsCross from "../icons/cross.vue";
 import {mediaHeader, showSectionsToast} from "../media/medias";
-import {scrollToFirstError} from "../../utils/constants";
+import {scrollToFirstError, languagesList} from "../../utils/constants";
 
 /* eslint-disable vue/return-in-computed-property */
 export default {
@@ -258,6 +281,10 @@ export default {
       default: ""
     },
     blogIdProp: {
+      type: String,
+      default: ""
+    },
+    defaultLangProp: {
       type: String,
       default: ""
     },
@@ -339,8 +366,11 @@ export default {
       loading: false,
       saveButtonStyle: "py-2.5 px-12 ml-2 mr-2 text-white rounded-xl bg-Blue hover:bg-white hover:text-Blue border border-Blue hover:border-Blue",
       selectMediaButtonStyle: "py-2.5 px-12 ml-2 mr-2 text-white rounded-xl bg-Blue hover:bg-white hover:text-Blue border border-Blue hover:border-Blue",
+      langButtonStyle: "text-Blue rounded-xl bg-white hover:bg-Blue hover:text-white border border-Blue hover:border-Blue",
+      langButtonSelectedStyle: "rounded-xl bg-Blue text-white border border-Blue",
       blogsUserId: '',
       blogId: '',
+      defaultLang: '',
       createBlogUri: '',
       blogsUri: '',
       blogByIdUri: '',
@@ -351,6 +381,7 @@ export default {
         title: "",
         body: "",
         path: "",
+        default_locale: "",
         type: "article",
         metadata: {
           label: "",
@@ -378,7 +409,9 @@ export default {
       errors: {},
       showPopup: false,
       popupContent: '',
-      backLabel: '<'
+      backLabel: '<',
+      projectLangs: [],
+      selectedTranslationLang: ''
     }
   },
   computed: {
@@ -392,12 +425,22 @@ export default {
       } catch {
         return ''
       }
+    },
+    langs() {
+      return languagesList.map(l => {if(l.name && l.name[this.$i18n.locale]) {l = {...l, name: `${l.name[this.$i18n.locale]} (${l.key})`}} return l})
     }
   },
   watch: {
     blogIdProp: {
       handler(val) {
         this.blogId = val
+      },
+      deep: true,
+      immediate: true
+    },
+    defaultLangProp: {
+      handler(val) {
+        this.defaultLang = val
       },
       deep: true,
       immediate: true
@@ -482,6 +525,8 @@ export default {
     if(this.blogsUri !== '' && this.isCreateBlog !== true) {
       this.getBlogByID()
       this.getAuthorByID()
+    } else if (this.blogsUri !== '') {
+      this.getProjectInfo()
     }
   },
   methods: {
@@ -507,6 +552,7 @@ export default {
       const response = await this.$axios.post(this.blogsUri + 'articles',
         {
           ...articlePayload,
+          default_locale: this.article.default_locale,
           metadata: {
             ...metadata,
             duration: Number(metadata.duration)
@@ -568,10 +614,44 @@ export default {
       }
       this.loading = false
     },
-    async getBlogByID() {
+    async getProjectInfo() {
       this.loading = true
       const token = this.token
-      const response = await this.$axios.get(`${this.blogsUri}/articles/${this.blogId}`,
+      const response = await this.$axios.get(this.blogsUri.endsWith("/") ? this.blogsUri.slice(0, -1) : this.blogsUri,
+        {
+          headers: mediaHeader({token}, this.projectId)
+        }).catch((e) => {
+        this.loading = false
+        if (this.nuxtSections) {
+          showSectionsToast(this.$toast, 'error', e.response.data.message ? e.response.data.message : this.$t(this.mediaTranslationPrefix + 'blogs.articleNotFound'))
+        } else {
+          this.$toast.show(
+            {
+              message: e.response.data.message ? e.response.data.message : this.$t(this.mediaTranslationPrefix + 'blogs.articleNotFound'),
+              timeout: 5,
+              classToast: 'bg-error',
+              classMessage: 'text-white',
+            }
+          )
+        }
+        this.backClicked()
+      })
+      if(response && response.data && response.data.languages) {
+        this.projectLangs = []
+        response.data.languages.forEach(lang => {
+          const foundLang = this.langs.find(langItem => langItem.key === lang)
+          if (foundLang) {
+            this.projectLangs.push(this.langs.find(langItem => langItem.key === lang))
+          }
+        })
+      }
+      this.loading = false
+    },
+    async getBlogByID() {
+      await this.getProjectInfo()
+      this.loading = true
+      const token = this.token
+      const response = await this.$axios.get(`${this.blogsUri}/articles/${this.defaultLang}/${this.blogId}`,
         {
           headers: mediaHeader({token}, this.projectId)
         }).catch((e) => {
@@ -611,6 +691,9 @@ export default {
         })[0]
         this.selectedSuggested = this.article.suggested
         this.selectedCategories = this.article.categories
+
+        // this.projectLangs.filter(lg => lg.key !== this.article.default_locale)
+        // this.article.translations
       }
       this.loading = false
     },
@@ -626,6 +709,7 @@ export default {
       const response = await this.$axios.put(`${this.blogsUri}/articles/${this.blogId}`,
           {
             ...articlePayload,
+            default_locale: this.article.default_locale,
             metadata: {
               ...metadata,
               duration: Number(metadata.duration)

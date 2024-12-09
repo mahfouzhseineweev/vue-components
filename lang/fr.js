@@ -238,7 +238,9 @@ export default {
       "articleNotFound": "Article non trouvé",
       "publish": "Publier",
       "unpublish": "Annuler la publication",
-      "draftOf": "Brouillon d'article id {id} nom {name}"
+      "draftOf": "Brouillon d'article id {id} nom {name}",
+      "defaultLang": "Langue par défaut",
+      "selectDefaultLang": "Sélectionner une langue"
     },
     "table": {
       "filterBy": "Filtrer par:",

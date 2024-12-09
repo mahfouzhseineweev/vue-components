@@ -238,7 +238,9 @@ export default {
       "articleNotFound": "Article not found",
       "publish": "Publish",
       "unpublish": "Unpublish",
-      "draftOf": "Draft of article id {id} name {name}"
+      "draftOf": "Draft of article id {id} name {name}",
+      "defaultLang": "Default language",
+      "selectDefaultLang": "Select a language"
     },
     "table": {
       "filterBy": "Filter by:",
