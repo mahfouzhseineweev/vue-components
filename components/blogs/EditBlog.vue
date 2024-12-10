@@ -1,16 +1,16 @@
 <template>
   <div class="flex flex-col h-full justify-start">
 
-    <div class="flex flex-row gap-4 items-center">
-      <div class="flex flex-row w-full justify-between">
+    <div class="flex flex-row w-full justify-between pr-4">
+      <div class="flex flex-row gap-4 items-center">
         <div class="cursor-pointer text-4xl text-Blue" :class="nuxtSections ? 'fixed top-3 left-12' : 'pl-8'" @click="backClicked">
           {{ backLabel }}
         </div>
-        <LocaleTranslations :default-locale="article.default_locale" :locales="projectLangs.filter(lg => lg.key !== article.default_locale)" :selected-translation-lang="selectedTranslationLang" :lang-button-selected-style="langButtonSelectedStyle" :lang-button-style="langButtonStyle" @locale-clicked="(lang) => {lang.key === selectedTranslationLang ? selectedTranslationLang = '' : selectedTranslationLang = lang.key}" />
+        <div class="text-2xl">
+          {{ computedDraft }}
+        </div>
       </div>
-      <div class="text-2xl">
-        {{ computedDraft }}
-      </div>
+      <LocaleTranslations :default-locale="article.default_locale" :locales="projectLangs.filter(lg => lg.key !== article.default_locale)" :selected-translation-lang="selectedTranslationLang" :lang-button-selected-style="langButtonSelectedStyle" :lang-button-style="langButtonStyle" @locale-clicked="(lang) => {lang.key === selectedTranslationLang ? selectedTranslationLang = '' : selectedTranslationLang = lang.key}" />
     </div>
 
     <MediaComponent ref="sectionsMediaComponent" :content-used-key="contentUsedKey" :auth-token="token" :server-url="serverUrl" :project-id="projectId" :sections-user-id="blogsUserId" :selected-media-id="$route.query.id" @emittedMedia="(media) => selectedMedia = media"></MediaComponent>
@@ -66,7 +66,7 @@
             :close-on-select="false"
             :preselect-first="true"
             :track-by="'key'"
-            @itemSelected="(val) => {article.default_locale = val}"
+            @itemSelected="(val) => {article.default_locale = val; selectedTranslationLang = ''}"
           ></AutoComplete>
           <span v-if="errors.default_locale && errors.default_locale[0]" class="text-center text-error text-sm pt-4">{{ errors.default_locale[0] }}</span>
         </div>
@@ -763,6 +763,7 @@ export default {
     },
     async updateBlogByID() {
       this.loading = true
+      this.translationErrors = {}
       await this.checkCategoriesAndSuggested()
       const token = this.token
 
