@@ -1,7 +1,7 @@
 import { shallowMount } from "@vue/test-utils";
 import EditBlog from "../EditBlog.vue";
-import LocaleTranslations from '../LocaleTranslations.vue'; // Update with the actual path
-import Inputs from '@/components/Inputs.vue'; // Update with the actual path
+import LocaleTranslations from '../LocaleTranslations.vue';
+import Inputs from '@/components/Inputs.vue';
 
 jest.mock('vue-quill-editor', () => ({
   name: 'quill-editor',
@@ -39,7 +39,7 @@ describe('EditBlog', () => {
       stubs: {
         'quill-editor': true,
         LocaleTranslations,
-        Inputs,  // Stub child components
+        Inputs
       }
     });
   });
