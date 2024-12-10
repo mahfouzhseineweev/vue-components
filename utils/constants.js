@@ -26,3 +26,18 @@ export const languagesList = [
   { key: 'fa', name: { en: 'Persian', fr: 'Perse' } },
   { key: 'hi', name: { en: 'Indian', fr: 'Indien' } }
 ]
+
+export function hasValuesExcept(obj, excludeKey) {
+  return Object.keys(obj).some(key => {
+    // Skip the excluded key
+    if (key === excludeKey) return false;
+
+    // Check if the value is valid (not null, undefined, or an empty string)
+    const value = obj[key];
+    return value !== null && value !== undefined && value !== '';
+  });
+}
+
+export function filterArrayByObjectValues(array, excludeKey) {
+  return array.filter(obj => hasValuesExcept(obj, excludeKey));
+}
