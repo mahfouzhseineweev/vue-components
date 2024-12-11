@@ -221,7 +221,7 @@
 
     <div class="sticky bottom-0 py-2 m-4 rounded-md shadow">
 
-      <div class="flex w-full items-center justify-end">
+      <div class="flex w-full items-center justify-end bg-white">
         <div v-if="blogsUri !== '' && isCreateBlog !== true" class="cursor-pointer flex items-center" @click="showPopup = true">
           <div class="text-error text-sm md:text-lg">{{ $t(mediaTranslationPrefix + 'blogs.deleteArticle') }}</div>
           <span class="icon-trashCan2 text-md pb-1 px-2"></span>
@@ -550,12 +550,16 @@ export default {
   },
   async mounted() {
     if(this.blogsUri !== '' && this.isCreateBlog !== true) {
-      this.getBlogByID()
-      this.getAuthorByID()
+      await this.getBlogByID()
+      await this.getAuthorByID()
     } else if (this.blogsUri !== '') {
       await this.getProjectInfo()
       this.initializeTranslations()
     }
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
   },
   methods: {
     addMedia() {
