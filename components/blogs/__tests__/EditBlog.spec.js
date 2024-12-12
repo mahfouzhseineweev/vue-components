@@ -128,6 +128,31 @@ describe('EditBlog', () => {
     expect(errorMessage.text()).toBe('This title is required');
   });
 
+  // it('calls the save method correctly with the expected payload', async () => {
+  //   // Mock successful response
+  //   global.mocks.$axios.post.mockResolvedValueOnce({
+  //     data: { id: 1, title: 'Updated Title', default_locale: 'fr', translations: [{ locale: 'en', title: 'Title of the article' },
+  //         { locale: 'fr', title: 'Titre de l\'article' },
+  //         { locale: 'es', title: 'Título del artículo' },] },
+  //   })
+  //
+  //   await wrapper.vm.createArticle()
+  //
+  //   // Assert axios call
+  //   expect(global.mocks.$axios.post).toHaveBeenCalledWith(
+  //       `/articles`,
+  //       {
+  //         title: 'Article Title',
+  //         default_locale: 'en',
+  //         translations: [{ locale: 'en', title: 'Title of the article' },
+  //           { locale: 'fr', title: 'Titre de l\'article' },
+  //           { locale: 'es', title: 'Título del artículo' },],
+  //       },
+  //       expect.anything()
+  //   )
+  //
+  // })
+
   it('matches the snapshot', () => {
     expect(wrapper.html()).toMatchSnapshot();
   });

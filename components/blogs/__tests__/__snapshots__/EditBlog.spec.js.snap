@@ -2,22 +2,22 @@
 
 exports[`EditBlog matches the snapshot 1`] = `
 "<div class=\\"flex flex-col h-full justify-start\\">
-  <div class=\\"flex flex-row gap-4 items-center\\">
-    <div class=\\"flex flex-row w-full justify-between\\">
+  <div class=\\"flex flex-row w-full justify-between pr-4\\">
+    <div class=\\"flex flex-row gap-4 items-center\\">
       <div class=\\"cursor-pointer text-4xl text-Blue pl-8\\">
         &lt;
       </div>
-      <div id=\\"LocaleTranslations\\" class=\\"flex flex-row gap-2\\">
-        <div data-testid=\\"locale-trans-item-fr\\" class=\\"flex px-2 py-2 uppercase md:cursor-pointer bg-blue-500 locale-trans-item-fr\\">
-          fr
-        </div>
-        <div data-testid=\\"locale-trans-item-es\\" class=\\"flex px-2 py-2 uppercase md:cursor-pointer bg-gray-500 locale-trans-item-es\\">
-          es
-        </div>
+      <div class=\\"text-2xl\\">
+
       </div>
     </div>
-    <div class=\\"text-2xl\\">
-
+    <div id=\\"LocaleTranslations\\" class=\\"flex flex-row gap-2\\">
+      <div data-testid=\\"locale-trans-item-fr\\" class=\\"flex px-2 py-2 uppercase md:cursor-pointer h-max bg-blue-500 locale-trans-item-fr\\">
+        fr
+      </div>
+      <div data-testid=\\"locale-trans-item-es\\" class=\\"flex px-2 py-2 uppercase md:cursor-pointer h-max bg-gray-500 locale-trans-item-es\\">
+        es
+      </div>
     </div>
   </div>
   <mediacomponent-stub authtoken=\\"\\" sectionsuserid=\\"\\" projectid=\\"\\" serverurl=\\"\\" selectedmediaid=\\"\\" contentusedkey=\\"\\"></mediacomponent-stub>
@@ -248,7 +248,7 @@ exports[`EditBlog matches the snapshot 1`] = `
     </div>
   </div>
   <div class=\\"sticky bottom-0 py-2 m-4 rounded-md shadow\\">
-    <div class=\\"flex w-full items-center justify-end\\">
+    <div class=\\"flex w-full items-center justify-end bg-white\\">
       <!---->
       <!---->
       <div>
