@@ -10,7 +10,7 @@
           {{ computedDraft }}
         </div>
       </div>
-      <LocaleTranslations :default-locale="article.default_locale" :locales="projectLangs.filter(lg => lg.key !== article.default_locale)" :selected-translation-lang="selectedTranslationLang" :lang-button-selected-style="langButtonSelectedStyle" :lang-button-style="langButtonStyle" @locale-clicked="(lang) => {lang.key === selectedTranslationLang ? selectedTranslationLang = '' : selectedTranslationLang = lang.key}" />
+      <LocaleTranslations :default-locale="article.default_locale" :locales="projectLangs.filter(lg => lg.key !== article.default_locale)" :selected-translation-lang="selectedTranslationLang" :lang-button-selected-style="langButtonSelectedStyle" :lang-button-style="langButtonStyle" @locale-clicked="localeClicked" />
     </div>
 
     <MediaComponent ref="sectionsMediaComponent" :content-used-key="contentUsedKey" :auth-token="token" :server-url="serverUrl" :project-id="projectId" :sections-user-id="blogsUserId" :selected-media-id="$route.query.id" @emittedMedia="(media) => selectedMedia = media"></MediaComponent>
@@ -562,6 +562,18 @@ export default {
     });
   },
   methods: {
+    localeClicked(lang) {
+      if (lang.key === this.selectedTranslationLang) {
+        this.selectedTranslationLang = ''
+      } else {
+        this.selectedTranslationLang = lang.key
+      }
+      this.$nextTick(() => {
+        window.scrollTo({
+          top: 0
+        });
+      })
+    },
     addMedia() {
       this.article.medias.push({});
     },
