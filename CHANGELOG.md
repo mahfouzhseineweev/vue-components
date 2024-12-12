@@ -9,7 +9,7 @@
 
 - [x] Bug fix for Blogs meta component when editing a published article
 
-
+- [x] Added Blogs meta component translation support for articles
 
 
 ### v1.0.8 (16/10/2024)

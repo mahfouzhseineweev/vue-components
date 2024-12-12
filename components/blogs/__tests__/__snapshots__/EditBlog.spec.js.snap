@@ -1,0 +1,265 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EditBlog matches the snapshot 1`] = `
+"<div class=\\"flex flex-col h-full justify-start\\">
+  <div class=\\"flex flex-row w-full justify-between pr-4\\">
+    <div class=\\"flex flex-row gap-4 items-center\\">
+      <div class=\\"cursor-pointer text-4xl text-Blue pl-8\\">
+        &lt;
+      </div>
+      <div class=\\"text-2xl\\">
+
+      </div>
+    </div>
+    <div id=\\"LocaleTranslations\\" class=\\"flex flex-row gap-2\\">
+      <div data-testid=\\"locale-trans-item-fr\\" class=\\"flex px-2 py-2 uppercase md:cursor-pointer h-max bg-blue-500 locale-trans-item-fr\\">
+        fr
+      </div>
+      <div data-testid=\\"locale-trans-item-es\\" class=\\"flex px-2 py-2 uppercase md:cursor-pointer h-max bg-gray-500 locale-trans-item-es\\">
+        es
+      </div>
+    </div>
+  </div>
+  <mediacomponent-stub authtoken=\\"\\" sectionsuserid=\\"\\" projectid=\\"\\" serverurl=\\"\\" selectedmediaid=\\"\\" contentusedkey=\\"\\"></mediacomponent-stub>
+  <div class=\\"flex flex-col md:flex-row mt-4 w-full gap-4 md:gap-0 mb-16 md:pl-6\\">
+    <div class=\\"flex flex-col w-full gap-4 pl-2 pr-4 md:pr-0 md:mx-4\\">
+      <div class=\\"flex flex-row justify-between w-full\\">
+        <div class=\\"md:w-1/2\\">
+          <div id=\\"article-title\\">
+            <div class=\\"w-full relative flex items-center\\">
+              <div class=\\"\\">
+                <transition-stub name=\\"fade\\" mode=\\"out-in\\">
+                  <div><label for=\\"Placeholder Text\\" class=\\"absolute block text-xs font-bold pt-1 pl-10 pin-t pin-l w-full leading-normal text-Blue\\">
+                      Placeholder Text
+                    </label></div>
+                </transition-stub> <input id=\\"Placeholder Text\\" step=\\"any\\" placeholder=\\"Placeholder Text\\" autocomplete=\\"on\\" type=\\"text\\" class=\\"py-4 pl-10 border border-FieldGray rounded-xl h-48px w-240px md:w-344px focus:outline-none pt-8 pr-3.5 py-4 pl-10 border border-FieldGray rounded-xl h-48px w-240px md:w-344px focus:outline-none\\">
+                <!---->
+              </div>
+              <!---->
+              <!---->
+              <!---->
+              <!---->
+              <!---->
+            </div>
+            <!---->
+            <!---->
+            <!---->
+            <!---->
+          </div>
+          <!---->
+        </div>
+        <div class=\\"justify-items-end md:w-1/2\\">
+          <div id=\\"article-title-translation\\">
+            <div class=\\"w-full relative flex items-center\\">
+              <div class=\\"\\">
+                <transition-stub name=\\"fade\\" mode=\\"out-in\\">
+                  <div><label for=\\"undefined FR\\" class=\\"absolute block text-xs font-bold pt-1 pl-10 pin-t pin-l w-full leading-normal text-Blue\\">
+                      undefined FR
+                    </label></div>
+                </transition-stub> <input id=\\"undefined FR\\" step=\\"any\\" placeholder=\\"undefined FR\\" autocomplete=\\"on\\" type=\\"text\\" class=\\"py-4 pl-10 border border-FieldGray rounded-xl h-48px w-240px md:w-344px focus:outline-none pt-8 pr-3.5 py-4 pl-10 border border-FieldGray rounded-xl h-48px w-240px md:w-344px focus:outline-none\\">
+                <!---->
+              </div>
+              <!---->
+              <!---->
+              <!---->
+              <!---->
+              <!---->
+            </div>
+            <!---->
+            <!---->
+            <!---->
+            <!---->
+          </div> <span class=\\"translation-error text-center text-error text-sm pt-4\\">This title is required</span>
+        </div>
+      </div>
+      <div>
+        <div id=\\"article-path\\">
+          <div class=\\"w-full relative flex items-center\\">
+            <div class=\\"\\">
+              <transition-stub name=\\"fade\\" mode=\\"out-in\\">
+                <!---->
+              </transition-stub> <input id=\\"Placeholder Text\\" step=\\"any\\" placeholder=\\"Placeholder Text\\" autocomplete=\\"on\\" type=\\"text\\" class=\\"py-4 pl-10 border border-FieldGray rounded-xl h-48px w-240px md:w-344px focus:outline-none pr-3.5 py-4 pl-10 border border-FieldGray rounded-xl h-48px w-240px md:w-344px focus:outline-none\\">
+              <!---->
+            </div>
+            <!---->
+            <!---->
+            <!---->
+            <!---->
+            <!---->
+          </div>
+          <!---->
+          <!---->
+          <!---->
+          <!---->
+        </div>
+        <!---->
+      </div>
+      <div>
+        <div class=\\"text-sm mb-2\\"></div>
+        <autocomplete-stub selectwrapperstyle=\\"w-max\\" selectlabel=\\"\\" selectstyle=\\"default-select-style-chooser relative\\" labelstyle=\\"text-md font-base mr-2 mb-1\\" labelinsidestyle=\\"absolute top-2 text-xs font-base text-Blue mr-2 mb-1 z-10\\" labelinsidedefaultstyle=\\"absolute top-3 text-md font-base text-darkGray mr-2 mb-1 defaultSearching z-10\\" labelpaddingwithicon=\\"left-12\\" labelpadding=\\"left-3\\" selecterrorclass=\\"select-error-class\\" selecticonclass=\\"select-icon-class\\" labelinsideclass=\\"label-inside-class\\" trackby=\\"key\\" preselectfirst=\\"true\\" reduce=\\"[Function]\\" labeloutside=\\"true\\" mainfilter=\\"en\\" selectplaceholder=\\"\\" filterlabelprop=\\"name\\" filtericonicomoon=\\"absolute top-4.5 left-4 icon-filterIcon icon-filterIcon filterIconStyle\\" focusstyle=\\"border border-Blue rounded-xl\\" focusmarginstyle=\\"px-0.5 py-0.5\\" filteroptions=\\"[object Object],[object Object],[object Object]\\"></autocomplete-stub>
+        <!---->
+      </div>
+      <div class=\\"hidden\\">
+        <div id=\\"article-type\\">
+          <div class=\\"w-full relative flex items-center\\">
+            <div class=\\"\\">
+              <transition-stub name=\\"fade\\" mode=\\"out-in\\">
+                <div><label for=\\"Placeholder Text\\" class=\\"absolute block text-xs font-bold pt-1 pl-10 pin-t pin-l w-full leading-normal text-Blue\\">
+                    Placeholder Text
+                  </label></div>
+              </transition-stub> <input id=\\"Placeholder Text\\" step=\\"any\\" placeholder=\\"Placeholder Text\\" autocomplete=\\"on\\" type=\\"text\\" class=\\"py-4 pl-10 border border-FieldGray rounded-xl h-48px w-240px md:w-344px focus:outline-none pt-8 pr-3.5 py-4 pl-10 border border-FieldGray rounded-xl h-48px w-240px md:w-344px focus:outline-none\\">
+              <!---->
+            </div>
+            <!---->
+            <!---->
+            <!---->
+            <!---->
+            <!---->
+          </div>
+          <!---->
+          <!---->
+          <!---->
+          <!---->
+        </div>
+        <!---->
+      </div>
+      <fieldset class=\\"fieldSetStyle border border-solid border-gray-300 p-3 mt-2 hidden\\">
+        <legend class=\\"w-auto px-16\\"></legend>
+        <div class=\\"flex flex-col gap-4\\">
+          <div id=\\"article-label\\">
+            <div class=\\"w-full relative flex items-center\\">
+              <div class=\\"\\">
+                <transition-stub name=\\"fade\\" mode=\\"out-in\\">
+                  <!---->
+                </transition-stub> <input id=\\"Placeholder Text\\" step=\\"any\\" placeholder=\\"Placeholder Text\\" autocomplete=\\"on\\" type=\\"text\\" class=\\"py-4 pl-10 border border-FieldGray rounded-xl h-48px w-240px md:w-344px focus:outline-none pr-3.5 py-4 pl-10 border border-FieldGray rounded-xl h-48px w-240px md:w-344px focus:outline-none\\">
+                <!---->
+              </div>
+              <!---->
+              <!---->
+              <!---->
+              <!---->
+              <!---->
+            </div>
+            <!---->
+            <!---->
+            <!---->
+            <!---->
+          </div>
+          <div id=\\"article-unit\\">
+            <div class=\\"w-full relative flex items-center\\">
+              <div class=\\"\\">
+                <transition-stub name=\\"fade\\" mode=\\"out-in\\">
+                  <div><label for=\\"Placeholder Text\\" class=\\"absolute block text-xs font-bold pt-1 pl-10 pin-t pin-l w-full leading-normal text-Blue\\">
+                      Placeholder Text
+                    </label></div>
+                </transition-stub> <input id=\\"Placeholder Text\\" disabled=\\"disabled\\" step=\\"any\\" placeholder=\\"Placeholder Text\\" autocomplete=\\"on\\" type=\\"text\\" class=\\"py-4 pl-10 border border-FieldGray rounded-xl h-48px w-240px md:w-344px focus:outline-none pt-8 pr-3.5 py-4 pl-10 border border-FieldGray rounded-xl h-48px w-240px md:w-344px focus:outline-none\\">
+                <!---->
+              </div>
+              <!---->
+              <!---->
+              <!---->
+              <!---->
+              <!---->
+            </div>
+            <!---->
+            <!---->
+            <!---->
+            <!---->
+          </div>
+          <div id=\\"article-duration\\">
+            <div class=\\"w-full relative flex items-center\\">
+              <div class=\\"\\">
+                <transition-stub name=\\"fade\\" mode=\\"out-in\\">
+                  <!---->
+                </transition-stub> <input id=\\"Placeholder Text\\" step=\\"any\\" placeholder=\\"Placeholder Text\\" autocomplete=\\"on\\" type=\\"text\\" class=\\"py-4 pl-10 border border-FieldGray rounded-xl h-48px w-240px md:w-344px focus:outline-none pr-3.5 py-4 pl-10 border border-FieldGray rounded-xl h-48px w-240px md:w-344px focus:outline-none\\">
+                <!---->
+              </div>
+              <!---->
+              <!---->
+              <!---->
+              <!---->
+              <!---->
+            </div>
+            <!---->
+            <!---->
+            <!---->
+            <!---->
+          </div>
+        </div>
+      </fieldset>
+      <div>
+        <div id=\\"article-author\\">
+          <div class=\\"w-full relative flex items-center\\">
+            <div class=\\"\\">
+              <transition-stub name=\\"fade\\" mode=\\"out-in\\">
+                <!---->
+              </transition-stub> <input id=\\"Placeholder Text\\" disabled=\\"disabled\\" step=\\"any\\" placeholder=\\"Placeholder Text\\" autocomplete=\\"on\\" type=\\"text\\" class=\\"py-4 pl-10 border border-FieldGray rounded-xl h-48px w-240px md:w-344px focus:outline-none pr-3.5 py-4 pl-10 border border-FieldGray rounded-xl h-48px w-240px md:w-344px focus:outline-none\\">
+              <!---->
+            </div>
+            <!---->
+            <!---->
+            <!---->
+            <!---->
+            <!---->
+          </div>
+          <!---->
+          <!---->
+          <!---->
+          <!---->
+        </div>
+      </div>
+      <fieldset class=\\"fieldSetStyle border border-solid border-gray-300 p-3 mt-2\\">
+        <legend class=\\"w-auto px-16\\"></legend>
+        <div class=\\"add-button underline cursor-pointer mt-2\\">
+          <div class=\\"p3 bold text\\"></div>
+        </div>
+      </fieldset>
+      <div class=\\"flex flex-row justify-between w-full gap-4\\">
+        <div id=\\"article-description\\" class=\\"w-1/2\\">
+          <div class=\\"text-sm mb-2\\"></div>
+          <quill-editor-stub value=\\"\\" class=\\"wyzywig\\"></quill-editor-stub>
+        </div>
+        <div class=\\"w-1/2\\">
+          <div class=\\"text-sm mb-2\\"> FR</div>
+          <quill-editor-stub id=\\"article-description-translation\\" value=\\"Nouvelle description\\" class=\\"wyzywig\\"></quill-editor-stub>
+          <!---->
+        </div>
+      </div>
+      <div class=\\"flex flex-row justify-between w-full gap-4\\">
+        <div id=\\"article-body\\" class=\\"w-1/2\\">
+          <div class=\\"text-sm mb-2\\"></div>
+          <quill-editor-stub value=\\"\\" class=\\"wyzywig\\"></quill-editor-stub>
+        </div>
+        <div class=\\"w-1/2\\">
+          <div class=\\"text-sm mb-2\\"> FR</div>
+          <quill-editor-stub id=\\"article-body-translation\\" value=\\"Nouveau contenu du corps\\" class=\\"wyzywig\\"></quill-editor-stub>
+          <!---->
+        </div>
+      </div>
+      <div>
+        <div class=\\"text-sm mb-2\\"></div>
+        <autocomplete-stub selectwrapperstyle=\\"w-max\\" selectlabel=\\"\\" selectstyle=\\"default-select-style-chooser relative\\" labelstyle=\\"text-md font-base mr-2 mb-1\\" labelinsidestyle=\\"absolute top-2 text-xs font-base text-Blue mr-2 mb-1 z-10\\" labelinsidedefaultstyle=\\"absolute top-3 text-md font-base text-darkGray mr-2 mb-1 defaultSearching z-10\\" labelpaddingwithicon=\\"left-12\\" labelpadding=\\"left-3\\" selecterrorclass=\\"select-error-class\\" selecticonclass=\\"select-icon-class\\" labelinsideclass=\\"label-inside-class\\" trackby=\\"key\\" multiple=\\"true\\" preselectfirst=\\"true\\" reduce=\\"[Function]\\" labeloutside=\\"true\\" mainfilter=\\"\\" selectplaceholder=\\"\\" filterlabelprop=\\"translation\\" filtericonicomoon=\\"absolute top-4.5 left-4 icon-filterIcon icon-filterIcon filterIconStyle\\" focusstyle=\\"border border-Blue rounded-xl\\" focusmarginstyle=\\"px-0.5 py-0.5\\" filteroptions=\\"\\"></autocomplete-stub>
+      </div>
+      <div>
+        <div class=\\"text-sm mb-2\\"></div>
+        <autocomplete-stub selectwrapperstyle=\\"w-max\\" selectlabel=\\"\\" selectstyle=\\"default-select-style-chooser relative\\" labelstyle=\\"text-md font-base mr-2 mb-1\\" labelinsidestyle=\\"absolute top-2 text-xs font-base text-Blue mr-2 mb-1 z-10\\" labelinsidedefaultstyle=\\"absolute top-3 text-md font-base text-darkGray mr-2 mb-1 defaultSearching z-10\\" labelpaddingwithicon=\\"left-12\\" labelpadding=\\"left-3\\" selecterrorclass=\\"select-error-class\\" selecticonclass=\\"select-icon-class\\" labelinsideclass=\\"label-inside-class\\" trackby=\\"key\\" multiple=\\"true\\" preselectfirst=\\"true\\" reduce=\\"[Function]\\" labeloutside=\\"true\\" mainfilter=\\"\\" selectplaceholder=\\"\\" filterlabelprop=\\"translation\\" filtericonicomoon=\\"absolute top-4.5 left-4 icon-filterIcon icon-filterIcon filterIconStyle\\" focusstyle=\\"border border-Blue rounded-xl\\" focusmarginstyle=\\"px-0.5 py-0.5\\" filteroptions=\\"\\"></autocomplete-stub>
+      </div>
+      <!---->
+    </div>
+  </div>
+  <div class=\\"sticky bottom-0 py-2 m-4 rounded-md shadow\\">
+    <div class=\\"flex w-full items-center justify-end bg-white\\">
+      <!---->
+      <!---->
+      <div>
+        <buttons-stub submitfunction=\\"[Function]\\" buttontext=\\"Button with icon\\" active=\\"true\\" icomooniconactivesrc=\\"icon-rotateWhite\\" icomooniconinactivesrc=\\"icon-rotate\\" icomooniconactivestyle=\\"pl-2\\" icomooniconinactivestyle=\\"pl-2\\" buttonstyle=\\"py-2.5 px-12 ml-2 mr-2 text-white rounded-xl bg-Blue hover:bg-white hover:text-Blue border border-Blue hover:border-Blue\\" inactivebuttonstyle=\\"bg-SmallTextGray text-white border-SmallTextGray border px-3.5 h-53px py-3.5 rounded-xl cursor-default\\" iconstyle=\\"[object Object]\\"></buttons-stub>
+      </div>
+      <div>
+        <!---->
+      </div>
+    </div>
+  </div>
+  <alertpopup-stub canbedeleted=\\"true\\" errors=\\"[object Object],[object Object],[object Object],[object Object],[object Object],[object Object]\\" containerstyle=\\"inline-block shadow-lg shadow ring-black ring-opacity-5 align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle md:w-1/2\\" errorscontainerstyle=\\"mt-10 mb-14 self-center h-auto max-h-72 overflow-y-auto\\" createdonstyle=\\"font-light pl-4\\" createdonlabel=\\"Created on:\\" titledelete=\\"Are you sure you want to delete this media?\\" titledeletestyle=\\"text-xl font-base text-center w-220px\\" titlenodeletestyle=\\"text-xl font-base text-center\\" titlenodelete=\\"Oops! You cannot delete this media\\" subtitlenodeletestyle=\\"text-xl font-extralight text-center\\" subtitlenodelete=\\"because it's linked to the following contents:\\" title=\\"\\" titlestyle=\\"\\" description=\\"\\" descriptionstyle=\\"\\" alerticon=\\"flex w-full icon-alert text-6xl justify-center pb-8\\" icomooncrossiconstyle=\\"cursor-pointer\\" applybuttontext=\\"DELETE MEDIA\\" applybuttonstyle=\\"text-sm text-TextGray font-semibold bg-white border border-FieldGray hover:border-Blue hover:bg-white rounded-2xl px-4 py-3 mr-2 hover:text-Blue\\" cancelbuttontext=\\"CANCEL\\" cancelbuttonstyle=\\"text-sm text-white bg-Blue hover:bg-white border hover:border-Blue rounded-2xl px-6 py-3 hover:text-Blue\\" icomooncrossiconsrc=\\"icon-cross\\"></alertpopup-stub>
+  <animatedloading-stub animatedloadingicon=\\"[Function]\\"></animatedloading-stub>
+</div>"
+`;
