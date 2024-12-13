@@ -1,13 +1,16 @@
 <template>
   <div class="flex flex-col h-full justify-start">
 
-    <div class="flex flex-row gap-4 items-center">
-      <div class="cursor-pointer text-4xl text-Blue" :class="nuxtSections ? 'fixed top-3 left-12' : 'pl-8'" @click="backClicked">
-        {{ backLabel }}
+    <div class="flex flex-row w-full justify-between pr-4">
+      <div class="flex flex-row gap-4 items-center">
+        <div class="cursor-pointer text-4xl text-Blue" :class="nuxtSections ? 'fixed top-3 left-12' : 'pl-8'" @click="backClicked">
+          {{ backLabel }}
+        </div>
+        <div class="text-2xl">
+          {{ computedDraft }}
+        </div>
       </div>
-      <div class="text-2xl">
-        {{ computedDraft }}
-      </div>
+      <LocaleTranslations :default-locale="article.default_locale" :locales="projectLangs.filter(lg => lg.key !== article.default_locale)" :selected-translation-lang="selectedTranslationLang" :lang-button-selected-style="langButtonSelectedStyle" :lang-button-style="langButtonStyle" @locale-clicked="localeClicked" />
     </div>
 
     <MediaComponent ref="sectionsMediaComponent" :content-used-key="contentUsedKey" :auth-token="token" :server-url="serverUrl" :project-id="projectId" :sections-user-id="blogsUserId" :selected-media-id="$route.query.id" @emittedMedia="(media) => selectedMedia = media"></MediaComponent>
@@ -16,16 +19,29 @@
 
       <div class="flex flex-col w-full gap-4 pl-2 pr-4 md:pr-0 md:mx-4">
 
-        <div>
-          <Inputs
+        <div class="flex flex-row justify-between w-full">
+          <div class="md:w-1/2">
+            <Inputs
               id="article-title"
               :input-model="article.title"
               :tout-appareil="false"
               :active="true"
               :placeholder="$t(mediaTranslationPrefix + 'blogs.title')"
               @input="(newVal) => {article.title = newVal}"
-          />
-          <span v-if="errors.title && errors.title[0]" class="text-center text-error text-sm pt-4">{{ errors.title[0] }}</span>
+            />
+            <span v-if="errors.title && errors.title[0]" class="text-center text-error text-sm pt-4">{{ errors.title[0] }}</span>
+          </div>
+          <div v-if="selectedTranslationLang" class="justify-items-end md:w-1/2">
+            <Inputs
+              id="article-title-translation"
+              :input-model="article.translations.find(t => t.locale === selectedTranslationLang).title"
+              :tout-appareil="false"
+              :active="true"
+              :placeholder="`${$t(mediaTranslationPrefix + 'blogs.title')} ${selectedTranslationLang.toUpperCase()}`"
+              @input="(newVal) => {article.translations.find(t => t.locale === selectedTranslationLang).title = newVal}"
+            />
+            <span v-if="translationErrors && translationErrors[selectedTranslationLang] && translationErrors[selectedTranslationLang].title && translationErrors[selectedTranslationLang].title[0]" class="translation-error text-center text-error text-sm pt-4">{{ translationErrors[selectedTranslationLang].title[0] }}</span>
+          </div>
         </div>
         <div>
           <Inputs
@@ -37,6 +53,22 @@
               @input="(newVal) => {article.path = newVal}"
           />
           <span v-if="errors.path && errors.path[0]" class="text-center text-error text-sm pt-4">{{ errors.path[0] }}</span>
+        </div>
+        <div>
+          <div class="text-sm mb-2">{{ $t(mediaTranslationPrefix + 'blogs.defaultLang') }}</div>
+          <AutoComplete
+            :main-filter="article.default_locale"
+            :select-placeholder="$t(mediaTranslationPrefix + 'blogs.selectDefaultLang')"
+            :filter-label-prop="'name'"
+            :reduce="(option) => option.key"
+            :filter-options="projectLangs"
+            :filter-searchable="false"
+            :close-on-select="false"
+            :preselect-first="true"
+            :track-by="'key'"
+            @itemSelected="(val) => {article.default_locale = val; selectedTranslationLang = ''}"
+          ></AutoComplete>
+          <span v-if="errors.default_locale && errors.default_locale[0]" class="text-center text-error text-sm pt-4">{{ errors.default_locale[0] }}</span>
         </div>
         <div class="hidden">
           <Inputs
@@ -123,13 +155,27 @@
             <div class="p3 bold text">{{ $t(mediaTranslationPrefix + 'blogs.addMedia') }}</div>
           </div>
         </fieldset>
-        <div id="article-body">
-          <div class="text-sm mb-2">{{ $t(mediaTranslationPrefix + 'blogs.description') }}</div>
-          <quill-editor class="wyzywig" v-model="article.description" />
+        <div class="flex flex-row justify-between w-full gap-4">
+          <div id="article-description" :class="{'w-1/2' : selectedTranslationLang !== ''}">
+            <div class="text-sm mb-2">{{ $t(mediaTranslationPrefix + 'blogs.description') }}</div>
+            <quill-editor class="wyzywig" v-model="article.description" />
+          </div>
+          <div v-if="selectedTranslationLang" class="w-1/2">
+            <div class="text-sm mb-2">{{ $t(mediaTranslationPrefix + 'blogs.description') }} {{ selectedTranslationLang.toUpperCase() }}</div>
+            <quill-editor id="article-description-translation" class="wyzywig" v-model="article.translations.find(t => t.locale === selectedTranslationLang).description" />
+            <span v-if="translationErrors && translationErrors[selectedTranslationLang] && translationErrors[selectedTranslationLang].description && translationErrors[selectedTranslationLang].description[0]" class="translation-error text-center text-error text-sm pt-4">{{ translationErrors[selectedTranslationLang].description[0] }}</span>
+          </div>
         </div>
-        <div id="article-body">
-          <div class="text-sm mb-2">{{ $t(mediaTranslationPrefix + 'blogs.body') }}</div>
-          <quill-editor class="wyzywig" v-model="article.body" />
+        <div class="flex flex-row justify-between w-full gap-4">
+          <div id="article-body" :class="{'w-1/2' : selectedTranslationLang !== ''}">
+            <div class="text-sm mb-2">{{ $t(mediaTranslationPrefix + 'blogs.body') }}</div>
+            <quill-editor class="wyzywig" v-model="article.body" />
+          </div>
+          <div v-if="selectedTranslationLang" class="w-1/2">
+            <div class="text-sm mb-2">{{ $t(mediaTranslationPrefix + 'blogs.body') }} {{ selectedTranslationLang.toUpperCase() }}</div>
+            <quill-editor id="article-body-translation" class="wyzywig" v-model="article.translations.find(t => t.locale === selectedTranslationLang).body" />
+            <span v-if="translationErrors && translationErrors[selectedTranslationLang] && translationErrors[selectedTranslationLang].body && translationErrors[selectedTranslationLang].body[0]" class="translation-error text-center text-error text-sm pt-4">{{ translationErrors[selectedTranslationLang].body[0] }}</span>
+          </div>
         </div>
         <div>
           <div class="text-sm mb-2">{{ $t(mediaTranslationPrefix + 'blogs.categories') }}</div>
@@ -175,7 +221,7 @@
 
     <div class="sticky bottom-0 py-2 m-4 rounded-md shadow">
 
-      <div class="flex w-full items-center justify-end">
+      <div class="flex w-full items-center justify-end bg-white">
         <div v-if="blogsUri !== '' && isCreateBlog !== true" class="cursor-pointer flex items-center" @click="showPopup = true">
           <div class="text-error text-sm md:text-lg">{{ $t(mediaTranslationPrefix + 'blogs.deleteArticle') }}</div>
           <span class="icon-trashCan2 text-md pb-1 px-2"></span>
@@ -211,7 +257,8 @@ import MediaComponent from "../MediaComponent";
 import UploadMedia from "../UploadMedia";
 import IconsCross from "../icons/cross.vue";
 import {mediaHeader, showSectionsToast} from "../media/medias";
-import {scrollToFirstError} from "../../utils/constants";
+import LocaleTranslations from "../blogs/LocaleTranslations.vue";
+import {scrollToFirstError, languagesList, filterArrayByObjectValues} from "../../utils/constants";
 
 /* eslint-disable vue/return-in-computed-property */
 export default {
@@ -230,7 +277,8 @@ export default {
     AnimatedLoading,
     MediaComponent,
     UploadMedia,
-    IconsCross
+    IconsCross,
+    LocaleTranslations
   },
   props: {
     appliedFilters: {
@@ -258,6 +306,10 @@ export default {
       default: ""
     },
     blogIdProp: {
+      type: String,
+      default: ""
+    },
+    defaultLangProp: {
       type: String,
       default: ""
     },
@@ -339,8 +391,11 @@ export default {
       loading: false,
       saveButtonStyle: "py-2.5 px-12 ml-2 mr-2 text-white rounded-xl bg-Blue hover:bg-white hover:text-Blue border border-Blue hover:border-Blue",
       selectMediaButtonStyle: "py-2.5 px-12 ml-2 mr-2 text-white rounded-xl bg-Blue hover:bg-white hover:text-Blue border border-Blue hover:border-Blue",
+      langButtonStyle: "text-Blue rounded-xl bg-white hover:bg-Blue hover:text-white border border-Blue hover:border-Blue",
+      langButtonSelectedStyle: "rounded-xl bg-Blue text-white border border-Blue",
       blogsUserId: '',
       blogId: '',
+      defaultLang: '',
       createBlogUri: '',
       blogsUri: '',
       blogByIdUri: '',
@@ -351,6 +406,7 @@ export default {
         title: "",
         body: "",
         path: "",
+        default_locale: "",
         type: "article",
         metadata: {
           label: "",
@@ -360,6 +416,7 @@ export default {
         // tags: [
         //     ''
         // ],
+        translations: [],
         medias: [],
         description: "",
         categories: [],
@@ -376,9 +433,12 @@ export default {
       selectedMedia: {},
       selectedMediaIndex: 0,
       errors: {},
+      translationErrors: {},
       showPopup: false,
       popupContent: '',
-      backLabel: '<'
+      backLabel: '<',
+      projectLangs: [],
+      selectedTranslationLang: ''
     }
   },
   computed: {
@@ -392,12 +452,22 @@ export default {
       } catch {
         return ''
       }
+    },
+    langs() {
+      return languagesList.map(l => {if(l.name && l.name[this.$i18n.locale]) {l = {...l, name: `${l.name[this.$i18n.locale]} (${l.key})`}} return l})
     }
   },
   watch: {
     blogIdProp: {
       handler(val) {
         this.blogId = val
+      },
+      deep: true,
+      immediate: true
+    },
+    defaultLangProp: {
+      handler(val) {
+        this.defaultLang = val
       },
       deep: true,
       immediate: true
@@ -478,13 +548,32 @@ export default {
       this.$refs['sectionsMediaComponent'].closeModal()
     }
   },
-  mounted() {
+  async mounted() {
     if(this.blogsUri !== '' && this.isCreateBlog !== true) {
-      this.getBlogByID()
-      this.getAuthorByID()
+      await this.getBlogByID()
+      await this.getAuthorByID()
+    } else if (this.blogsUri !== '') {
+      await this.getProjectInfo()
+      this.initializeTranslations()
     }
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
   },
   methods: {
+    localeClicked(lang) {
+      if (lang.key === this.selectedTranslationLang) {
+        this.selectedTranslationLang = ''
+      } else {
+        this.selectedTranslationLang = lang.key
+      }
+      this.$nextTick(() => {
+        window.scrollTo({
+          top: 0
+        });
+      })
+    },
     addMedia() {
       this.article.medias.push({});
     },
@@ -500,13 +589,18 @@ export default {
     // },
     async createArticle() {
       this.errors = {}
+      this.translationErrors = {}
       this.loading = true
       const token = this.token
 
+      let translations = JSON.parse(JSON.stringify(this.article.translations))
+      translations = filterArrayByObjectValues(translations, 'locale')
       const { metadata, author_id, created, draft_of, id, promo_image, promo_video, published, published_date, updated, viewing_time, views, ...articlePayload } = this.article
       const response = await this.$axios.post(this.blogsUri + 'articles',
         {
           ...articlePayload,
+          translations,
+          default_locale: this.article.default_locale,
           metadata: {
             ...metadata,
             duration: Number(metadata.duration)
@@ -520,6 +614,14 @@ export default {
         if (e.response.data.errors) {
           this.errors = e.response.data.errors
           scrollToFirstError(this.errors, 'article-')
+          if (e.response.data.errors.translations) {
+            e.response.data.errors.translations.forEach((transError, idx) => {
+              if (Object.keys(transError).length > 0 && translations[idx] && translations[idx].locale) {
+                this.translationErrors[translations[idx].locale] = transError
+                this.selectedTranslationLang = translations[idx].locale
+              }
+            })
+          }
         }
         let errorMessage = e.response.data.error ? `${e.response.data.error}` : e.response.data.message
         if (this.nuxtSections) {
@@ -568,10 +670,44 @@ export default {
       }
       this.loading = false
     },
-    async getBlogByID() {
+    async getProjectInfo() {
       this.loading = true
       const token = this.token
-      const response = await this.$axios.get(`${this.blogsUri}/articles/${this.blogId}`,
+      const response = await this.$axios.get(this.blogsUri.endsWith("/") ? this.blogsUri.slice(0, -1) : this.blogsUri,
+        {
+          headers: mediaHeader({token}, this.projectId)
+        }).catch((e) => {
+        this.loading = false
+        if (this.nuxtSections) {
+          showSectionsToast(this.$toast, 'error', e.response.data.message ? e.response.data.message : this.$t(this.mediaTranslationPrefix + 'blogs.articleNotFound'))
+        } else {
+          this.$toast.show(
+            {
+              message: e.response.data.message ? e.response.data.message : this.$t(this.mediaTranslationPrefix + 'blogs.articleNotFound'),
+              timeout: 5,
+              classToast: 'bg-error',
+              classMessage: 'text-white',
+            }
+          )
+        }
+        this.backClicked()
+      })
+      if(response && response.data && response.data.languages) {
+        this.projectLangs = []
+        response.data.languages.forEach(lang => {
+          const foundLang = this.langs.find(langItem => langItem.key === lang)
+          if (foundLang) {
+            this.projectLangs.push(this.langs.find(langItem => langItem.key === lang))
+          }
+        })
+      }
+      this.loading = false
+    },
+    async getBlogByID() {
+      await this.getProjectInfo()
+      this.loading = true
+      const token = this.token
+      const response = await this.$axios.get(`${this.blogsUri}/articles/${this.defaultLang}/${this.blogId}`,
         {
           headers: mediaHeader({token}, this.projectId)
         }).catch((e) => {
@@ -611,27 +747,60 @@ export default {
         })[0]
         this.selectedSuggested = this.article.suggested
         this.selectedCategories = this.article.categories
+
+        this.initializeTranslations()
       }
       this.loading = false
     },
+    initializeTranslations() {
+      if (!this.article.translations) {
+        this.article.translations = []
+      }
+      this.projectLangs.forEach(langOb => {
+        const translationExist = this.article.translations.find(trans => trans.locale === langOb.key)
+        if (!translationExist) {
+          if (langOb.key === this.article.default_locale) {
+            this.article.translations.push({
+              locale: langOb.key,
+              title: this.article.title || "",
+              description: this.article.description || "",
+              body: this.article.body || ""
+            })
+          } else {
+            this.article.translations.push({
+              locale: langOb.key,
+              title: "",
+              description: "",
+              body: "",
+            })
+          }
+        }
+      })
+    },
     async updateBlogByID() {
       this.loading = true
+      this.translationErrors = {}
       await this.checkCategoriesAndSuggested()
       const token = this.token
 
       if (this.article.metadata.unit) {
         this.article.metadata.unit = "s"
       }
+
+      let translations = JSON.parse(JSON.stringify(this.article.translations))
+      translations = filterArrayByObjectValues(translations, 'locale')
       const { metadata, categories, suggested, author_id, created, draft_of, id, promo_image, promo_video, published, published_date, updated, viewing_time, views, ...articlePayload } = this.article
       const response = await this.$axios.put(`${this.blogsUri}/articles/${this.blogId}`,
           {
             ...articlePayload,
+            translations,
+            default_locale: this.article.default_locale,
             metadata: {
               ...metadata,
               duration: Number(metadata.duration)
             },
-            categories: categories.filter(item => !this.selectedCategories.includes(item)),
-            suggested: suggested.filter(item => !this.selectedSuggested.includes(item)),
+            categories: categories.filter(item => !this.selectedCategories.includes(item)) && categories.filter(item => !this.selectedCategories.includes(item)).length > 0 ? categories.filter(item => !this.selectedCategories.includes(item)) : undefined,
+            suggested: suggested.filter(item => !this.selectedSuggested.includes(item)) && suggested.filter(item => !this.selectedSuggested.includes(item)).length > 0 ? suggested.filter(item => !this.selectedSuggested.includes(item)) : undefined,
             // tags: articlePayload.tags ? articlePayload.tags.filter(str => str && str.trim()) : []
           },
         {
@@ -641,6 +810,14 @@ export default {
         if (e.response.data.errors) {
           this.errors = e.response.data.errors
           scrollToFirstError(this.errors, 'article-')
+          if (e.response.data.errors.translations) {
+            e.response.data.errors.translations.forEach((transError, idx) => {
+              if (Object.keys(transError).length > 0 && translations[idx] && translations[idx].locale) {
+                this.translationErrors[translations[idx].locale] = transError
+                this.selectedTranslationLang = translations[idx].locale
+              }
+            })
+          }
         }
         let errorMessage = e.response.data.error ? `${e.response.data.error}` : e.response.data.message
         if (this.nuxtSections) {
@@ -801,14 +978,16 @@ export default {
             this.loading = false
       })
       this.filterMap.suggested = []
-      response.data.data.forEach((article) => {
-        this.filterMap.suggested.push(
-            {
-              key: article.id.toString(),
-              translation: article.title
-            }
-        )
-      })
+      if (response.data && response.data.data) {
+        response.data.data.forEach((article) => {
+          this.filterMap.suggested.push(
+              {
+                key: article.id.toString(),
+                translation: article.title
+              }
+          )
+        })
+      }
       this.loading = false
     }
   }
