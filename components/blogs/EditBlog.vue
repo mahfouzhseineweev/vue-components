@@ -26,7 +26,7 @@
               :input-model="article.title"
               :tout-appareil="false"
               :active="true"
-              :placeholder="$t(mediaTranslationPrefix + 'blogs.title')"
+              :placeholder="$t(mediaTranslationPrefix + 'blogs.title') + '*'"
               @input="(newVal) => {article.title = newVal}"
             />
             <span v-if="errors.title && errors.title[0]" class="text-center text-error text-sm pt-4">{{ errors.title[0] }}</span>
@@ -49,13 +49,13 @@
               :input-model="article.path"
               :tout-appareil="false"
               :active="true"
-              :placeholder="$t(mediaTranslationPrefix + 'blogs.path')"
+              :placeholder="$t(mediaTranslationPrefix + 'blogs.path') + '*'"
               @input="(newVal) => {article.path = newVal}"
           />
           <span v-if="errors.path && errors.path[0]" class="text-center text-error text-sm pt-4">{{ errors.path[0] }}</span>
         </div>
         <div>
-          <div class="text-sm mb-2">{{ $t(mediaTranslationPrefix + 'blogs.defaultLang') }}</div>
+          <div class="text-sm mb-2">{{ $t(mediaTranslationPrefix + 'blogs.defaultLang') + '*' }}</div>
           <AutoComplete
             :main-filter="article.default_locale"
             :select-placeholder="$t(mediaTranslationPrefix + 'blogs.selectDefaultLang')"
@@ -157,8 +157,9 @@
         </fieldset>
         <div class="flex flex-row justify-between w-full gap-4">
           <div id="article-description" :class="{'w-1/2' : selectedTranslationLang !== ''}">
-            <div class="text-sm mb-2">{{ $t(mediaTranslationPrefix + 'blogs.description') }}</div>
+            <div class="text-sm mb-2">{{ $t(mediaTranslationPrefix + 'blogs.description') + '*' }}</div>
             <quill-editor class="wyzywig" v-model="article.description" />
+            <span v-if="errors.description && errors.description[0]" class="text-center text-error text-sm pt-4">{{ errors.description[0] }}</span>
           </div>
           <div v-if="selectedTranslationLang" class="w-1/2">
             <div class="text-sm mb-2">{{ $t(mediaTranslationPrefix + 'blogs.description') }} {{ selectedTranslationLang.toUpperCase() }}</div>
@@ -168,8 +169,9 @@
         </div>
         <div class="flex flex-row justify-between w-full gap-4">
           <div id="article-body" :class="{'w-1/2' : selectedTranslationLang !== ''}">
-            <div class="text-sm mb-2">{{ $t(mediaTranslationPrefix + 'blogs.body') }}</div>
+            <div class="text-sm mb-2">{{ $t(mediaTranslationPrefix + 'blogs.body') + '*' }}</div>
             <quill-editor class="wyzywig" v-model="article.body" />
+            <span v-if="errors.body && errors.body[0]" class="text-center text-error text-sm pt-4">{{ errors.body[0] }}</span>
           </div>
           <div v-if="selectedTranslationLang" class="w-1/2">
             <div class="text-sm mb-2">{{ $t(mediaTranslationPrefix + 'blogs.body') }} {{ selectedTranslationLang.toUpperCase() }}</div>
