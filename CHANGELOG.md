@@ -3,6 +3,13 @@
 ---
 
 
+### v1.0.10 (20/12/2024)
+
+---
+
+- [x] Update for Blogs meta component when creating/editing an article to have body and description required
+
+
 ### v1.0.9 (24/10/2024)
 
 ---
