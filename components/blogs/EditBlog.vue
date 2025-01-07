@@ -158,24 +158,24 @@
         <div class="flex flex-row justify-between w-full gap-4">
           <div id="article-description" :class="{'w-1/2' : selectedTranslationLang !== ''}">
             <div class="text-sm mb-2">{{ $t(mediaTranslationPrefix + 'blogs.description') + '*' }}</div>
-            <quill-editor class="wyzywig" v-model="article.description" />
+            <wysiwyg :html="article.description" :auth-token="token" :project-id-prop="projectId" :sections-user-id="blogsUserId" :server-url="serverUrl" :selected-media-id="$route.query.id" @settingsUpdate="(content) => article.description = content"/>
             <span v-if="errors.description && errors.description[0]" class="text-center text-error text-sm pt-4">{{ errors.description[0] }}</span>
           </div>
           <div v-if="selectedTranslationLang" class="w-1/2">
             <div class="text-sm mb-2">{{ $t(mediaTranslationPrefix + 'blogs.description') }} {{ selectedTranslationLang.toUpperCase() }}</div>
-            <quill-editor id="article-description-translation" class="wyzywig" v-model="article.translations.find(t => t.locale === selectedTranslationLang).description" />
+            <wysiwyg id="article-description-translation" :html="article.translations.find(t => t.locale === selectedTranslationLang).description" :auth-token="token" :project-id-prop="projectId" :sections-user-id="blogsUserId" :server-url="serverUrl" :selected-media-id="$route.query.id" @settingsUpdate="(content) => article.translations.find(t => t.locale === selectedTranslationLang).description = content"/>
             <span v-if="translationErrors && translationErrors[selectedTranslationLang] && translationErrors[selectedTranslationLang].description && translationErrors[selectedTranslationLang].description[0]" class="translation-error text-center text-error text-sm pt-4">{{ translationErrors[selectedTranslationLang].description[0] }}</span>
           </div>
         </div>
         <div class="flex flex-row justify-between w-full gap-4">
           <div id="article-body" :class="{'w-1/2' : selectedTranslationLang !== ''}">
             <div class="text-sm mb-2">{{ $t(mediaTranslationPrefix + 'blogs.body') + '*' }}</div>
-            <quill-editor class="wyzywig" v-model="article.body" />
+            <wysiwyg :html="article.body" :auth-token="token" :project-id-prop="projectId" :sections-user-id="blogsUserId" :server-url="serverUrl" :selected-media-id="$route.query.id" @settingsUpdate="(content) => article.body = content"/>
             <span v-if="errors.body && errors.body[0]" class="text-center text-error text-sm pt-4">{{ errors.body[0] }}</span>
           </div>
           <div v-if="selectedTranslationLang" class="w-1/2">
             <div class="text-sm mb-2">{{ $t(mediaTranslationPrefix + 'blogs.body') }} {{ selectedTranslationLang.toUpperCase() }}</div>
-            <quill-editor id="article-body-translation" class="wyzywig" v-model="article.translations.find(t => t.locale === selectedTranslationLang).body" />
+            <wysiwyg id="article-body-translation" :html="article.translations.find(t => t.locale === selectedTranslationLang).body" :auth-token="token" :project-id-prop="projectId" :sections-user-id="blogsUserId" :server-url="serverUrl" :selected-media-id="$route.query.id" @settingsUpdate="(content) => article.translations.find(t => t.locale === selectedTranslationLang).body = content"/>
             <span v-if="translationErrors && translationErrors[selectedTranslationLang] && translationErrors[selectedTranslationLang].body && translationErrors[selectedTranslationLang].body[0]" class="translation-error text-center text-error text-sm pt-4">{{ translationErrors[selectedTranslationLang].body[0] }}</span>
           </div>
         </div>
@@ -257,6 +257,7 @@ import AnimatedLoading from "../AnimatedLoading";
 import HeaderContainer from "../HeaderContainer";
 import MediaComponent from "../MediaComponent";
 import UploadMedia from "../UploadMedia";
+import wysiwyg from "../wysiwyg";
 import IconsCross from "../icons/cross.vue";
 import {mediaHeader, showSectionsToast} from "../media/medias";
 import LocaleTranslations from "../blogs/LocaleTranslations.vue";
@@ -280,7 +281,8 @@ export default {
     MediaComponent,
     UploadMedia,
     IconsCross,
-    LocaleTranslations
+    LocaleTranslations,
+    wysiwyg
   },
   props: {
     appliedFilters: {

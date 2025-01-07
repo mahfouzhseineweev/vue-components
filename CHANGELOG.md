@@ -3,6 +3,14 @@
 ---
 
 
+### v1.0.11 (07/01/2025)
+
+---
+
+- [x] Update Wysiwyg editor used by Blogs Meta component to use the recent version of the editor
+
+
+
 ### v1.0.10 (20/12/2024)
 
 ---
