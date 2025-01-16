@@ -1,5 +1,6 @@
 <template>
   <div class="input">
+    <span class="flex text-start text-xs pb-1 wyzywig-desc">{{ $t('quillEditor.quillDesc') }}</span>
     <quill-editor :key="quillKey" ref="myQuillEditor" v-model="settings" :options="options" class="wyzywig" />
     <MediaComponent ref="sectionsMediaComponent" :content-used-key="contentUsedKey" :auth-token="authToken" :server-url="serverUrl" :project-id="projectIdProp" :sections-user-id="sectionsUserId" :selected-media-id="$route.query.id" @emittedMedia="(media) => selectedMedia = media"></MediaComponent>
   </div>
@@ -283,5 +284,9 @@ export default {
 }
 .quill-editor.wyzywig img {
   display: inline !important;
+}
+.quill-editor.wyzywig .ql-container.ql-snow {
+  max-height: 70vh;
+  overflow-y: auto;
 }
 </style>
