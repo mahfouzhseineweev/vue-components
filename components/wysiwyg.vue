@@ -64,7 +64,8 @@ export default {
       settings: "",
       savedFormat: null,
       selectedMedia: null,
-      options: null
+      options: null,
+      selectedRange: null
     };
   },
   watch: {
@@ -99,8 +100,32 @@ export default {
       if (mediaObject.files[0].headers) {
         media.headers = mediaObject.files[0].headers
       }
+
+      if (this.selectedRange) {
+        this.$refs.myQuillEditor.quill.deleteText(this.selectedRange.index, this.selectedRange.length)
+      }
+
       const range = this.$refs.myQuillEditor.quill.getSelection();
-      this.$refs.myQuillEditor.quill.insertEmbed(range ? range.index : 0, 'image', media.url);
+      this.$refs.myQuillEditor.quill.insertEmbed(this.selectedRange ? this.selectedRange.index : range ? range.index : 0, 'image', media.url);
+
+      try {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(this.$refs.myQuillEditor.quill.root.innerHTML, 'text/html');
+        const imgTags = doc.querySelectorAll('img');
+        imgTags.forEach(img => {
+          if (!img.hasAttribute('media-id')) {
+            img.setAttribute('media-id', media.media_id);
+          }
+          if (!img.hasAttribute('alt') && media.seo_tag) {
+            img.setAttribute('alt', media.seo_tag);
+          }
+          if (!img.hasAttribute('loading')) {
+            img.setAttribute('loading', 'lazy');
+          }
+        });
+        this.$refs.myQuillEditor.quill.root.innerHTML = doc.body.innerHTML;
+      } catch {}
+
       this.$emit('wysiwygMedia', media);
       this.$refs.sectionsMediaComponent.closeModal()
     }
@@ -110,6 +135,39 @@ export default {
       let Emoji = require("quill-emoji");
       let Quill = require('quill');
       Quill.register("modules/emoji", Emoji);
+
+      const ImageBlot = Quill.import("formats/image");
+      class CustomImageBlot extends ImageBlot {
+        static blotName = "customImage";
+        static tagName = "img";
+
+        /**
+         * Converts the HTML tag to image blot
+         * @param value
+         */
+        static create(value) {
+          let node = super.create();
+          Object.getOwnPropertyNames(value).forEach((attribute_name) => {
+            node.setAttribute(attribute_name, value[attribute_name]);
+          });
+
+          return node;
+        }
+
+        /**
+         * Converts the image blot to HTML tag
+         * @param node
+         */
+        static value(node) {
+          var blot = {};
+          node.getAttributeNames().forEach((attribute_name) => {
+            blot[attribute_name] = node.getAttribute(attribute_name);
+          });
+
+          return blot;
+        }
+      }
+      Quill.register(CustomImageBlot);
     }
 
     if(this.editorOptions.modules && Object.keys(this.editorOptions.modules).length > 0) {
@@ -149,7 +207,20 @@ export default {
   },
   mounted() {
     this.$refs.myQuillEditor.quill.getModule('toolbar').addHandler('image', () => {
-      this.uploadFunction();
+      this.selectedRange = null
+      let selectedMedia = ''
+      try {
+        const range = this.$refs.myQuillEditor.quill.getSelection();
+        if (range && range.length > 0) {
+          this.selectedRange = range
+          const delta = this.$refs.myQuillEditor.quill.getContents(range.index, range.length);
+          if (delta && delta.ops && delta.ops.length > 0 && delta.ops.length === 1 && delta.ops[0] && delta.ops[0].insert && delta.ops[0].insert.customImage && delta.ops[0].insert.customImage['media-id']) {
+            selectedMedia = delta.ops[0].insert.customImage['media-id']
+          }
+        }
+      } catch {}
+
+      this.uploadFunction(selectedMedia);
     });
 
     var saveButtons = document.querySelectorAll('.ql-save-format');
@@ -170,8 +241,8 @@ export default {
     validate() {
       return true;
     },
-    uploadFunction() {
-      this.$refs.sectionsMediaComponent.openModal(null, null)
+    uploadFunction(mediaId = null) {
+      this.$refs.sectionsMediaComponent.openModal(mediaId, null)
     },
     saveFormat() {
       const selection = this.$refs.myQuillEditor.quill.getSelection();
