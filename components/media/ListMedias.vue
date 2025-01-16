@@ -67,7 +67,7 @@ import AnimatedLoading from "../AnimatedLoading";
 import Buttons from "../Buttons";
 import Folder from "./Folder";
 import Card from "./Card";
-import {mediaHeader} from "./medias";
+import {mediaHeader, showSectionsToast} from "./medias";
 
 export default {
   name: "Medias",
@@ -454,117 +454,133 @@ export default {
       return false;
     },
     async getAllMedias(folderMediaType, filtered) {
-      if (this.nuxtSections && this.mediaCategory === 'document') {
-        this.selectedFolder = 'document'
-      }
-      this.loading = true
-      const token = this.token
-      this.$axios.post(this.mediaUri,
-        {
-          sort: {
-            inserted_at: this.payloadData.sort.inserted_at
-          }
-        },
-        {
-          headers: mediaHeader({token}, this.projectId)
-        }).then(response => {
-        this.allMedias = []
-        this.imageMedias = []
-        this.videoMedias = []
-        this.documentMedias = []
-        response.data.result.forEach((media) => {
-          this.allMedias.push(media.files[0])
-          if(media.type === 'image') {
-            this.imageMedias.push(media.files[0])
-          } else if(media.type === 'video') {
-            this.videoMedias.push(media.files[0])
-          } else if(media.type === 'document') {
-            this.documentMedias.push(media.files[0])
-          }
+      try {
+        if (this.nuxtSections && this.mediaCategory === 'document') {
+          this.selectedFolder = 'document'
+        }
+        this.loading = true
+        const token = this.token
+        this.$axios.post(this.mediaUri,
+            {
+              sort: {
+                inserted_at: this.payloadData.sort.inserted_at
+              }
+            },
+            {
+              headers: mediaHeader({token}, this.projectId)
+            }).then(response => {
+          this.allMedias = []
+          this.imageMedias = []
+          this.videoMedias = []
+          this.documentMedias = []
+          response.data.result.forEach((media) => {
+            this.allMedias.push(media.files[0])
+            if(media.type === 'image') {
+              this.imageMedias.push(media.files[0])
+            } else if(media.type === 'video') {
+              this.videoMedias.push(media.files[0])
+            } else if(media.type === 'document') {
+              this.documentMedias.push(media.files[0])
+            }
+          })
+
+          this.allMediasLength = this.allMedias.length
+          this.imageMediasLength = this.imageMedias.length
+          this.videoMediasLength = this.videoMedias.length
+          this.documentMediasLength = this.documentMedias.length
         })
 
-        this.allMediasLength = this.allMedias.length
-        this.imageMediasLength = this.imageMedias.length
-        this.videoMediasLength = this.videoMedias.length
-        this.documentMediasLength = this.documentMedias.length
-      })
-
-      if (!this.nuxtSections && filtered !== true) {
-        if(this.$route.query.filters && this.$route.query.filters !== "") {
-          this.$router.push(this.localePath({path: this.mediasPath, query: {filters: this.$route.query.filters, folder: folderMediaType}}))
-        } else {
-          this.$router.push(this.localePath({path: this.mediasPath, query: {folder: this.selectedFolder}}))
-        }
-      }
-      if (this.selectedFolder) {
-        if (this.selectedFolder === 'document') {
-          if (this.hasObjectWithKey(this.payloadData.filters, 'key', 'type')) {
-            this.payloadData.filters.find(filter => filter.key === 'type').value = 'document'
+        if (!this.nuxtSections && filtered !== true) {
+          if(this.$route.query.filters && this.$route.query.filters !== "") {
+            this.$router.push(this.localePath({path: this.mediasPath, query: {filters: this.$route.query.filters, folder: folderMediaType}}))
           } else {
-            this.payloadData.filters.push(
-              {
-                key: "type",
-                value: "document"
-              }
-            )
+            this.$router.push(this.localePath({path: this.mediasPath, query: {folder: this.selectedFolder}}))
           }
+        }
+        if (this.selectedFolder) {
+          if (this.selectedFolder === 'document') {
+            if (this.hasObjectWithKey(this.payloadData.filters, 'key', 'type')) {
+              this.payloadData.filters.find(filter => filter.key === 'type').value = 'document'
+            } else {
+              this.payloadData.filters.push(
+                  {
+                    key: "type",
+                    value: "document"
+                  }
+              )
+            }
+          } else if (this.selectedFolder === 'image') {
+            if (this.hasObjectWithKey(this.payloadData.filters, 'key', 'type')) {
+              this.payloadData.filters.find(filter => filter.key === 'type').value = 'image'
+            } else {
+              this.payloadData.filters.push(
+                  {
+                    key: "type",
+                    value: "image"
+                  }
+              )
+            }
+          } else {
+            this.payloadData.filters = this.payloadData.filters.filter((filter) => filter.key !== "type")
+          }
+        }
+        const response = await this.$axios.post(this.mediaUri,
+            this.payloadData,
+            {
+              headers: mediaHeader({token}, this.projectId)
+            })
+
+        this.mediaResponse = response.data.result
+        this.totalMedias = response.data.total
+
+        if (!this.selectedFolder || this.selectedFolder === 'all') {
+          this.allMedias = []
+          this.imageMedias = []
+          this.videoMedias = []
+          this.documentMedias = []
+          response.data.result.forEach((media) => {
+            this.allMedias.push(media.files[0])
+            if(media.type === 'image') {
+              this.imageMedias.push(media.files[0])
+            } else if(media.type === 'video') {
+              this.videoMedias.push(media.files[0])
+            } else if(media.type === 'document') {
+              this.documentMedias.push(media.files[0])
+            }
+          })
+        } else if (this.selectedFolder === 'document') {
+          this.documentMedias = []
+          response.data.result.forEach((media) => {
+            if(media.type === 'document') {
+              this.documentMedias.push(media.files[0])
+            }
+          })
         } else if (this.selectedFolder === 'image') {
-          if (this.hasObjectWithKey(this.payloadData.filters, 'key', 'type')) {
-            this.payloadData.filters.find(filter => filter.key === 'type').value = 'image'
-          } else {
-            this.payloadData.filters.push(
-              {
-                key: "type",
-                value: "image"
-              }
-            )
-          }
+          this.imageMedias = []
+          response.data.result.forEach((media) => {
+            if(media.type === 'image') {
+              this.imageMedias.push(media.files[0])
+            }
+          })
+        }
+
+        this.$nuxt.$emit('setModel')
+        this.loading = false
+      } catch (e) {
+        this.loading = false
+        if (this.nuxtSections) {
+          showSectionsToast(this.$toast, 'error', e.response.data.message)
         } else {
-          this.payloadData.filters = this.payloadData.filters.filter((filter) => filter.key !== "type")
+          this.$toast.show(
+            {
+              message: e.response.data.message,
+              timeout: 5,
+              classToast: 'bg-error',
+              classMessage: 'text-white',
+            }
+          )
         }
       }
-      const response = await this.$axios.post(this.mediaUri,
-        this.payloadData,
-        {
-        headers: mediaHeader({token}, this.projectId)
-      })
-
-      this.mediaResponse = response.data.result
-      this.totalMedias = response.data.total
-
-      if (!this.selectedFolder || this.selectedFolder === 'all') {
-        this.allMedias = []
-        this.imageMedias = []
-        this.videoMedias = []
-        this.documentMedias = []
-        response.data.result.forEach((media) => {
-          this.allMedias.push(media.files[0])
-          if(media.type === 'image') {
-            this.imageMedias.push(media.files[0])
-          } else if(media.type === 'video') {
-            this.videoMedias.push(media.files[0])
-          } else if(media.type === 'document') {
-            this.documentMedias.push(media.files[0])
-          }
-        })
-      } else if (this.selectedFolder === 'document') {
-        this.documentMedias = []
-        response.data.result.forEach((media) => {
-          if(media.type === 'document') {
-            this.documentMedias.push(media.files[0])
-          }
-        })
-      } else if (this.selectedFolder === 'image') {
-        this.imageMedias = []
-        response.data.result.forEach((media) => {
-          if(media.type === 'image') {
-            this.imageMedias.push(media.files[0])
-          }
-        })
-      }
-
-      this.$nuxt.$emit('setModel')
-      this.loading = false
     },
     seeMoreMedias() {
       if(this.mediaUri !== '') {

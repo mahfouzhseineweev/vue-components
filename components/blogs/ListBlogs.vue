@@ -540,8 +540,16 @@ export default {
           },
         {
         headers: mediaHeader({token}, this.projectId)
-      }).catch(() => {
+      }).catch((e) => {
         this.loading = false
+        this.$toast.show(
+          {
+            message: e.response.data.message,
+            timeout: 5,
+            classToast: 'bg-error',
+            classMessage: 'text-white',
+          }
+        )
       })
 
       this.blogsResponse = response.data.data
