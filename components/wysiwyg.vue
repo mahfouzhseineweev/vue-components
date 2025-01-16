@@ -284,4 +284,8 @@ export default {
 .quill-editor.wyzywig img {
   display: inline !important;
 }
+.quill-editor.wyzywig .ql-container.ql-snow {
+  max-height: 70vh;
+  overflow-y: auto;
+}
 </style>
