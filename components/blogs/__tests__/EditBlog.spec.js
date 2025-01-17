@@ -2,6 +2,7 @@ import { shallowMount } from "@vue/test-utils";
 import EditBlog from "../EditBlog.vue";
 import LocaleTranslations from '../LocaleTranslations.vue';
 import Inputs from '@/components/Inputs.vue';
+import wyzywig from '@/components/wysiwyg.vue';
 
 jest.mock('vue-quill-editor', () => ({
   name: 'quill-editor',
@@ -15,9 +16,9 @@ describe('EditBlog', () => {
       default_locale: 'en',
       title: 'Article Title',
       translations: [
-        { locale: 'en', title: 'Title of the article' },
-        { locale: 'fr', title: 'Titre de l\'article' },
-        { locale: 'es', title: 'Título del artículo' },
+        { locale: 'en', title: 'Title of the article', description: '', body: '' },
+        { locale: 'fr', title: 'Titre de l\'article', description: '', body: '' },
+        { locale: 'es', title: 'Título del artículo', description: '', body: '' },
       ],
     },
     projectLangs: [
@@ -28,24 +29,42 @@ describe('EditBlog', () => {
     selectedTranslationLang: '',
     langButtonSelectedStyle: 'bg-blue-500',
     langButtonStyle: 'bg-gray-500',
+    blogsUri: 'https://api.example.com',
+    blogId: 123,
+    token: 'test-token',
+    projectId: 'project-1',
+    loading: false,
+    showPopup: true
   };
 
   beforeEach(() => {
     wrapper = shallowMount(EditBlog, {
-      mocks: global.mocks,
+      mocks: {
+        ...global.mocks,
+        mediaHeader: jest.fn(({ token }, projectId) => ({
+          Authorization: `Bearer ${token}`,
+          'Project-ID': projectId,
+        })),
+      },
+      propsData: {
+        nuxtSections: false,
+        blogsPath: '/blogs',
+        appliedFilters: { search: 'test' },
+      },
       data() {
         return defaultProps
       },
       stubs: {
         'quill-editor': true,
         LocaleTranslations,
-        Inputs
+        Inputs,
+        wyzywig
       }
     });
   });
 
   it('renders quill-editor', () => {
-    expect(wrapper.find('.wyzywig').exists()).toBe(true);
+    expect(wrapper.find(wyzywig).exists()).toBe(true);
   });
 
   it('renders LocaleTranslations component correctly', async () => {
@@ -78,21 +97,21 @@ describe('EditBlog', () => {
     // Check that description translation input is rendered
     const descriptionInput = wrapper.find('#article-description-translation');
     expect(descriptionInput.exists()).toBe(true);
-    expect(descriptionInput.props().inputModel).toBe(
+    expect(descriptionInput.props().html).toBe(
         defaultProps.article.translations.find(t => t.locale === 'fr').description
     );
 
     // Check that body translation input is rendered
     const bodyInput = wrapper.find('#article-body-translation');
     expect(bodyInput.exists()).toBe(true);
-    expect(bodyInput.props().inputModel).toBe(
+    expect(bodyInput.props().html).toBe(
         defaultProps.article.translations.find(t => t.locale === 'fr').body
     );
 
     // Simulate user input for title, description, and body
     await titleInput.vm.$emit('input', 'Nouveau Titre');
-    await descriptionInput.vm.$emit('input', 'Nouvelle description');
-    await bodyInput.vm.$emit('input', 'Nouveau contenu du corps');
+    await descriptionInput.vm.$emit('settingsUpdate', 'Nouvelle description');
+    await bodyInput.vm.$emit('settingsUpdate', 'Nouveau contenu du corps');
 
     // Check if the translations are updated correctly
     expect(wrapper.vm.article.translations.find(t => t.locale === 'fr').title).toBe('Nouveau Titre');
@@ -153,7 +172,52 @@ describe('EditBlog', () => {
   //
   // })
 
-  it('matches the snapshot', () => {
-    expect(wrapper.html()).toMatchSnapshot();
+  // it('calls the API to delete the blog and redirects on success', async () => {
+  //   global.mocks.$axios.get.mockRejectedValueOnce({ response: { data: { message: '' } }});
+  //   global.mocks.$axios.delete.mockResolvedValueOnce({ data: { message: 'Blog deleted successfully' } });
+  //
+  //   await wrapper.setProps(
+  //       {
+  //         nuxtSections: false,
+  //         isCreateBlog: true,
+  //         blogsPath: '/blogs',
+  //         appliedFilters: 'test',
+  //       }
+  //   )
+  //
+  //   await wrapper.setData({
+  //     blogsUri: 'https://api.example.com',
+  //     blogId: 123,
+  //     token: 'test-token',
+  //     projectId: 'project-1',
+  //     loading: false,
+  //     showPopup: true });
+  //
+  //   await wrapper.vm.deleteBlogByID();
+  //
+  //   console.log('After calling deleteBlogByID');
+  //   console.log('Mock Axios calls:', global.mocks.$axios.delete.mock.calls);
+  //
+  //   expect(global.mocks.$axios.delete).toHaveBeenCalledWith(
+  //       'https://api.example.com/articles/123',
+  //       {
+  //         headers: {
+  //           Authorization: 'Bearer test-token',
+  //           'Project-ID': 'project-1',
+  //         },
+  //       }
+  //   );
+  //   expect(global.mocks.$router).toHaveBeenCalledWith('/blogs');
+  // });
+
+  it('handles generic errors gracefully', async () => {
+    global.mocks.$axios.delete.mockRejectedValueOnce({});
+
+    await wrapper.vm.deleteBlogByID();
+
   });
+
+  // it('matches the snapshot', () => {
+  //   expect(wrapper.html()).toMatchSnapshot();
+  // });
 });

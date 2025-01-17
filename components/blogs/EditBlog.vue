@@ -928,27 +928,44 @@ export default {
     },
     async deleteBlogByID() {
       if(this.blogsUri !== '') {
-        this.loading = true
-        const token = this.token
-        const response = await this.$axios.delete(`${this.blogsUri}/articles/${this.blogId}`,
-          {
-            headers: mediaHeader({token}, this.projectId)
-          })
-        if (this.nuxtSections) {
-          showSectionsToast(this.$toast, 'success', response.data.message)
-        } else {
-          this.$toast.show(
+        try {
+          this.loading = true
+          const token = this.token
+          const response = await this.$axios.delete(`${this.blogsUri}/articles/${this.blogId}`,
             {
-              message: response.data.message,
-              classToast: 'bg-Blue',
-              classMessage: 'text-white',
-            }
-          )
+              headers: mediaHeader({token}, this.projectId)
+            })
+          if (this.nuxtSections) {
+            showSectionsToast(this.$toast, 'success', response.data.message)
+          } else {
+            this.$toast.show(
+              {
+                message: response.data.message,
+                classToast: 'bg-Blue',
+                classMessage: 'text-white',
+              }
+            )
+          }
+          this.loading = false
+          if (this.blogsPath) {
+            this.$router.push(this.localePath({path: this.blogsPath}))
+          } else this.$emit('updateBlogsComponent', {name: 'BlogsListBlogs', appliedFilters: this.appliedFilters})
+        } catch (e) {
+          this.loading = false
+          this.showPopup = false
+          if (this.nuxtSections) {
+            showSectionsToast(this.$toast, 'error', `${e.response.data.error}`)
+          } else if (e.response.data.error) {
+            this.$toast.show(
+              {
+                message: e.response.data.error,
+                timeout: 5,
+                classToast: 'bg-error',
+                classMessage: 'text-white',
+              }
+            )
+          }
         }
-        this.loading = false
-        if (this.blogsPath) {
-          this.$router.push(this.localePath({path: this.blogsPath}))
-        } else this.$emit('updateBlogsComponent', {name: 'BlogsListBlogs', appliedFilters: this.appliedFilters})
       }
     },
     backClicked() {

@@ -1,9 +1,10 @@
-// jest.mock('axios', () => ({
-//     post: jest.fn(),
-//     put: jest.fn(),
-//     get: jest.fn(),
-// }));
-//
+jest.mock('axios', () => ({
+    post: jest.fn(() => Promise.resolve({response: { data: {  } }})),
+    put: jest.fn(() => Promise.resolve({ response: { data: {  } } })),
+    get: jest.fn(() => Promise.resolve({ response: { data: {  } } })),
+    delete: jest.fn(() => Promise.resolve({ response: { data: {  } } })),
+}));
+
 // global.window.$nuxt = {
 //     $cookies: {
 //         get: jest.fn((key) => {
@@ -26,22 +27,19 @@ global.mocks = {
     $t: jest.fn(),
     $i18n: jest.fn(),
     // $config: jest.fn(),
-    // $axios: {
-    //     put: require('axios').put, // Mock the $axios.put method
-    //     post: require('axios').post, // Mock the $axios.put method
-    //     get: require('axios').get, // Mock the $axios.put method
-    // },
+    $axios: {
+        put: require('axios').put,
+        post: require('axios').post,
+        get: require('axios').get,
+        delete: require('axios').delete,
+    },
     $route: {
         query: jest.fn()
     },
-    $axios: {
-        post: jest.fn().mockResolvedValue({ data: 'success' }),
-        put: jest.fn().mockResolvedValue({ data: 'success' })
-    }
-    // $router: {
-    //     push: jest.fn()
-    // },
-    // $toast: { show: jest.fn() },
+    $router: {
+        push: jest.fn()
+    },
+    $toast: { show: jest.fn() },
     // localePath: jest.fn(),
     // $nuxt: {
     //     $emit: jest.fn()
