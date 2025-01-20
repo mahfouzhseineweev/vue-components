@@ -45,6 +45,7 @@ describe('EditBlog', () => {
           Authorization: `Bearer ${token}`,
           'Project-ID': projectId,
         })),
+        localePath: jest.fn()
       },
       propsData: {
         nuxtSections: false,
@@ -147,68 +148,66 @@ describe('EditBlog', () => {
     expect(errorMessage.text()).toBe('This title is required');
   });
 
-  // it('calls the save method correctly with the expected payload', async () => {
-  //   // Mock successful response
-  //   global.mocks.$axios.post.mockResolvedValueOnce({
-  //     data: { id: 1, title: 'Updated Title', default_locale: 'fr', translations: [{ locale: 'en', title: 'Title of the article' },
-  //         { locale: 'fr', title: 'Titre de l\'article' },
-  //         { locale: 'es', title: 'Título del artículo' },] },
-  //   })
-  //
-  //   await wrapper.vm.createArticle()
-  //
-  //   // Assert axios call
-  //   expect(global.mocks.$axios.post).toHaveBeenCalledWith(
-  //       `/articles`,
-  //       {
-  //         title: 'Article Title',
-  //         default_locale: 'en',
-  //         translations: [{ locale: 'en', title: 'Title of the article' },
-  //           { locale: 'fr', title: 'Titre de l\'article' },
-  //           { locale: 'es', title: 'Título del artículo' },],
-  //       },
-  //       expect.anything()
-  //   )
-  //
-  // })
+  it('calls the save method correctly with the expected payload', async () => {
+    // Mock successful response
+    global.mocks.$axios.post.mockResolvedValueOnce({
+      data: { id: 1, title: 'Updated Title', default_locale: 'fr', translations: [{ locale: 'en', title: 'Title of the article' },
+          { locale: 'fr', title: 'Titre de l\'article' },
+          { locale: 'es', title: 'Título del artículo' },] },
+    })
 
-  // it('calls the API to delete the blog and redirects on success', async () => {
-  //   global.mocks.$axios.get.mockRejectedValueOnce({ response: { data: { message: '' } }});
-  //   global.mocks.$axios.delete.mockResolvedValueOnce({ data: { message: 'Blog deleted successfully' } });
-  //
-  //   await wrapper.setProps(
-  //       {
-  //         nuxtSections: false,
-  //         isCreateBlog: true,
-  //         blogsPath: '/blogs',
-  //         appliedFilters: 'test',
-  //       }
-  //   )
-  //
-  //   await wrapper.setData({
-  //     blogsUri: 'https://api.example.com',
-  //     blogId: 123,
-  //     token: 'test-token',
-  //     projectId: 'project-1',
-  //     loading: false,
-  //     showPopup: true });
-  //
-  //   await wrapper.vm.deleteBlogByID();
-  //
-  //   console.log('After calling deleteBlogByID');
-  //   console.log('Mock Axios calls:', global.mocks.$axios.delete.mock.calls);
-  //
-  //   expect(global.mocks.$axios.delete).toHaveBeenCalledWith(
-  //       'https://api.example.com/articles/123',
-  //       {
-  //         headers: {
-  //           Authorization: 'Bearer test-token',
-  //           'Project-ID': 'project-1',
-  //         },
-  //       }
-  //   );
-  //   expect(global.mocks.$router).toHaveBeenCalledWith('/blogs');
-  // });
+    expect(global.mocks.$axios.post).toHaveBeenCalledWith(
+        `any_articles`,
+        {
+          filters: [
+            {
+              key: 'published',
+              value: 'true'
+            }
+          ]
+        },
+        expect.anything()
+    )
+
+  })
+
+  it('calls the API to delete the blog and redirects on success', async () => {
+    global.mocks.$axios.get.mockRejectedValueOnce({ response: { data: { message: '' } }});
+    global.mocks.$axios.delete.mockResolvedValueOnce({ data: { message: 'Blog deleted successfully' } });
+
+    await wrapper.setProps(
+        {
+          nuxtSections: false,
+          isCreateBlog: true,
+          blogsPath: '/blogs',
+          appliedFilters: 'test',
+        }
+    )
+
+    await wrapper.setData({
+      blogsUri: 'https://api.example.com',
+      blogId: 123,
+      token: 'test-token',
+      projectId: 'project-1',
+      loading: false,
+      showPopup: true });
+
+    await wrapper.vm.deleteBlogByID();
+
+    console.log('After calling deleteBlogByID');
+    console.log('Mock Axios calls:', global.mocks.$axios.delete.mock.calls);
+
+    expect(global.mocks.$axios.delete).toHaveBeenCalledWith(
+        'https://api.example.com/articles/123',
+        {
+          headers: {
+            token: 'test-token',
+            'project-id-project-1': 'project-1',
+          },
+        }
+    );
+
+  });
 
   it('handles generic errors gracefully', async () => {
     global.mocks.$axios.delete.mockRejectedValueOnce({});
