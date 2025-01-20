@@ -17,6 +17,7 @@
     "assets",
     "components",
     "lang",
+    "plugins",
     "static",
     "utils",
     "tailwind.config.js",
