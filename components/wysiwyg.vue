@@ -293,4 +293,14 @@ export default {
   max-height: 70vh;
   overflow-y: auto;
 }
+main.sections-main .quill-editor.wyzywig .ql-container.ql-snow {
+  max-height: 37vh;
+  overflow-y: auto;
+}
+@media only screen and (max-height: 850px) {
+  main.sections-main .quill-editor.wyzywig .ql-container.ql-snow {
+    max-height: 30vh;
+    overflow-y: auto;
+  }
+}
 </style>
