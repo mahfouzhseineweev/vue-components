@@ -1,7 +1,7 @@
 <template>
   <div class="input">
     <span class="flex text-start text-xs pb-1 wyzywig-desc">{{ $t('quillEditor.quillDesc') }}</span>
-    <quill-editor :key="quillKey" ref="myQuillEditor" v-model="settings" :options="options" class="wyzywig" />
+    <component :is="QuillComponent" :key="quillKey" ref="myQuillEditor" v-model="settings" :options="options" class="wyzywig" />
     <MediaComponent ref="sectionsMediaComponent" :content-used-key="contentUsedKey" :auth-token="authToken" :server-url="serverUrl" :project-id="projectIdProp" :sections-user-id="sectionsUserId" :selected-media-id="$route.query.id" :media-translation-prefix="mediaTranslationPrefix" @emittedMedia="(media) => selectedMedia = media"></MediaComponent>
   </div>
 </template>
@@ -70,7 +70,8 @@ export default {
       savedFormat: null,
       selectedMedia: null,
       options: null,
-      selectedRange: null
+      selectedRange: null,
+      QuillComponent: null
     };
   },
   watch: {
@@ -210,36 +211,41 @@ export default {
       }
     }
   },
-  mounted() {
-    this.$refs.myQuillEditor.quill.getModule('toolbar').addHandler('image', () => {
-      this.selectedRange = null
-      let selectedMedia = ''
-      try {
-        const range = this.$refs.myQuillEditor.quill.getSelection();
-        if (range && range.length > 0) {
-          this.selectedRange = range
-          const delta = this.$refs.myQuillEditor.quill.getContents(range.index, range.length);
-          if (delta && delta.ops && delta.ops.length > 0 && delta.ops.length === 1 && delta.ops[0] && delta.ops[0].insert && delta.ops[0].insert.customImage && delta.ops[0].insert.customImage['media-id']) {
-            selectedMedia = delta.ops[0].insert.customImage['media-id']
-          }
-        }
-      } catch {}
+  async mounted() {
+    await import('vue-quill-editor').then(module => {
+      this.QuillComponent = module.quillEditor
+      this.$nextTick(() => {
+        this.$refs.myQuillEditor.quill.getModule('toolbar').addHandler('image', () => {
+          this.selectedRange = null
+          let selectedMedia = ''
+          try {
+            const range = this.$refs.myQuillEditor.quill.getSelection();
+            if (range && range.length > 0) {
+              this.selectedRange = range
+              const delta = this.$refs.myQuillEditor.quill.getContents(range.index, range.length);
+              if (delta && delta.ops && delta.ops.length > 0 && delta.ops.length === 1 && delta.ops[0] && delta.ops[0].insert && delta.ops[0].insert.customImage && delta.ops[0].insert.customImage['media-id']) {
+                selectedMedia = delta.ops[0].insert.customImage['media-id']
+              }
+            }
+          } catch {}
 
-      this.uploadFunction(selectedMedia);
-    });
+          this.uploadFunction(selectedMedia);
+        });
 
-    var saveButtons = document.querySelectorAll('.ql-save-format');
-    saveButtons.forEach((saveButton) => {
-      saveButton.addEventListener('click', () => {
-        this.saveFormat()
-      });
-    })
+        var saveButtons = document.querySelectorAll('.ql-save-format');
+        saveButtons.forEach((saveButton) => {
+          saveButton.addEventListener('click', () => {
+            this.saveFormat()
+          });
+        })
 
-    var applyButtons = document.querySelectorAll('.ql-apply-format');
-    applyButtons.forEach((applyButton) => {
-      applyButton.addEventListener('click', () => {
-        this.applyFormat()
-      });
+        var applyButtons = document.querySelectorAll('.ql-apply-format');
+        applyButtons.forEach((applyButton) => {
+          applyButton.addEventListener('click', () => {
+            this.applyFormat()
+          });
+        })
+      })
     })
   },
   methods: {
