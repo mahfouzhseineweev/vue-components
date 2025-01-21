@@ -303,6 +303,12 @@ main.sections-main .quill-editor.wyzywig .ql-container.ql-snow {
   max-height: 37vh;
   overflow-y: auto;
 }
+main.sections-main .quill-editor.wyzywig {
+  margin-right: 80px;
+}
+aside.sections-aside .quill-editor.wyzywig {
+  margin-right: 80px;
+}
 @media only screen and (max-height: 850px) {
   main.sections-main .quill-editor.wyzywig .ql-container.ql-snow {
     max-height: 30vh;
