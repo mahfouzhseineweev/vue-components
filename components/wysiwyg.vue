@@ -1,5 +1,5 @@
 <template>
-  <div class="input">
+  <div class="input wyzywig-wrapper">
     <span class="flex text-start text-xs pb-1 wyzywig-desc">{{ $t('quillEditor.quillDesc') }}</span>
     <component :is="QuillComponent" :key="quillKey" ref="myQuillEditor" v-model="settings" :options="options" class="wyzywig" />
     <MediaComponent ref="sectionsMediaComponent" :content-used-key="contentUsedKey" :auth-token="authToken" :server-url="serverUrl" :project-id="projectIdProp" :sections-user-id="sectionsUserId" :selected-media-id="$route.query.id" :media-translation-prefix="mediaTranslationPrefix" @emittedMedia="(media) => selectedMedia = media"></MediaComponent>
@@ -295,24 +295,16 @@ export default {
 .quill-editor.wyzywig img {
   display: inline !important;
 }
-.quill-editor.wyzywig .ql-container.ql-snow {
-  max-height: 70vh;
-  overflow-y: auto;
+.quill-editor.wyzywig .ql-toolbar.ql-snow {
+  position: sticky;
+  top: 0;
+  background: white;
+  z-index: 10;
 }
-main.sections-main .quill-editor.wyzywig .ql-container.ql-snow {
-  max-height: 37vh;
-  overflow-y: auto;
+main.sections-main .input.wyzywig-wrapper {
+  margin: 0 128px;
 }
-main.sections-main .quill-editor.wyzywig {
+aside.sections-aside .input.wyzywig-wrapper {
   margin-right: 80px;
-}
-aside.sections-aside .quill-editor.wyzywig {
-  margin-right: 80px;
-}
-@media only screen and (max-height: 850px) {
-  main.sections-main .quill-editor.wyzywig .ql-container.ql-snow {
-    max-height: 30vh;
-    overflow-y: auto;
-  }
 }
 </style>
