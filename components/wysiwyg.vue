@@ -174,6 +174,24 @@ export default {
         }
       }
       Quill.register(CustomImageBlot);
+
+      const BlockEmbed = Quill.import('blots/block/embed');
+      class RawHTMLBlot extends BlockEmbed {
+        static create(value) {
+          const node = super.create();
+          node.innerHTML = value; // Insert the raw HTML
+          return node;
+        }
+        static value(node) {
+          return node.innerHTML; // Extract the raw HTML when needed
+        }
+      }
+      RawHTMLBlot.blotName = 'rawHtml';
+      RawHTMLBlot.tagName = 'div';
+      Quill.register(RawHTMLBlot);
+
+      let rawHtml = require("quill-html-edit-button");
+      Quill.register("modules/htmlEditButton", rawHtml.htmlEditButton);
     }
 
     if(this.editorOptions.modules && Object.keys(this.editorOptions.modules).length > 0) {
@@ -207,6 +225,7 @@ export default {
           "emoji-toolbar": true,
           "emoji-textarea": true,
           "emoji-shortname": true,
+          htmlEditButton: {},
         }
       }
     }
