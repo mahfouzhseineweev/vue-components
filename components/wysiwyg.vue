@@ -174,6 +174,24 @@ export default {
         }
       }
       Quill.register(CustomImageBlot);
+
+      const BlockEmbed = Quill.import('blots/block/embed');
+      class RawHTMLBlot extends BlockEmbed {
+        static create(value) {
+          const node = super.create();
+          node.innerHTML = value; // Insert the raw HTML
+          return node;
+        }
+        static value(node) {
+          return node.innerHTML; // Extract the raw HTML when needed
+        }
+      }
+      RawHTMLBlot.blotName = 'rawHtml';
+      RawHTMLBlot.tagName = 'div';
+      Quill.register(RawHTMLBlot);
+
+      let rawHtml = require("quill-html-edit-button");
+      Quill.register("modules/htmlEditButton", rawHtml.htmlEditButton);
     }
 
     if(this.editorOptions.modules && Object.keys(this.editorOptions.modules).length > 0) {
@@ -207,6 +225,7 @@ export default {
           "emoji-toolbar": true,
           "emoji-textarea": true,
           "emoji-shortname": true,
+          htmlEditButton: {},
         }
       }
     }
@@ -306,5 +325,34 @@ main.sections-main .input.wyzywig-wrapper {
 }
 aside.sections-aside .input.wyzywig-wrapper {
   margin-right: 80px;
+}
+.ql-html-popupContainer button.ql-html-buttonCancel {
+  outline: none;
+  max-width: 1000px;
+  display: flex;
+  background: #31a9db;
+  border: none;
+  color: white;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  border-radius: 8px;
+}
+
+.ql-html-popupContainer button.ql-html-buttonOk {
+  outline: none;
+  max-width: 1000px;
+  display: flex;
+  background: #31a9db;
+  border: none;
+  color: white;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  border-radius: 8px;
+}
+
+.ql-html-popupContainer .ql-html-buttonGroup {
+  display: flex;
 }
 </style>
