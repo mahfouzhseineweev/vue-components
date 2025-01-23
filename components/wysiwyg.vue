@@ -326,4 +326,33 @@ main.sections-main .input.wyzywig-wrapper {
 aside.sections-aside .input.wyzywig-wrapper {
   margin-right: 80px;
 }
+.ql-html-popupContainer button.ql-html-buttonCancel {
+  outline: none;
+  max-width: 1000px;
+  display: flex;
+  background: #31a9db;
+  border: none;
+  color: white;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  border-radius: 8px;
+}
+
+.ql-html-popupContainer button.ql-html-buttonOk {
+  outline: none;
+  max-width: 1000px;
+  display: flex;
+  background: #31a9db;
+  border: none;
+  color: white;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  border-radius: 8px;
+}
+
+.ql-html-popupContainer .ql-html-buttonGroup {
+  display: flex;
+}
 </style>
