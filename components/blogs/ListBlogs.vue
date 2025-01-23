@@ -540,8 +540,16 @@ export default {
           },
         {
         headers: mediaHeader({token}, this.projectId)
-      }).catch(() => {
+      }).catch((e) => {
         this.loading = false
+        this.$toast.show(
+          {
+            message: e.response.data.message,
+            timeout: 5,
+            classToast: 'bg-error',
+            classMessage: 'text-white',
+          }
+        )
       })
 
       this.blogsResponse = response.data.data
@@ -712,26 +720,43 @@ export default {
     },
     async deleteBlogByID(id) {
       if(this.blogByIdUri !== '') {
-        this.loading = true
-        const token = this.token
-        const response = await this.$axios.delete(`${this.blogsUri}/${id}`,
+        try {
+          this.loading = true
+          const token = this.token
+          const response = await this.$axios.delete(`${this.blogsUri}/articles/${id}`,
             {
               headers: mediaHeader({token}, this.projectId)
             })
-        if (this.nuxtSections) {
-          showSectionsToast(this.$toast, 'success', response.data.message)
-        } else {
-          this.$toast.show(
+          if (this.nuxtSections) {
+            showSectionsToast(this.$toast, 'success', response.data.message)
+          } else {
+            this.$toast.show(
               {
                 message: response.data.message,
                 classToast: 'bg-Blue',
                 classMessage: 'text-white',
               }
-          )
+            )
+          }
+          this.showPopup = false
+          await this.getAllBlogs()
+          this.loading = false
+        } catch (e) {
+          this.loading = false
+          this.showPopup = false
+          if (this.nuxtSections) {
+            showSectionsToast(this.$toast, 'error', `${e.response.data.error}`)
+          } else if (e.response.data.error) {
+            this.$toast.show(
+              {
+                message: e.response.data.error,
+                timeout: 5,
+                classToast: 'bg-error',
+                classMessage: 'text-white',
+              }
+            )
+          }
         }
-        this.showPopup = false
-        await this.getAllBlogs()
-        this.loading = false
       }
     },
     getAuthorName(id) {
