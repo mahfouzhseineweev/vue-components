@@ -221,7 +221,7 @@
 
     </div>
 
-    <div class="sticky bottom-0 py-2 m-4 rounded-md shadow">
+    <div class="sticky bottom-0 py-2 m-4 rounded-md shadow z-20">
 
       <div class="flex w-full items-center justify-end bg-white">
         <div v-if="blogsUri !== '' && isCreateBlog !== true" class="cursor-pointer flex items-center" @click="showPopup = true">
