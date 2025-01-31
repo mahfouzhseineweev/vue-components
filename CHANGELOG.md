@@ -3,6 +3,14 @@
 ---
 
 
+### v1.0.12 (31/01/2025)
+
+---
+
+- [x] Fixed Mobile responsiveness support for some components: Mobile responsiveness landscape and as well tablet eweev/geeks/sections-bo#239
+
+
+
 ### v1.0.11 (07/01/2025)
 
 ---
