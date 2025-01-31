@@ -228,7 +228,7 @@
           <div class="text-error text-sm md:text-lg">{{ $t(mediaTranslationPrefix + 'blogs.deleteArticle') }}</div>
           <span class="icon-trashCan2 text-md pb-1 px-2"></span>
         </div>
-        <div v-if="blogsUri !== '' && isCreateBlog !== true && (blogsUserRoleProp === 'publisher' || (blogsUserRoleProp === 'admin' && article.published === false))" @click.stop.prevent="publishBlogByID(article.published)">
+        <div v-if="blogsUri !== '' && isCreateBlog !== true && (blogsUserRoleProp.includes('publisher') || (blogsUserRoleProp.includes('admin') && article.published === false))" class="publish-btn" @click.stop.prevent="publishBlogByID(article.published)">
           <Buttons :button-text="article.published ? $t(mediaTranslationPrefix + 'blogs.unpublish') : $t(mediaTranslationPrefix + 'blogs.publish')" :button-style="saveButtonStyle" class="ml-12" :with-icon="false" />
         </div>
         <div @click.stop.prevent="blogsUri !== '' && isCreateBlog !== true ? updateBlogByID() : createArticle()">
@@ -983,7 +983,7 @@ export default {
           value: 'true'
         }
       ]
-      if (this.blogsUserRoleProp === 'author') {
+      if (this.blogsUserRoleProp.includes('author')) {
         filters.push({
           key: 'author_id',
           value: this.blogsUserId
