@@ -9,6 +9,7 @@
 
 - [x] Fixed Mobile responsiveness support for some components: Mobile responsiveness landscape and as well tablet eweev/geeks/sections-bo#239
 
+- [x] Fixed Blogs components for when a user has multiple roles: When a user has both roles Author and Publisher, or Admin and Publisher, it should have access for the 2 roles eweev/geeks/bo-blogs#22
 
 
 ### v1.0.11 (07/01/2025)
