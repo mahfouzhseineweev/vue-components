@@ -34,7 +34,7 @@
 
     <div class="flex flex-col md:flex-row mt-4 w-full gap-4 md:gap-0" :class="nuxtSections ? '' : 'md:pl-6'">
 
-      <div class="flex flex-col md:w-300px w-350px py-8 px-6 shadow rounded-xl">
+      <div class="flex flex-col md:w-300px py-8 px-6 shadow rounded-xl">
 
         <label class="text-lg">{{ $t(mediaTranslationPrefix + 'EditMedia.mediaTitle') }}</label>
         <div v-if="!(lockedStatus === 'locked' && media.author !== sectionsUserIdProp)">
@@ -114,7 +114,7 @@
                   </div>
                   <div v-if="popupContent && popupContent.content" class="mt-2" style="overflow: auto !important; max-height: 450px;">
                     <div v-for="content in popupContent.content" :key="content.id" class="flex flex-row items-center p-1">
-                      <div class="md:w-2.5 w-5 h-2.5 mr-3 rounded-full bg-darkBlue"></div>
+                      <div class="w-2.5 h-2.5 mr-3 rounded-full bg-darkBlue"></div>
                       <div class="font-medium text-lg pr-3">
                         {{ `${content.name} (${content.id}) ${$t(mediaTranslationPrefix + 'by')}${popupContent.author}` }}
                       </div>
@@ -219,7 +219,7 @@
 
     </div>
 
-    <div v-if="!((privateStatus === 'private' || privateStatus === 'public') && lockedStatus === 'locked' && media.author !== sectionsUserIdProp)" class="sticky bottom-0 py-2 m-4 rounded-md shadow">
+    <div v-if="!((privateStatus === 'private' || privateStatus === 'public') && lockedStatus === 'locked' && media.author !== sectionsUserIdProp)" class="sticky bottom-0 py-2 m-4 rounded-md shadow bg-white">
 
       <div class="flex w-full items-center justify-end">
         <div v-if="privateStatus !== 'private' || (privateStatus === 'private' && media.author === sectionsUserIdProp)" class="cursor-pointer flex items-center" @click="showPopup = true">
