@@ -192,6 +192,7 @@
             :track-by="'key'"
             :preselect-first="true"
             :multiple="true"
+            :select-wrapper-style="''"
             @itemSelected="(val) => {article.categories = val}"
           ></AutoComplete>
         </div>
@@ -208,8 +209,22 @@
             :track-by="'key'"
             :preselect-first="true"
             :multiple="true"
+            :select-wrapper-style="''"
             @itemSelected="(val) => {article.suggested = val}"
-          ></AutoComplete>
+          >
+            <template #selected-option="{ key, translation, image }">
+              <div style="display: flex; flex-direction: column; align-items: baseline">
+                <span style="margin: 0.5rem 0;">{{ translation }}</span>
+                <img :src="image" alt="" />
+              </div>
+            </template>
+            <template #option="{ key, translation, image }">
+              <div style="display: flex; flex-direction: column; align-items: baseline">
+                <span style="margin: 0.5rem 0;">{{ translation }}</span>
+                <img :src="image" alt="" />
+              </div>
+            </template>
+          </AutoComplete>
         </div>
         <div v-if="blogsUri !== '' && isCreateBlog !== true" class="flex flex-row gap-2 text-sm">
           <div>{{ $t(mediaTranslationPrefix + 'filterOptions.publishedStatus') }}: </div>
@@ -1004,7 +1019,8 @@ export default {
           this.filterMap.suggested.push(
               {
                 key: article.id.toString(),
-                translation: article.title
+                translation: article.title,
+                image: article.medias && article.medias[0] && article.medias[0].files && article.medias[0].files[0] && article.medias[0].files[0].thumbnail_url ? article.medias[0].files[0].thumbnail_url : null
               }
           )
         })
