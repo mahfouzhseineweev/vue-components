@@ -115,8 +115,8 @@
                   <div v-if="popupContent && popupContent.content" class="mt-2" style="overflow: auto !important; max-height: 450px;">
                     <div v-for="content in popupContent.content" :key="content.id" class="flex flex-row items-center p-1">
                       <div class="w-2.5 h-2.5 mr-3 rounded-full bg-darkBlue"></div>
-                      <div class="font-medium text-lg pr-3">
-                        {{ `${content.name} (${content.id}) ${$t(mediaTranslationPrefix + 'by')}${popupContent.author}` }}
+                      <div class="content-used font-medium text-lg pr-3">
+                        {{ `${contentUsedKey ? content[contentUsedKey] : content.name} (${content.id}) ${$t(mediaTranslationPrefix + 'by')}${popupContent.author}` }}
                       </div>
                     </div>
                   </div>
