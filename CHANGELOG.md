@@ -13,6 +13,11 @@
 
 - [x] Draft management improvement: Remove duplicate articles and show only the draft with a link to access the original article eweev/geeks/bo-blogs#36
 
+- [x] When editing or adding an article for the suggested article, have in the listing the picture of it near the title and as well when selecting one eweev/geeks/bo-blogs#20
+
+- [x] Fixed undefined in media popup content: In the media meta component, when a media is linked to a blogs article and you open the content details, instead of the article title showing there is undefined #67
+
+
 ### v1.0.11 (07/01/2025)
 
 ---
