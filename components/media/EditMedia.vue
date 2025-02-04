@@ -54,7 +54,7 @@
 
         <label class="mt-8 text-lg">{{ $t(mediaTranslationPrefix + 'EditMedia.type') }}</label>
         <div class="mt-3 flex">
-          <div class="w-15px h-6px bg-Blue rounded-full mt-2.5 mr-2"></div>
+          <div class="w-7px h-6px bg-Blue rounded-full mt-2.5 mr-2"></div>
           <div class="text-md text-mediaTextGray">
             {{ $t(mediaTranslationPrefix + 'EditMedia.privateDesc') }}
           </div>
