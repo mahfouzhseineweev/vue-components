@@ -213,15 +213,15 @@
             @itemSelected="(val) => {article.suggested = val}"
           >
             <template #selected-option="{ key, translation, image }">
-              <div style="display: flex; flex-direction: column; align-items: baseline">
-                <span style="margin: 0.5rem 0;">{{ translation }}</span>
-                <img :src="image" alt="" />
+              <div style="display: flex; flex-direction: row; align-items: center">
+                <img :src="image" alt="" style="width: 100px; object-fit: cover;" />
+                <span style="margin: 0.5rem 0.5rem;">{{ translation }}</span>
               </div>
             </template>
             <template #option="{ key, translation, image }">
-              <div style="display: flex; flex-direction: column; align-items: baseline">
-                <span style="margin: 0.5rem 0;">{{ translation }}</span>
-                <img :src="image" alt="" />
+              <div style="display: flex; flex-direction: row; align-items: center">
+                <img :src="image" alt="" style="width: 100px; object-fit: cover;" />
+                <span style="margin: 0.5rem 0.5rem;">{{ translation }}</span>
               </div>
             </template>
           </AutoComplete>
@@ -998,7 +998,7 @@ export default {
           value: 'true'
         }
       ]
-      if (this.blogsUserRoleProp.includes('author')) {
+      if (this.blogsUserRoleProp.includes('author') && !this.blogsUserRoleProp.includes('admin')) {
         filters.push({
           key: 'author_id',
           value: this.blogsUserId
