@@ -355,4 +355,10 @@ aside.sections-aside .input.wyzywig-wrapper {
 .ql-html-popupContainer .ql-html-buttonGroup {
   display: flex;
 }
+.emoji_completions {
+  background: white;
+  padding: 8px;
+  border-radius: 8px;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+}
 </style>
