@@ -137,6 +137,7 @@ export default {
     }
   },
   created() {
+    import("quill/dist/quill.snow.css");
     if (process.client) {
       let Emoji = require("quill-emoji");
       let Quill = require('quill');
