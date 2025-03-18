@@ -16,6 +16,8 @@
   `<gWysiwygContent :html-content="html" />`
 
 
+- Updated quill js to version 2.0.3
+
 ### v1.0.12 (31/01/2025)
 
 ---
