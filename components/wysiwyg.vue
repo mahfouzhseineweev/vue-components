@@ -372,4 +372,7 @@ aside.sections-aside .input.wyzywig-wrapper {
   border-radius: 8px;
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
 }
+#emoji-palette {
+  margin-top: 30px;
+}
 </style>
