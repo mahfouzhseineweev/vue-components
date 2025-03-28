@@ -51,6 +51,9 @@ export default {
 .ql-editor ul>li:before {
   content: "\2022";
 }
+.ql-editor ol li:before {
+  content: counter(list-0, decimal) ". ";
+}
 .ql-editor li:before {
   display: inline-block;
   white-space: nowrap;
