@@ -54,6 +54,10 @@ export default {
 .ql-editor ol li:before {
   content: counter(list-0, decimal) ". ";
 }
+.ql-editor ol li {
+  counter-increment: list-0;
+  counter-reset: list-1 list-2 list-3 list-4 list-5 list-6 list-7 list-8 list-9;
+}
 .ql-editor li:before {
   display: inline-block;
   white-space: nowrap;
