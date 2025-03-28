@@ -3,6 +3,13 @@
 ---
 
 
+### v1.0.14 (28/03/2025)
+
+---
+
+- Adding retro compatibility for WysiwygContent view component to have support for quill 1 styles 
+
+
 ### v1.0.13 (17/03/2025)
 
 ---
