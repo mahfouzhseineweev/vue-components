@@ -51,7 +51,7 @@ export default {
 .ql-editor ul>li:before {
   content: "\2022";
 }
-.ql-editor ol li:before {
+.ql-editor ol li:not([data-list="bullet"]):before {
   content: counter(list-0, decimal) ". ";
 }
 .ql-editor ol li {
