@@ -3,6 +3,13 @@
 ---
 
 
+### v1.0.15 (03/04/2025)
+
+---
+
+- Fix duplicate ordered and bullet styles for ol list inside wysiwyg editor and view: Wysiwig bullet list bug #91
+
+
 ### v1.0.14 (28/03/2025)
 
 ---
