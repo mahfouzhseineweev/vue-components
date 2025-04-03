@@ -8,6 +8,7 @@
 ---
 
 - Fix duplicate ordered and bullet styles for ol list inside wysiwyg editor and view: Wysiwig bullet list bug #91
+- Add markdown support for quill editor and wysiwygContent view: Wysiwyg component needs to support displaying markdown code. #94
 
 
 ### v1.0.14 (28/03/2025)
