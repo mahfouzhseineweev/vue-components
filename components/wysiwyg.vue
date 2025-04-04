@@ -153,10 +153,6 @@ export default {
       Quill.register("modules/emoji-toolbar", Emoji.default.ToolbarEmoji);
       Quill.register('formats/emoji', Emoji.default.EmojiBlot);
 
-      let QuillMarkdown = require('quilljs-markdown').default;
-      import("quilljs-markdown/dist/quilljs-markdown-common-style.css");
-      Quill.register('modules/QuillMarkdown', QuillMarkdown, true)
-
       const ImageBlot = Quill.import("formats/image");
       class CustomImageBlot extends ImageBlot {
         static blotName = "customImage";
@@ -240,7 +236,6 @@ export default {
             ["save-format", "apply-format"],
           ],
           "emoji-toolbar": true,
-          QuillMarkdown: {},
           htmlEditButton: {},
         }
       }
