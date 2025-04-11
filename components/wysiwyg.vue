@@ -204,6 +204,81 @@ export default {
       let rawHtml = require("quill-html-edit-button");
       Quill.register("modules/htmlEditButton", rawHtml.htmlEditButton);
 
+
+
+      class ButtonBlot extends Quill.import('blots/block/embed') {
+        static create(value) {
+          const node = super.create();
+          node.setAttribute('contenteditable', false);
+
+          // Create the button element as container
+          const buttonContainer = document.createElement('button');
+          buttonContainer.className = 'quill-button-container';
+
+          // Create the anchor element inside the button
+          const anchor = document.createElement('a');
+          anchor.innerText = value.label || 'Button';
+          anchor.href = value.link || '#';
+          anchor.className = 'ql-a-button'; // Static class instead of custom class
+
+          // Add the anchor to the button container
+          buttonContainer.appendChild(anchor);
+
+          // Add the button to the node
+          node.appendChild(buttonContainer);
+          return node;
+        }
+
+        static value(node) {
+          const anchor = node.querySelector('a');
+          return {
+            label: anchor.innerText,
+            link: anchor.getAttribute('href')
+          };
+        }
+      }
+
+      ButtonBlot.blotName = 'button';
+      ButtonBlot.tagName = 'div';
+      ButtonBlot.className = 'quill-button-wrapper';
+
+      Quill.register(ButtonBlot);
+
+      class ButtonToolbarModule {
+        constructor(quill, options) {
+          this.quill = quill;
+          this.options = options;
+          this.toolbar = quill.getModule('toolbar');
+
+          // Add button handler to toolbar
+          if (this.toolbar) {
+            this.toolbar.addHandler('button', this.buttonHandler.bind(this));
+          }
+
+        }
+
+        buttonHandler() {
+          // Create dialogs to get button properties (only label and link now)
+          const label = prompt('Button Label:', '');
+          if (!label) return; // Cancel if no label
+
+          const link = prompt('Button Link:', '');
+
+          // Get current selection and insert button
+          const range = this.quill.getSelection(true);
+          this.quill.insertEmbed(range.index, 'button', {
+            label: label,
+            link: link
+          }, Quill.sources.USER);
+
+          // Move cursor after the button
+          this.quill.setSelection(range.index + 1, Quill.sources.SILENT);
+        }
+
+      }
+
+      Quill.register('modules/buttonToolbar', ButtonToolbarModule);
+
       window.Quill = Quill
     }
 
@@ -214,29 +289,36 @@ export default {
     } else {
       this.options = {
         modules: {
-          toolbar: [
-            ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
-            ['link', 'image', 'video', 'formula'],
-            ['blockquote', 'code-block'],
+          toolbar: {
+            container: [
+              ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
+              ['link', 'image', 'video', 'formula'],
+              ['blockquote', 'code-block'],
 
-            [{ 'header': 1 }, { 'header': 2 }],               // custom button values
-            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-            [{ 'script': 'sub'}, { 'script': 'super' }],      // superscript/subscript
-            [{ 'indent': '-1'}, { 'indent': '+1' }],          // outdent/indent
-            [{ 'direction': 'rtl' }],                         // text direction
+              [{ 'header': 1 }, { 'header': 2 }],               // custom button values
+              [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+              [{ 'script': 'sub'}, { 'script': 'super' }],      // superscript/subscript
+              [{ 'indent': '-1'}, { 'indent': '+1' }],          // outdent/indent
+              [{ 'direction': 'rtl' }],                         // text direction
 
-            [{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
-            [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+              [{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
+              [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
 
-            [{ 'color': ['#03B1C7', '#61035B', '#fff', '#868686', '#011321', '#000000', '#e60000', '#ff9900', '#ffff00', '#008a00', '#0066cc', '#9933ff', '#ffffff', '#facccc', '#ffebcc', '#ffffcc', '#cce8cc', '#cce0f5', '#ebd6ff', '#bbbbbb', '#f06666', '#ffc266', '#ffff66', '#66b966', '#66a3e0', '#c285ff', '#888888', '#a10000', '#b26b00', '#b2b200', '#006100', '#0047b2', '#6b24b2', '#444444', '#5c0000', '#663d00', '#666600', '#003700', '#002966', '#3d1466'] }, { 'background': ['#03B1C7', '#61035B', '#fff', '#868686', '#011321', '#000000', '#e60000', '#ff9900', '#ffff00', '#008a00', '#0066cc', '#9933ff', '#ffffff', '#facccc', '#ffebcc', '#ffffcc', '#cce8cc', '#cce0f5', '#ebd6ff', '#bbbbbb', '#f06666', '#ffc266', '#ffff66', '#66b966', '#66a3e0', '#c285ff', '#888888', '#a10000', '#b26b00', '#b2b200', '#006100', '#0047b2', '#6b24b2', '#444444', '#5c0000', '#663d00', '#666600', '#003700', '#002966', '#3d1466'] }],          // dropdown with defaults from theme
-            [{ 'font': [] }],
-            [{ 'align': [] }],
-            ['clean'],
-            ['emoji'],
-            ["save-format", "apply-format"],
-          ],
+              [{ 'color': ['#03B1C7', '#61035B', '#fff', '#868686', '#011321', '#000000', '#e60000', '#ff9900', '#ffff00', '#008a00', '#0066cc', '#9933ff', '#ffffff', '#facccc', '#ffebcc', '#ffffcc', '#cce8cc', '#cce0f5', '#ebd6ff', '#bbbbbb', '#f06666', '#ffc266', '#ffff66', '#66b966', '#66a3e0', '#c285ff', '#888888', '#a10000', '#b26b00', '#b2b200', '#006100', '#0047b2', '#6b24b2', '#444444', '#5c0000', '#663d00', '#666600', '#003700', '#002966', '#3d1466'] }, { 'background': ['#03B1C7', '#61035B', '#fff', '#868686', '#011321', '#000000', '#e60000', '#ff9900', '#ffff00', '#008a00', '#0066cc', '#9933ff', '#ffffff', '#facccc', '#ffebcc', '#ffffcc', '#cce8cc', '#cce0f5', '#ebd6ff', '#bbbbbb', '#f06666', '#ffc266', '#ffff66', '#66b966', '#66a3e0', '#c285ff', '#888888', '#a10000', '#b26b00', '#b2b200', '#006100', '#0047b2', '#6b24b2', '#444444', '#5c0000', '#663d00', '#666600', '#003700', '#002966', '#3d1466'] }],          // dropdown with defaults from theme
+              [{ 'font': [] }],
+              [{ 'align': [] }],
+              ['clean'],
+              ['emoji'],
+              ["save-format", "apply-format"],
+              ["button"]
+            ],
+            handlers: {
+              'button': function() {} // This will be overridden by the module
+            }
+          },
           "emoji-toolbar": true,
           htmlEditButton: {},
+          buttonToolbar: true
         }
       }
     }
@@ -275,6 +357,8 @@ export default {
             this.applyFormat()
           });
         })
+
+        document.querySelector('.ql-button').innerHTML = '<div title="Add a button"><svg viewBox="0 0 18 18"><rect width="16" height="10" x="1" y="4" rx="2" ry="2" stroke-width="1.5" stroke="currentColor" fill="none"></rect><path d="M5,9 L13,9" stroke-width="1.5" stroke="currentColor"></path></svg></div>';
       })
     })
   },

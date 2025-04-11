@@ -3,6 +3,13 @@
 ---
 
 
+### v1.0.16 (08/04/2025)
+
+---
+
+- Extend wysiwyg to have a button injection from the toolbar options: Integrate buttons and table to the Quill 2 editor #90
+
+
 ### v1.0.15 (03/04/2025)
 
 ---
