@@ -204,42 +204,45 @@ export default {
       let rawHtml = require("quill-html-edit-button");
       Quill.register("modules/htmlEditButton", rawHtml.htmlEditButton);
 
-
-
-      class ButtonBlot extends Quill.import('blots/block/embed') {
+      const Embed = Quill.import('blots/embed');
+      class ButtonBlot extends Embed {
         static create(value) {
           const node = super.create();
-          node.setAttribute('contenteditable', false);
 
-          // Create the button element as container
           const buttonContainer = document.createElement('button');
           buttonContainer.className = 'quill-button-container';
 
-          // Create the anchor element inside the button
+          buttonContainer.setAttribute('type', 'button');
+
+          buttonContainer.setAttribute('data-button-id', 'button-' + Date.now() + '-' + Math.floor(Math.random() * 1000));
+
           const anchor = document.createElement('a');
           anchor.innerText = value.label || 'Button';
           anchor.href = value.link || '#';
-          anchor.className = 'ql-a-button'; // Static class instead of custom class
+          anchor.className = 'ql-a-button';
+          // anchor.target = '_blank';
 
-          // Add the anchor to the button container
+          buttonContainer.setAttribute('data-label', value.label || 'Button');
+          buttonContainer.setAttribute('data-link', value.link || '#');
+
           buttonContainer.appendChild(anchor);
 
-          // Add the button to the node
           node.appendChild(buttonContainer);
+
           return node;
         }
 
         static value(node) {
-          const anchor = node.querySelector('a');
+          const buttonContainer = node.querySelector('.quill-button-container');
           return {
-            label: anchor.innerText,
-            link: anchor.getAttribute('href')
+            label: buttonContainer.getAttribute('data-label'),
+            link: buttonContainer.getAttribute('data-link')
           };
         }
       }
 
       ButtonBlot.blotName = 'button';
-      ButtonBlot.tagName = 'div';
+      ButtonBlot.tagName = 'span';
       ButtonBlot.className = 'quill-button-wrapper';
 
       Quill.register(ButtonBlot);
@@ -250,34 +253,86 @@ export default {
           this.options = options;
           this.toolbar = quill.getModule('toolbar');
 
-          // Add button handler to toolbar
           if (this.toolbar) {
-            this.toolbar.addHandler('button', this.buttonHandler.bind(this));
+            this.toolbar.addHandler('button', this.handleButtonAction.bind(this));
           }
 
+          this.quill.on('selection-change', this.handleSelectionChange.bind(this));
         }
 
-        buttonHandler() {
-          // Create dialogs to get button properties (only label and link now)
+        handleSelectionChange(range) {
+          this.selectedButtonId = null;
+
+          if (!range) return;
+
+          const [blot] = this.quill.getLeaf(range.index);
+          if (!blot) return;
+
+          let currentNode = blot.domNode;
+          while (currentNode && !this.selectedButtonId) {
+            if (currentNode.classList && currentNode.classList.contains('quill-button-wrapper')) {
+              const buttonContainer = currentNode.querySelector('.quill-button-container');
+              if (buttonContainer) {
+                this.selectedButtonId = buttonContainer.getAttribute('data-button-id');
+              }
+              break;
+            }
+            currentNode = currentNode.parentNode;
+          }
+        }
+
+        handleButtonAction() {
+          if (this.selectedButtonId) {
+            const buttonElement = this.quill.root.querySelector(`.quill-button-container[data-button-id="${this.selectedButtonId}"]`);
+            if (buttonElement) {
+              this.editButton(buttonElement);
+              return;
+            }
+          }
+
+          this.createButton();
+        }
+
+        createButton() {
           const label = prompt('Button Label:', '');
           if (!label) return; // Cancel if no label
 
           const link = prompt('Button Link:', '');
 
-          // Get current selection and insert button
           const range = this.quill.getSelection(true);
+
           this.quill.insertEmbed(range.index, 'button', {
             label: label,
             link: link
           }, Quill.sources.USER);
 
-          // Move cursor after the button
           this.quill.setSelection(range.index + 1, Quill.sources.SILENT);
         }
 
+        editButton(buttonElement) {
+          if (!buttonElement) return;
+
+          const currentLabel = buttonElement.getAttribute('data-label');
+          const currentLink = buttonElement.getAttribute('data-link');
+
+          const newLabel = prompt('Edit Button Label:', currentLabel);
+          if (newLabel === null) return; // User canceled
+
+          const newLink = prompt('Edit Button Link:', currentLink);
+
+          const anchorElement = buttonElement.querySelector('a');
+          anchorElement.innerText = newLabel;
+          anchorElement.href = newLink;
+
+          buttonElement.setAttribute('data-label', newLabel);
+          buttonElement.setAttribute('data-link', newLink);
+
+          this.selectedButtonId = null;
+        }
       }
 
       Quill.register('modules/buttonToolbar', ButtonToolbarModule);
+
 
       window.Quill = Quill
     }
@@ -358,7 +413,7 @@ export default {
           });
         })
 
-        document.querySelector('.ql-button').innerHTML = '<div title="Add a button"><svg viewBox="0 0 18 18"><rect width="16" height="10" x="1" y="4" rx="2" ry="2" stroke-width="1.5" stroke="currentColor" fill="none"></rect><path d="M5,9 L13,9" stroke-width="1.5" stroke="currentColor"></path></svg></div>';
+        document.querySelector('.ql-button').innerHTML = '<div title="Add/Edit a button"><svg viewBox="0 0 18 18"><rect width="16" height="10" x="1" y="4" rx="2" ry="2" stroke-width="1.5" stroke="currentColor" fill="none"></rect><path d="M5,9 L13,9" stroke-width="1.5" stroke="currentColor"></path></svg></div>';
       })
     })
   },
