@@ -50,6 +50,7 @@
     "nuxt-i18n": "^6.28.0",
     "nuxt-tailvue": "^1.0.95",
     "quill": "^2.0.3",
+    "quill-color-picker-enhance": "^1.1.5",
     "quill-html-edit-button": "^2.2.15",
     "tailwindcss-pixel-dimensions": "^1.0.2",
     "v-tooltip": "^2.1.3",

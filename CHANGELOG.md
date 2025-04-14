@@ -9,6 +9,9 @@
 
 - Extend wysiwyg to have a button injection from the toolbar options: Integrate buttons and table to the Quill 2 editor #90
 
+- Extend quill colors with a color picker palette: Add colors to the color picker of the wisywyg #100
+
+- Fixed quill html insertion by adding a custom html raw module blot: When you add in the html the code of a form, it is not reflected as is as some codes seems filtered #92
 
 ### v1.0.15 (03/04/2025)
 
