@@ -13,6 +13,9 @@
 
 - Fixed quill html insertion by adding a custom html raw module blot: When you add in the html the code of a form, it is not reflected as is as some codes seems filtered #92
 
+- Extended quill editor font size list: Add a way to select custom font sizes in the quill editor component #103
+
+
 ### v1.0.15 (03/04/2025)
 
 ---

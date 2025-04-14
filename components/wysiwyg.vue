@@ -71,7 +71,13 @@ export default {
       selectedMedia: null,
       options: null,
       selectedRange: null,
-      QuillComponent: null
+      QuillComponent: null,
+      fontsArray: [
+        "1.00rem", "0.25rem", "0.50rem", "0.75rem", "1.25rem", "1.50rem", "1.75rem", "2.00rem",
+        "2.25rem", "2.50rem", "2.75rem", "3.00rem", "3.25rem", "3.50rem", "3.75rem", "4.00rem",
+        "4.25rem", "4.50rem", "4.75rem", "5.00rem", "5.25rem", "5.50rem", "5.75rem", "6.00rem",
+        "6.25rem", "6.50rem", "6.75rem", "7.00rem", "7.25rem", "7.50rem", "7.75rem", "8.00rem"
+      ]
     };
   },
   watch: {
@@ -149,6 +155,11 @@ export default {
           text: '\n'
         }))
       };
+
+      // The scrollingContainer was needed for the support of the colors picker feature used by `quill-color-picker-enhance`
+      Quill.prototype.scrollingContainer = {
+        scrollTop: () => {}
+      }
 
       Quill.register("modules/emoji-toolbar", Emoji.default.ToolbarEmoji);
       Quill.register('formats/emoji', Emoji.default.EmojiBlot);
@@ -335,7 +346,6 @@ export default {
 
 
 
-      const Parchment = Quill.import('parchment');
       const BlockEmbed2 = Quill.import('blots/block/embed');
 
       class HTMLBlot extends BlockEmbed2 {
@@ -598,6 +608,12 @@ export default {
 
       Quill.register('themes/snow-quill-color-picker-enhance', SnowTheme);
 
+      const fontSizeArr = this.fontsArray
+
+      var Size = Quill.import('attributors/style/size');
+      Size.whitelist = fontSizeArr;
+      Quill.register(Size, true);
+
       window.Quill = Quill
     }
 
@@ -621,7 +637,7 @@ export default {
               [{ 'indent': '-1'}, { 'indent': '+1' }],          // outdent/indent
               [{ 'direction': 'rtl' }],                         // text direction
 
-              [{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
+              [{ 'size': this.fontsArray }],  // custom dropdown
               [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
               [{ 'color': [] }, { 'background': [] }],
               [{ 'font': [] }],
@@ -680,6 +696,7 @@ export default {
         })
 
         document.querySelector('.ql-button').innerHTML = '<div title="Add/Edit a button"><svg viewBox="0 0 18 18"><rect width="16" height="10" x="1" y="4" rx="2" ry="2" stroke-width="1.5" stroke="currentColor" fill="none"></rect><path d="M5,9 L13,9" stroke-width="1.5" stroke="currentColor"></path></svg></div>';
+
       })
     })
   },
@@ -779,5 +796,15 @@ aside.sections-aside .input.wyzywig-wrapper {
 }
 #emoji-palette {
   margin-top: 30px;
+}
+.ql-picker.ql-size .ql-picker-label::before, .ql-picker.ql-size .ql-picker-item::before {
+  content: attr(data-value) !important;
+}
+.ql-editor p {
+  font-size: 1rem;
+}
+.ql-snow .ql-size.ql-picker.ql-expanded .ql-picker-options {
+  max-height: 250px;
+  overflow-y: scroll;
 }
 </style>
