@@ -204,6 +204,400 @@ export default {
       let rawHtml = require("quill-html-edit-button");
       Quill.register("modules/htmlEditButton", rawHtml.htmlEditButton);
 
+      const Embed = Quill.import('blots/embed');
+      class ButtonBlot extends Embed {
+        static create(value) {
+          const node = super.create();
+
+          const buttonContainer = document.createElement('button');
+          buttonContainer.className = 'quill-button-container';
+
+          buttonContainer.setAttribute('type', 'button');
+
+          buttonContainer.setAttribute('data-button-id', 'button-' + Date.now() + '-' + Math.floor(Math.random() * 1000));
+
+          const anchor = document.createElement('a');
+          anchor.innerText = value.label || 'Button';
+          anchor.href = value.link || '#';
+          anchor.className = 'ql-a-button';
+          // anchor.target = '_blank';
+
+          buttonContainer.setAttribute('data-label', value.label || 'Button');
+          buttonContainer.setAttribute('data-link', value.link || '#');
+
+          buttonContainer.appendChild(anchor);
+
+          node.appendChild(buttonContainer);
+
+          return node;
+        }
+
+        static value(node) {
+          const buttonContainer = node.querySelector('.quill-button-container');
+          return {
+            label: buttonContainer.getAttribute('data-label'),
+            link: buttonContainer.getAttribute('data-link')
+          };
+        }
+      }
+
+      ButtonBlot.blotName = 'button';
+      ButtonBlot.tagName = 'span';
+      ButtonBlot.className = 'quill-button-wrapper';
+
+      Quill.register(ButtonBlot);
+
+      class ButtonToolbarModule {
+        constructor(quill, options) {
+          this.quill = quill;
+          this.options = options;
+          this.toolbar = quill.getModule('toolbar');
+
+          if (this.toolbar) {
+            this.toolbar.addHandler('button', this.handleButtonAction.bind(this));
+          }
+
+          this.quill.on('selection-change', this.handleSelectionChange.bind(this));
+        }
+
+        handleSelectionChange(range) {
+          this.selectedButtonId = null;
+
+          if (!range) return;
+
+          const [blot] = this.quill.getLeaf(range.index);
+          if (!blot) return;
+
+          let currentNode = blot.domNode;
+          while (currentNode && !this.selectedButtonId) {
+            if (currentNode.classList && currentNode.classList.contains('quill-button-wrapper')) {
+              const buttonContainer = currentNode.querySelector('.quill-button-container');
+              if (buttonContainer) {
+                this.selectedButtonId = buttonContainer.getAttribute('data-button-id');
+              }
+              break;
+            }
+            currentNode = currentNode.parentNode;
+          }
+        }
+
+        handleButtonAction() {
+          if (this.selectedButtonId) {
+            const buttonElement = this.quill.root.querySelector(`.quill-button-container[data-button-id="${this.selectedButtonId}"]`);
+            if (buttonElement) {
+              this.editButton(buttonElement);
+              return;
+            }
+          }
+
+          this.createButton();
+        }
+
+        createButton() {
+          const label = prompt('Button Label:', '');
+          if (!label) return; // Cancel if no label
+
+          const link = prompt('Button Link:', '');
+
+          const range = this.quill.getSelection(true);
+
+          this.quill.insertEmbed(range.index, 'button', {
+            label: label,
+            link: link
+          }, Quill.sources.USER);
+
+          this.quill.setSelection(range.index + 1, Quill.sources.SILENT);
+        }
+
+        editButton(buttonElement) {
+          if (!buttonElement) return;
+
+          const currentLabel = buttonElement.getAttribute('data-label');
+          const currentLink = buttonElement.getAttribute('data-link');
+
+          const newLabel = prompt('Edit Button Label:', currentLabel);
+          if (newLabel === null) return; // User canceled
+
+          const newLink = prompt('Edit Button Link:', currentLink);
+
+          const anchorElement = buttonElement.querySelector('a');
+          anchorElement.innerText = newLabel;
+          anchorElement.href = newLink;
+
+          buttonElement.setAttribute('data-label', newLabel);
+          buttonElement.setAttribute('data-link', newLink);
+
+          this.selectedButtonId = null;
+        }
+      }
+
+      Quill.register('modules/buttonToolbar', ButtonToolbarModule);
+
+
+
+      const Parchment = Quill.import('parchment');
+      const BlockEmbed2 = Quill.import('blots/block/embed');
+
+      class HTMLBlot extends BlockEmbed2 {
+        static create(value) {
+          const node = super.create();
+
+          // Create a div to hold our HTML content
+          const container = document.createElement('div');
+          container.classList.add('ql-html-container');
+          container.innerHTML = value;
+
+          // Add container to the blot's DOM node
+          node.appendChild(container);
+
+          // Store the raw HTML for retrieval later
+          node.setAttribute('data-html', value);
+
+          return node;
+        }
+
+        static value(node) {
+          return node.getAttribute('data-html');
+        }
+      }
+
+      HTMLBlot.blotName = 'html';
+      HTMLBlot.tagName = 'div';
+      HTMLBlot.className = 'ql-custom-html';
+
+// Register the blot with Quill
+      Quill.register(HTMLBlot);
+
+// HTML Module with improved UI
+      class HTMLModule {
+        constructor(quill, options) {
+          this.quill = quill;
+          this.options = options || {};
+          this.toolbar = quill.getModule('toolbar');
+
+          if (this.toolbar) {
+            this.toolbar.addHandler('html', this.handleHTML.bind(this));
+          }
+
+          // Create HTML editor modal (but don't append to DOM yet)
+          this.createHTMLEditor();
+        }
+
+        createHTMLEditor() {
+          // Create modal container
+          this.modal = document.createElement('div');
+          this.modal.className = 'ql-html-editor-modal';
+
+          // Create modal content
+          const modalContent = document.createElement('div');
+          modalContent.className = 'ql-html-editor-content';
+
+          // Create textarea for HTML editing
+          this.htmlEditor = document.createElement('textarea');
+          this.htmlEditor.className = 'ql-html-editor-textarea';
+
+          // Create buttons
+          const buttonContainer = document.createElement('div');
+          buttonContainer.className = 'ql-html-editor-buttons';
+
+          this.saveButton = document.createElement('button');
+          this.saveButton.textContent = 'Save';
+          this.saveButton.className = 'ql-html-editor-save';
+
+          const cancelButton = document.createElement('button');
+          cancelButton.textContent = 'Cancel';
+          cancelButton.className = 'ql-html-editor-cancel';
+
+          const noteText = document.createElement('div');
+          noteText.textContent = 'Use with cautions, when adding a new html content, make sure to wrap it with a <p></p> tag';
+          noteText.className = 'ql-html-editor-noteText';
+
+          // Append elements
+          buttonContainer.appendChild(this.saveButton);
+          buttonContainer.appendChild(cancelButton);
+          buttonContainer.appendChild(noteText);
+
+          modalContent.appendChild(this.htmlEditor);
+          modalContent.appendChild(buttonContainer);
+
+          this.modal.appendChild(modalContent);
+
+          // Event listeners
+          this.saveButton.addEventListener('click', () => {
+            this.saveHTML();
+          });
+
+          cancelButton.addEventListener('click', () => {
+            this.hideHTMLEditor();
+          });
+
+          // Close modal when clicking outside
+          this.modal.addEventListener('click', (event) => {
+            if (event.target === this.modal) {
+              this.hideHTMLEditor();
+            }
+          });
+        }
+
+        handleHTML() {
+          const range = this.quill.getSelection(true);
+          this.range = range;
+
+          // If editing existing HTML blot
+          let existingHTML = '';
+          const [blot] = this.quill.getLeaf(range.index);
+
+          if (blot && blot.parent && blot.parent.domNode && blot.parent.domNode.classList.contains('ql-custom-html')) {
+            existingHTML = blot.parent.domNode.getAttribute('data-html') || '';
+            this.isEditing = true;
+            this.editingBlot = blot.parent;
+          } else {
+            this.isEditing = false;
+          }
+
+          // Get current content if no existing HTML
+          if (!existingHTML) {
+            existingHTML = this.quill.root.innerHTML;
+          }
+
+          // Show HTML editor
+          this.showHTMLEditor(existingHTML);
+        }
+
+        showHTMLEditor(html) {
+          // Set HTML content in textarea
+          this.htmlEditor.value = html;
+
+          // Append modal to body if not already there
+          if (!document.body.contains(this.modal)) {
+            document.body.appendChild(this.modal);
+          }
+
+          // Show modal
+          this.modal.style.display = 'flex';
+
+          // Focus textarea
+          setTimeout(() => {
+            this.htmlEditor.focus();
+          }, 0);
+        }
+
+        hideHTMLEditor() {
+          this.modal.style.display = 'none';
+        }
+
+        saveHTML() {
+          const html = this.htmlEditor.value;
+
+          if (html) {
+            if (this.isEditing && this.editingBlot) {
+              // Update existing blot
+              const index = this.quill.getIndex(this.editingBlot);
+              this.quill.deleteText(index, 1, Quill.sources.USER);
+              this.quill.insertEmbed(index, 'html', html, Quill.sources.USER);
+              this.quill.setSelection(index + 1, 0, Quill.sources.USER);
+            } else {
+              // Insert new HTML
+              this.quill.insertEmbed(this.range.index, 'html', html, Quill.sources.USER);
+              // Set selection after the inserted HTML to fix cursor issue
+              this.quill.setSelection(this.range.index + 1, 0, Quill.sources.USER);
+            }
+          }
+
+          this.hideHTMLEditor();
+        }
+      }
+
+// Register the module with Quill
+      Quill.register('modules/html', HTMLModule);
+
+// Add styles for the HTML editor and icon
+      const style = document.createElement('style');
+      style.innerHTML = `
+  .ql-html-container {
+    width: 100%;
+  }
+
+  /* HTML button icon */
+  .ql-toolbar.ql-snow button.ql-html::before {
+    content: "<>";
+    font-family: monospace;
+    font-weight: bold;
+    font-size: 14px;
+  }
+
+  /* Modal styles */
+  .ql-html-editor-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .ql-html-editor-content {
+    background-color: white;
+    border-radius: 5px;
+    width: 80%;
+    max-width: 800px;
+    display: flex;
+    flex-direction: column;
+    max-height: 80vh;
+  }
+
+  .ql-html-editor-textarea {
+    width: 100%;
+    height: 60vh;
+    padding: 15px;
+    font-family: monospace;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    resize: none;
+  }
+
+  .ql-html-editor-buttons {
+    display: flex;
+    justify-content: flex-end;
+    padding: 10px;
+    border-top: 1px solid #eee;
+    position: relative;
+  }
+
+  .ql-html-editor-save,
+  .ql-html-editor-cancel {
+    max-height: 64px;
+    width: auto;
+    min-width: auto;
+    border-radius: 16px;
+    height: auto;
+    padding: 6px 8px;
+    min-height: auto;
+    margin: 10px;
+  }
+
+  .ql-html-editor-noteText {
+    font-size: 12px;
+    position: absolute;
+    left: 8px;
+  }
+
+  .ql-html-editor-save {
+    background-color: #31a9db;
+    color: white;
+  }
+`;
+      document.head.appendChild(style);
+
+      let { SnowTheme } = require("quill-color-picker-enhance");
+      import("quill-color-picker-enhance/dist/index.css");
+
+      Quill.register('themes/snow-quill-color-picker-enhance', SnowTheme);
+
       window.Quill = Quill
     }
 
@@ -213,30 +607,39 @@ export default {
       this.options = this.sectionsWysiwygEditorOptions
     } else {
       this.options = {
+        theme: "snow-quill-color-picker-enhance",
         modules: {
-          toolbar: [
-            ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
-            ['link', 'image', 'video', 'formula'],
-            ['blockquote', 'code-block'],
+          toolbar: {
+            container: [
+              ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
+              ['link', 'image', 'video', 'formula'],
+              ['blockquote', 'code-block'],
 
-            [{ 'header': 1 }, { 'header': 2 }],               // custom button values
-            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-            [{ 'script': 'sub'}, { 'script': 'super' }],      // superscript/subscript
-            [{ 'indent': '-1'}, { 'indent': '+1' }],          // outdent/indent
-            [{ 'direction': 'rtl' }],                         // text direction
+              [{ 'header': 1 }, { 'header': 2 }],               // custom button values
+              [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+              [{ 'script': 'sub'}, { 'script': 'super' }],      // superscript/subscript
+              [{ 'indent': '-1'}, { 'indent': '+1' }],          // outdent/indent
+              [{ 'direction': 'rtl' }],                         // text direction
 
-            [{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
-            [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-
-            [{ 'color': ['#03B1C7', '#61035B', '#fff', '#868686', '#011321', '#000000', '#e60000', '#ff9900', '#ffff00', '#008a00', '#0066cc', '#9933ff', '#ffffff', '#facccc', '#ffebcc', '#ffffcc', '#cce8cc', '#cce0f5', '#ebd6ff', '#bbbbbb', '#f06666', '#ffc266', '#ffff66', '#66b966', '#66a3e0', '#c285ff', '#888888', '#a10000', '#b26b00', '#b2b200', '#006100', '#0047b2', '#6b24b2', '#444444', '#5c0000', '#663d00', '#666600', '#003700', '#002966', '#3d1466'] }, { 'background': ['#03B1C7', '#61035B', '#fff', '#868686', '#011321', '#000000', '#e60000', '#ff9900', '#ffff00', '#008a00', '#0066cc', '#9933ff', '#ffffff', '#facccc', '#ffebcc', '#ffffcc', '#cce8cc', '#cce0f5', '#ebd6ff', '#bbbbbb', '#f06666', '#ffc266', '#ffff66', '#66b966', '#66a3e0', '#c285ff', '#888888', '#a10000', '#b26b00', '#b2b200', '#006100', '#0047b2', '#6b24b2', '#444444', '#5c0000', '#663d00', '#666600', '#003700', '#002966', '#3d1466'] }],          // dropdown with defaults from theme
-            [{ 'font': [] }],
-            [{ 'align': [] }],
-            ['clean'],
-            ['emoji'],
-            ["save-format", "apply-format"],
-          ],
+              [{ 'size': ['small', false, 'large', 'huge'] }],  // custom dropdown
+              [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+              [{ 'color': [] }, { 'background': [] }],
+              [{ 'font': [] }],
+              [{ 'align': [] }],
+              ['clean'],
+              ['emoji'],
+              ["save-format", "apply-format"],
+              ["button"],
+              ['html']
+            ],
+            handlers: {
+              'button': function() {},
+              'html': function() {}
+            }
+          },
           "emoji-toolbar": true,
-          htmlEditButton: {},
+          buttonToolbar: true,
+          html: true
         }
       }
     }
@@ -275,6 +678,8 @@ export default {
             this.applyFormat()
           });
         })
+
+        document.querySelector('.ql-button').innerHTML = '<div title="Add/Edit a button"><svg viewBox="0 0 18 18"><rect width="16" height="10" x="1" y="4" rx="2" ry="2" stroke-width="1.5" stroke="currentColor" fill="none"></rect><path d="M5,9 L13,9" stroke-width="1.5" stroke="currentColor"></path></svg></div>';
       })
     })
   },
