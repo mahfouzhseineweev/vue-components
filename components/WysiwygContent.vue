@@ -35,6 +35,23 @@ export default {
   },
   created() {
     import("quill/dist/quill.snow.css");
+  },
+  mounted() {
+    this.$nextTick(() => {
+      const quillEditor = this.$el.querySelector('.ql-editor');
+      if (quillEditor) {
+        const anchorTags = quillEditor.querySelectorAll('a');
+        anchorTags.forEach(anchorTag => {
+          const link = anchorTag.getAttribute('href');
+          if (link && !link.startsWith('http')) {
+            anchorTag.addEventListener('click', (event) => {
+              event.preventDefault();
+              this.$router.push(link);
+            });
+          }
+        });
+      }
+    });
   }
 }
 </script>

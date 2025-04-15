@@ -156,11 +156,6 @@ export default {
         }))
       };
 
-      // The scrollingContainer was needed for the support of the colors picker feature used by `quill-color-picker-enhance`
-      Quill.prototype.scrollingContainer = {
-        scrollTop: () => {}
-      }
-
       Quill.register("modules/emoji-toolbar", Emoji.default.ToolbarEmoji);
       Quill.register('formats/emoji', Emoji.default.EmojiBlot);
 
@@ -228,8 +223,8 @@ export default {
         static value(node) {
           const buttonContainer = node.querySelector('.quill-button-container');
           return {
-            label: buttonContainer.getAttribute('data-label'),
-            link: buttonContainer.getAttribute('data-link')
+            label: buttonContainer ? buttonContainer.getAttribute('data-label') : '',
+            link: buttonContainer ? buttonContainer.getAttribute('data-link') : ''
           };
         }
       }
@@ -502,6 +497,7 @@ export default {
     font-family: monospace;
     font-weight: bold;
     font-size: 14px;
+    display: flex;
   }
 
   /* Modal styles */
@@ -571,16 +567,34 @@ export default {
 `;
       document.head.appendChild(style);
 
-      let { SnowTheme } = require("quill-color-picker-enhance");
-      import("quill-color-picker-enhance/dist/index.css");
-
-      Quill.register('themes/snow-quill-color-picker-enhance', SnowTheme);
-
       const fontSizeArr = this.fontsArray
 
       var Size = Quill.import('attributors/style/size');
       Size.whitelist = fontSizeArr;
       Quill.register(Size, true);
+
+      var Link = Quill.import('formats/link');
+
+      class MyLink extends Link {
+        static create(value) {
+          let node = super.create(value);
+          value = this.sanitize(value);
+          node.setAttribute('href', value);
+          if(!value.startsWith("http")) {
+            node.removeAttribute('target');
+          }
+          return node;
+        }
+      }
+
+      Quill.register(MyLink);
+
+      let QuillTableUI = require('quill-table-ui').default
+      import("quill-table-ui/dist/index.css");
+
+      Quill.register({
+        'modules/tableUI': QuillTableUI
+      }, true)
 
       window.Quill = Quill
     }
@@ -591,7 +605,6 @@ export default {
       this.options = this.sectionsWysiwygEditorOptions
     } else {
       this.options = {
-        theme: "snow-quill-color-picker-enhance",
         modules: {
           toolbar: {
             container: [
@@ -607,14 +620,15 @@ export default {
 
               [{ 'size': this.fontsArray }],  // custom dropdown
               [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-              [{ 'color': [] }, { 'background': [] }],
+              [{ 'color': ['#51AEC3', '#fce085', '#03B1C7', '#61035B', '#fff', '#868686', '#011321', '#000000', '#e60000', '#ff9900', '#ffff00', '#008a00', '#0066cc', '#9933ff', '#ffffff', '#facccc', '#ffebcc', '#ffffcc', '#cce8cc', '#cce0f5', '#ebd6ff', '#bbbbbb', '#f06666', '#ffc266', '#ffff66', '#66b966', '#66a3e0', '#c285ff', '#888888', '#a10000', '#b26b00', '#b2b200', '#006100', '#0047b2', '#6b24b2', '#444444', '#5c0000', '#663d00', '#666600', '#003700', '#002966', '#3d1466'] }, { 'background': ['#51AEC3', '#fce085', '#03B1C7', '#61035B', '#fff', '#868686', '#011321', '#000000', '#e60000', '#ff9900', '#ffff00', '#008a00', '#0066cc', '#9933ff', '#ffffff', '#facccc', '#ffebcc', '#ffffcc', '#cce8cc', '#cce0f5', '#ebd6ff', '#bbbbbb', '#f06666', '#ffc266', '#ffff66', '#66b966', '#66a3e0', '#c285ff', '#888888', '#a10000', '#b26b00', '#b2b200', '#006100', '#0047b2', '#6b24b2', '#444444', '#5c0000', '#663d00', '#666600', '#003700', '#002966', '#3d1466'] }],
               [{ 'font': [] }],
               [{ 'align': [] }],
               ['clean'],
               ['emoji'],
               ["save-format", "apply-format"],
               ["button"],
-              ['html']
+              ['html'],
+              ['table-button']
             ],
             handlers: {
               'button': function() {},
@@ -623,7 +637,9 @@ export default {
           },
           "emoji-toolbar": true,
           buttonToolbar: true,
-          html: true
+          html: true,
+          table: true,
+          tableUI: true
         }
       }
     }
@@ -664,6 +680,22 @@ export default {
         })
 
         document.querySelector('.ql-button').innerHTML = '<div title="Add/Edit a button"><svg viewBox="0 0 18 18"><rect width="16" height="10" x="1" y="4" rx="2" ry="2" stroke-width="1.5" stroke="currentColor" fill="none"></rect><path d="M5,9 L13,9" stroke-width="1.5" stroke="currentColor"></path></svg></div>';
+
+        document.querySelector('.ql-table-button').innerHTML = `
+          <div title="Insert 2x2 Table">
+            <svg viewBox="0 0 18 18" width="18" height="18">
+              <rect x="2" y="2" width="14" height="14" stroke="currentColor" fill="none" stroke-width="1.5" />
+              <line x1="9" y1="2" x2="9" y2="16" stroke="currentColor" stroke-width="1.5" />
+              <line x1="2" y1="9" x2="16" y2="9" stroke="currentColor" stroke-width="1.5" />
+            </svg>
+          </div>
+        `;
+        var tableButton = document.querySelectorAll('.ql-table-button');
+        tableButton.forEach((tableButton) => {
+          tableButton.addEventListener('click', () => {
+            this.$refs.myQuillEditor.quill.getModule('table').insertTable(3, 3);
+          });
+        })
 
       })
     })
