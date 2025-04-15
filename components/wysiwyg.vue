@@ -156,11 +156,6 @@ export default {
         }))
       };
 
-      // The scrollingContainer was needed for the support of the colors picker feature used by `quill-color-picker-enhance`
-      Quill.prototype.scrollingContainer = {
-        scrollTop: () => {}
-      }
-
       Quill.register("modules/emoji-toolbar", Emoji.default.ToolbarEmoji);
       Quill.register('formats/emoji', Emoji.default.EmojiBlot);
 
@@ -571,16 +566,27 @@ export default {
 `;
       document.head.appendChild(style);
 
-      let { SnowTheme } = require("quill-color-picker-enhance");
-      import("quill-color-picker-enhance/dist/index.css");
-
-      Quill.register('themes/snow-quill-color-picker-enhance', SnowTheme);
-
       const fontSizeArr = this.fontsArray
 
       var Size = Quill.import('attributors/style/size');
       Size.whitelist = fontSizeArr;
       Quill.register(Size, true);
+
+      var Link = Quill.import('formats/link');
+
+      class MyLink extends Link {
+        static create(value) {
+          let node = super.create(value);
+          value = this.sanitize(value);
+          node.setAttribute('href', value);
+          if(!value.startsWith("http")) {
+            node.removeAttribute('target');
+          }
+          return node;
+        }
+      }
+
+      Quill.register(MyLink);
 
       window.Quill = Quill
     }
@@ -591,7 +597,6 @@ export default {
       this.options = this.sectionsWysiwygEditorOptions
     } else {
       this.options = {
-        theme: "snow-quill-color-picker-enhance",
         modules: {
           toolbar: {
             container: [
@@ -607,7 +612,7 @@ export default {
 
               [{ 'size': this.fontsArray }],  // custom dropdown
               [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-              [{ 'color': [] }, { 'background': [] }],
+              [{ 'color': ['#51AEC3', '#fce085', '#03B1C7', '#61035B', '#fff', '#868686', '#011321', '#000000', '#e60000', '#ff9900', '#ffff00', '#008a00', '#0066cc', '#9933ff', '#ffffff', '#facccc', '#ffebcc', '#ffffcc', '#cce8cc', '#cce0f5', '#ebd6ff', '#bbbbbb', '#f06666', '#ffc266', '#ffff66', '#66b966', '#66a3e0', '#c285ff', '#888888', '#a10000', '#b26b00', '#b2b200', '#006100', '#0047b2', '#6b24b2', '#444444', '#5c0000', '#663d00', '#666600', '#003700', '#002966', '#3d1466'] }, { 'background': ['#51AEC3', '#fce085', '#03B1C7', '#61035B', '#fff', '#868686', '#011321', '#000000', '#e60000', '#ff9900', '#ffff00', '#008a00', '#0066cc', '#9933ff', '#ffffff', '#facccc', '#ffebcc', '#ffffcc', '#cce8cc', '#cce0f5', '#ebd6ff', '#bbbbbb', '#f06666', '#ffc266', '#ffff66', '#66b966', '#66a3e0', '#c285ff', '#888888', '#a10000', '#b26b00', '#b2b200', '#006100', '#0047b2', '#6b24b2', '#444444', '#5c0000', '#663d00', '#666600', '#003700', '#002966', '#3d1466'] }],
               [{ 'font': [] }],
               [{ 'align': [] }],
               ['clean'],
