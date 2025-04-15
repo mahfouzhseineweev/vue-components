@@ -223,8 +223,8 @@ export default {
         static value(node) {
           const buttonContainer = node.querySelector('.quill-button-container');
           return {
-            label: buttonContainer.getAttribute('data-label'),
-            link: buttonContainer.getAttribute('data-link')
+            label: buttonContainer ? buttonContainer.getAttribute('data-label') : '',
+            link: buttonContainer ? buttonContainer.getAttribute('data-link') : ''
           };
         }
       }
@@ -497,6 +497,7 @@ export default {
     font-family: monospace;
     font-weight: bold;
     font-size: 14px;
+    display: flex;
   }
 
   /* Modal styles */
@@ -588,6 +589,13 @@ export default {
 
       Quill.register(MyLink);
 
+      let QuillTableUI = require('quill-table-ui').default
+      import("quill-table-ui/dist/index.css");
+
+      Quill.register({
+        'modules/tableUI': QuillTableUI
+      }, true)
+
       window.Quill = Quill
     }
 
@@ -619,7 +627,8 @@ export default {
               ['emoji'],
               ["save-format", "apply-format"],
               ["button"],
-              ['html']
+              ['html'],
+              ['table-button']
             ],
             handlers: {
               'button': function() {},
@@ -628,7 +637,9 @@ export default {
           },
           "emoji-toolbar": true,
           buttonToolbar: true,
-          html: true
+          html: true,
+          table: true,
+          tableUI: true
         }
       }
     }
@@ -669,6 +680,22 @@ export default {
         })
 
         document.querySelector('.ql-button').innerHTML = '<div title="Add/Edit a button"><svg viewBox="0 0 18 18"><rect width="16" height="10" x="1" y="4" rx="2" ry="2" stroke-width="1.5" stroke="currentColor" fill="none"></rect><path d="M5,9 L13,9" stroke-width="1.5" stroke="currentColor"></path></svg></div>';
+
+        document.querySelector('.ql-table-button').innerHTML = `
+          <div title="Insert 2x2 Table">
+            <svg viewBox="0 0 18 18" width="18" height="18">
+              <rect x="2" y="2" width="14" height="14" stroke="currentColor" fill="none" stroke-width="1.5" />
+              <line x1="9" y1="2" x2="9" y2="16" stroke="currentColor" stroke-width="1.5" />
+              <line x1="2" y1="9" x2="16" y2="9" stroke="currentColor" stroke-width="1.5" />
+            </svg>
+          </div>
+        `;
+        var tableButton = document.querySelectorAll('.ql-table-button');
+        tableButton.forEach((tableButton) => {
+          tableButton.addEventListener('click', () => {
+            this.$refs.myQuillEditor.quill.getModule('table').insertTable(3, 3);
+          });
+        })
 
       })
     })

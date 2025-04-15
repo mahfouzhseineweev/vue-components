@@ -17,6 +17,8 @@
 
 - Update quill direct links behavior to remove target blank for non-external links: When from a wysiwyg you have a direct link to a page of your site or a section's anchor, if you click on it a new tab open #98
 
+- Extended quill editor with a table support: Integrate buttons and table to the Quill 2 editor #90
+
 ### v1.0.15 (03/04/2025)
 
 ---
