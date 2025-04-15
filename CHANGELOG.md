@@ -3,6 +3,26 @@
 ---
 
 
+### v1.0.16 (08/04/2025)
+
+---
+
+- Extend wysiwyg to have a button injection from the toolbar options: Integrate buttons and table to the Quill 2 editor #90
+
+- Extend quill colors fonts/background with 2 new colors '#51AEC3', '#fce085': Add colors to the color picker of the wisywyg #100
+
+- Fixed quill html insertion by adding a custom html raw module blot: When you add in the html the code of a form, it is not reflected as is as some codes seems filtered #92
+
+- Extended quill editor font size list: Add a way to select custom font sizes in the quill editor component #103
+
+- Update quill direct links behavior to remove target blank for non-external links: When from a wysiwyg you have a direct link to a page of your site or a section's anchor, if you click on it a new tab open #98
+
+- Extended quill editor with a table support: Integrate buttons and table to the Quill 2 editor #90
+
+- Update quill anchor tags to behavior similar to the nuxt-links behavior
+
+- Update quill toolbar options order: Review of the wysiwyg component #108 
+
 ### v1.0.15 (03/04/2025)
 
 ---

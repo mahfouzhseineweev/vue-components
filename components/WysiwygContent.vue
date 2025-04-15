@@ -35,6 +35,23 @@ export default {
   },
   created() {
     import("quill/dist/quill.snow.css");
+  },
+  mounted() {
+    this.$nextTick(() => {
+      const quillEditor = this.$el.querySelector('.ql-editor');
+      if (quillEditor) {
+        const anchorTags = quillEditor.querySelectorAll('a');
+        anchorTags.forEach(anchorTag => {
+          const link = anchorTag.getAttribute('href');
+          if (link && !link.startsWith('http')) {
+            anchorTag.addEventListener('click', (event) => {
+              event.preventDefault();
+              this.$router.push(link);
+            });
+          }
+        });
+      }
+    });
   }
 }
 </script>
@@ -87,5 +104,44 @@ export default {
 }
 section .ql-editor img {
   display: inline !important;
+}
+.quill-button-wrapper {
+  display: inline-block;
+  margin: 0 4px;
+  vertical-align: middle;
+}
+button.quill-button-container {
+  border: 1px solid #ccc;
+  background-color: #f5f5f5;
+  padding: 3px 10px !important;
+  border-radius: 4px !important;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: inherit;
+  transition: background-color 0.3s;
+  display: inline-block;
+}
+.ql-a-button {
+  color: inherit !important;
+  text-decoration: none !important;
+  cursor: pointer;
+  display: inline-block;
+}
+.ql-button {
+  width: 28px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+.ql-button svg {
+  width: 18px;
+  height: 18px;
+}
+.ql-editor p {
+  font-size: 1rem;
 }
 </style>
