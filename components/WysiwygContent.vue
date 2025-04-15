@@ -121,11 +121,8 @@ button.quill-button-container {
   transition: background-color 0.3s;
   display: inline-block;
 }
-.quill-button-container:hover {
-  background-color: #e9e9e9;
-}
 .ql-a-button {
-  color: #000 !important;
+  color: inherit !important;
   text-decoration: none !important;
   cursor: pointer;
   display: inline-block;
