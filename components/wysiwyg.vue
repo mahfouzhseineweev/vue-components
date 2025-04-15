@@ -667,7 +667,7 @@ export default {
 
         var saveButtons = document.querySelectorAll('.ql-save-format');
         saveButtons.forEach((saveButton) => {
-          saveButton.innerHTML = '<div title="Save format"><svg version="1.0" xmlns="http://www.w3.org/2000/svg"\n' +
+          saveButton.innerHTML = '<div title="Save format"><svg version="1.0" style="width: 20px;" xmlns="http://www.w3.org/2000/svg"\n' +
             ' width="512.000000pt" height="512.000000pt" viewBox="0 0 512.000000 512.000000"\n' +
             ' preserveAspectRatio="xMidYMid meet">\n' +
             '\n' +
@@ -691,7 +691,7 @@ export default {
 
         var applyButtons = document.querySelectorAll('.ql-apply-format');
         applyButtons.forEach((applyButton) => {
-          applyButton.innerHTML = '<div title="Apply format"><svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"\n' +
+          applyButton.innerHTML = '<div title="Apply format"><svg version="1.1" id="Layer_1" style="width: 20px;" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"\n' +
             '\t width="100%" viewBox="0 0 512 512" enable-background="new 0 0 512 512" xml:space="preserve">\n' +
             '<path fill="#FFFFFF" opacity="1.000000" stroke="none" \n' +
             '\td="\n' +

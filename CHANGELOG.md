@@ -3,6 +3,13 @@
 ---
 
 
+### v1.0.17 (15/04/2025)
+
+---
+
+- Fix svg bug with width style in quill toolbar options
+
+
 ### v1.0.16 (08/04/2025)
 
 ---
