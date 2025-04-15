@@ -19,6 +19,10 @@
 
 - Extended quill editor with a table support: Integrate buttons and table to the Quill 2 editor #90
 
+- Update quill anchor tags to behavior similar to the nuxt-links behavior
+
+- Update quill toolbar options order: Review of the wysiwyg component #108
+
 ### v1.0.15 (03/04/2025)
 
 ---
