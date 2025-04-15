@@ -197,24 +197,6 @@ export default {
       }
       Quill.register(CustomImageBlot);
 
-      const BlockEmbed = Quill.import('blots/block/embed');
-      class RawHTMLBlot extends BlockEmbed {
-        static create(value) {
-          const node = super.create();
-          node.innerHTML = value; // Insert the raw HTML
-          return node;
-        }
-        static value(node) {
-          return node.innerHTML; // Extract the raw HTML when needed
-        }
-      }
-      RawHTMLBlot.blotName = 'rawHtml';
-      RawHTMLBlot.tagName = 'div';
-      Quill.register(RawHTMLBlot);
-
-      let rawHtml = require("quill-html-edit-button");
-      Quill.register("modules/htmlEditButton", rawHtml.htmlEditButton);
-
       const Embed = Quill.import('blots/embed');
       class ButtonBlot extends Embed {
         static create(value) {
@@ -455,15 +437,6 @@ export default {
 
           // If editing existing HTML blot
           let existingHTML = '';
-          const [blot] = this.quill.getLeaf(range.index);
-
-          if (blot && blot.parent && blot.parent.domNode && blot.parent.domNode.classList.contains('ql-custom-html')) {
-            existingHTML = blot.parent.domNode.getAttribute('data-html') || '';
-            this.isEditing = true;
-            this.editingBlot = blot.parent;
-          } else {
-            this.isEditing = false;
-          }
 
           // Get current content if no existing HTML
           if (!existingHTML) {
@@ -500,18 +473,13 @@ export default {
           const html = this.htmlEditor.value;
 
           if (html) {
-            if (this.isEditing && this.editingBlot) {
-              // Update existing blot
-              const index = this.quill.getIndex(this.editingBlot);
-              this.quill.deleteText(index, 1, Quill.sources.USER);
-              this.quill.insertEmbed(index, 'html', html, Quill.sources.USER);
-              this.quill.setSelection(index + 1, 0, Quill.sources.USER);
-            } else {
-              // Insert new HTML
-              this.quill.insertEmbed(this.range.index, 'html', html, Quill.sources.USER);
-              // Set selection after the inserted HTML to fix cursor issue
-              this.quill.setSelection(this.range.index + 1, 0, Quill.sources.USER);
-            }
+            // Clear entire editor
+            const length = this.quill.getLength();
+            this.quill.deleteText(0, length, Quill.sources.USER);
+
+            // Insert full HTML as a single custom 'html' blot
+            this.quill.insertEmbed(0, 'html', html, Quill.sources.USER);
+            this.quill.setSelection(this.quill.getLength(), 0, Quill.sources.USER);
           }
 
           this.hideHTMLEditor();

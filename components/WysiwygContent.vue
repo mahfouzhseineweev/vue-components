@@ -127,4 +127,7 @@ button.quill-button-container {
   width: 18px;
   height: 18px;
 }
+.ql-editor p {
+  font-size: 1rem;
+}
 </style>
