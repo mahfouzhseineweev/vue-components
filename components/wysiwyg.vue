@@ -73,10 +73,10 @@ export default {
       selectedRange: null,
       QuillComponent: null,
       fontsArray: [
-        "1.00rem", "0.25rem", "0.50rem", "0.75rem", "1.25rem", "1.50rem", "1.75rem", "2.00rem",
-        "2.25rem", "2.50rem", "2.75rem", "3.00rem", "3.25rem", "3.50rem", "3.75rem", "4.00rem",
-        "4.25rem", "4.50rem", "4.75rem", "5.00rem", "5.25rem", "5.50rem", "5.75rem", "6.00rem",
-        "6.25rem", "6.50rem", "6.75rem", "7.00rem", "7.25rem", "7.50rem", "7.75rem", "8.00rem"
+        "0.25rem", "0.5rem", "0.75rem", false, "1.25rem", "1.5rem", "1.75rem", "2rem",
+        "2.25rem", "2.5rem", "2.75rem", "3rem", "3.25rem", "3.5rem", "3.75rem", "4rem",
+        "4.25rem", "4.5rem", "4.75rem", "5rem", "5.25rem", "5.5rem", "5.75rem", "6rem",
+        "6.25rem", "6.5rem", "6.75rem", "7rem", "7.25rem", "7.5rem", "7.75rem", "8rem"
       ]
     };
   },
@@ -964,7 +964,7 @@ aside.sections-aside .input.wyzywig-wrapper {
 #emoji-palette {
   margin-top: 30px;
 }
-.ql-picker.ql-size .ql-picker-label::before, .ql-picker.ql-size .ql-picker-item::before {
+.ql-picker.ql-size .ql-picker-label[data-value]::before, .ql-picker.ql-size .ql-picker-item[data-value]::before {
   content: attr(data-value) !important;
 }
 .ql-editor p {
