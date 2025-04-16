@@ -648,7 +648,6 @@ export default {
     await import('vue-quill-editor').then(module => {
       this.QuillComponent = module.quillEditor
       this.$nextTick(() => {
-        this.$refs.myQuillEditor.quill.format('size', '1.00rem');
         this.$refs.myQuillEditor.quill.getModule('toolbar').addHandler('image', () => {
           this.selectedRange = null
           let selectedMedia = ''
