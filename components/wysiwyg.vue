@@ -73,7 +73,7 @@ export default {
       selectedRange: null,
       QuillComponent: null,
       fontsArray: [
-        false, "0.25rem", "0.5rem", "0.75rem", "1rem", "1.25rem", "1.5rem", "1.75rem", "2rem",
+        "0.25rem", "0.5rem", "0.75rem", false, "1.25rem", "1.5rem", "1.75rem", "2rem",
         "2.25rem", "2.5rem", "2.75rem", "3rem", "3.25rem", "3.5rem", "3.75rem", "4rem",
         "4.25rem", "4.5rem", "4.75rem", "5rem", "5.25rem", "5.5rem", "5.75rem", "6rem",
         "6.25rem", "6.5rem", "6.75rem", "7rem", "7.25rem", "7.5rem", "7.75rem", "8rem"
