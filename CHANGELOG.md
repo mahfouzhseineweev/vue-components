@@ -7,7 +7,7 @@
 
 ---
 
-- Fix quill font size bugs: Quill editor 2 font size bugs #114
+- Fix quill font size bugs: Quill editor 2 font size bugs #114 
 
 
 ### v1.0.17 (15/04/2025)
