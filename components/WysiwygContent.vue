@@ -144,4 +144,7 @@ button.quill-button-container {
 .ql-editor p {
   font-size: 1rem;
 }
+div .ql-editor {
+  word-wrap: normal;
+}
 </style>
