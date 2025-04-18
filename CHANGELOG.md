@@ -3,6 +3,13 @@
 ---
 
 
+### v1.0.19 (18/04/2025)
+
+---
+
+- Fix quill word wrap default styling to `word-wrap: normal;`
+
+
 ### v1.0.18 (15/04/2025)
 
 ---
