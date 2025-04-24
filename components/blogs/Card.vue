@@ -18,7 +18,7 @@
 
       </div>
 
-      <div class="w-350px cursor-pointer" @click="openBlog">
+      <div class="w-350px" :class="canOpenBlog ? 'md:cursor-pointer' : ''" @click="openBlog">
         <div v-if="mediaSrc">
           <img :src="mediaSrc" class="w-full h-200px object-cover">
         </div>
@@ -87,6 +87,10 @@ export default {
       default: 'icon-seen text-2xl'
     },
     canDelete: {
+      type: Boolean,
+      default: true
+    },
+    canOpenBlog: {
       type: Boolean,
       default: true
     },

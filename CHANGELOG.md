@@ -3,6 +3,13 @@
 ---
 
 
+### v1.0.20 (24/04/2025)
+
+---
+
+_ Blogs bug fixes: Bugs with a user that has roles Author or Author and Publisher eweev/geeks/bo-blogs#43
+
+
 ### v1.0.19 (18/04/2025)
 
 ---
