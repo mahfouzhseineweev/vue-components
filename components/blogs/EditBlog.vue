@@ -852,7 +852,7 @@ export default {
           )
         }
       })
-      if(response) {
+      if(response && response.data) {
         if (this.nuxtSections) {
           showSectionsToast(this.$toast, 'success', this.$t(this.mediaTranslationPrefix + 'blogs.articleUpdated'))
         } else {
@@ -950,22 +950,24 @@ export default {
             {
               headers: mediaHeader({token}, this.projectId)
             })
-          if (this.nuxtSections) {
-            showSectionsToast(this.$toast, 'success', response.data.message)
-          } else {
-            this.$toast.show(
-              {
-                message: response.data.message,
-                classToast: 'bg-Blue',
-                classMessage: 'text-white',
-              }
-            )
+          if (response && response.data) {
+            if (this.nuxtSections) {
+              showSectionsToast(this.$toast, 'success', response.data.message)
+            } else {
+              this.$toast.show(
+                {
+                  message: response.data.message,
+                  classToast: 'bg-Blue',
+                  classMessage: 'text-white',
+                }
+              )
+            }
+            this.loading = false
+            if (this.blogsPath) {
+              this.$router.push(this.localePath({path: this.blogsPath}))
+            } else this.$emit('updateBlogsComponent', {name: 'BlogsListBlogs', appliedFilters: this.appliedFilters})
           }
-          this.loading = false
-          if (this.blogsPath) {
-            this.$router.push(this.localePath({path: this.blogsPath}))
-          } else this.$emit('updateBlogsComponent', {name: 'BlogsListBlogs', appliedFilters: this.appliedFilters})
-        } catch (e) {
+          } catch (e) {
           this.loading = false
           this.showPopup = false
           if (this.nuxtSections) {
