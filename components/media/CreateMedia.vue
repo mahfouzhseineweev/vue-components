@@ -170,7 +170,7 @@ export default {
               )
             }
           })
-          if(response) {
+          if(response && response.data) {
             if (this.nuxtSections) {
               showSectionsToast(this.$toast, 'success', this.$t(this.mediaTranslationPrefix + 'mediaCreated'))
             } else {

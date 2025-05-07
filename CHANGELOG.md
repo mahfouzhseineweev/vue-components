@@ -3,6 +3,13 @@
 ---
 
 
+### v1.0.21 (07/05/2025)
+
+---
+
+_ Sanitize Blogs and media API responses
+
+
 ### v1.0.20 (24/04/2025)
 
 ---
