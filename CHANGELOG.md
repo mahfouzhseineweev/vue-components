@@ -7,7 +7,7 @@
 
 ---
 
-_ Sanitize Blogs and media API responses
+_ Sanitize Blogs and media API responses 
 
 
 ### v1.0.20 (24/04/2025)
