@@ -575,10 +575,6 @@ export default {
       await this.getProjectInfo()
       this.initializeTranslations()
     }
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
   },
   methods: {
     localeClicked(lang) {
