@@ -8,7 +8,7 @@
 ---
 
 - Sanitize Blogs and media API responses
-- Fix edit blog component automatic scrolling
+- Fix edit blog component automatic scrolling 
 
 
 ### v1.0.20 (24/04/2025)
