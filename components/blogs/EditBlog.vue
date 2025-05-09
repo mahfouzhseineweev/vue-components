@@ -575,10 +575,6 @@ export default {
       await this.getProjectInfo()
       this.initializeTranslations()
     }
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
   },
   methods: {
     localeClicked(lang) {
@@ -656,7 +652,7 @@ export default {
           )
         }
       })
-      if(response) {
+      if(response && response.data && !response.data.error) {
         if (this.nuxtSections) {
           showSectionsToast(this.$toast, 'success', this.$t(this.mediaTranslationPrefix + 'blogs.articleCreated'))
         } else {
@@ -667,6 +663,20 @@ export default {
                 classToast: 'bg-Blue',
                 classMessage: 'text-white',
               }
+          )
+        }
+      } else if (response && response.data && response.data.error) {
+        let errorMessage = response.data.error
+        if (this.nuxtSections) {
+          showSectionsToast(this.$toast, 'error', `${errorMessage}`)
+        } else if (errorMessage) {
+          this.$toast.show(
+            {
+              message: errorMessage,
+              timeout: 5,
+              classToast: 'bg-error',
+              classMessage: 'text-white',
+            }
           )
         }
       }

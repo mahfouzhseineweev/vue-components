@@ -624,7 +624,7 @@ export default {
             )
           }
       })
-      if(response) {
+      if(response && response.data) {
         if (this.nuxtSections) {
           await this.getMediaByID()
           if (this.isEditingMedia) {
