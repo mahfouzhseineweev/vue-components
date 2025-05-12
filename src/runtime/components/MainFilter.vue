@@ -2,7 +2,7 @@
   <div>
 
     <LazyGFilterSelect
-      v-for = "(filter, idx) in filters.value"
+      v-for = "(filterMp, idx) in filters"
       :key = "idx"
       ref = "filterRef"
       :filter-options="props.filterOptions"
@@ -22,11 +22,11 @@
       :main-filter-options="props.mainFilterOptions"
       :single-select-filter-options="props.singleSelectFilterOptions"
       :multi-select-filter-options="props.multiSelectFilterOptions"
-      @getFilter = "getFilter(filter, idx)"
+      @getFilter = "(filter) => getFilter(filter, idx)"
     />
 
     <div class="overflow-auto flex-col md:flex-row" style="display: flex;">
-      <div v-for = "(added, i) in filtered.value" :key = "i">
+      <div v-for = "(added, i) in filtered" :key = "i">
         <div v-if="added?.type" class="max-w-xs">
           <div v-if = "added.value" :style = "props.filteredValuesStyle">
             <div class = "val">
@@ -41,7 +41,7 @@
         <div v-else-if="Array.isArray(added.value)" class="max-w-xs">
           <div v-if = "added.value" :style = "props.filteredValuesStyle">
             <div class = "val">
-              {{ added.title }} = {{ alterValue(getvalue((added.value as any[]).map((u: any) => u.translation).join(','))) }}
+              {{ added.title }} = {{ alterValue(getvalue((added.value).map((u: any) => u.translation).join(','))) }}
             </div>
             <div style="margin-left: 10px;cursor: pointer" @click = "removeFilter(i)">X</div>
           </div>
@@ -73,7 +73,7 @@
       >+ {{ props.addFilterLabel }}</a
       >
       <a
-        v-if = "filters.value.length > 1"
+        v-if = "filters.length > 1"
         class = "clear apply_btn text-Dark"
         style = "margin-bottom: 10px;text-decoration:underline;margin-left:20px;cursor:pointer;"
         @click = "clearFilters"
@@ -90,108 +90,77 @@
   </div>
 </template>
 
-<script setup lang="ts">
-
-interface FilterOption {
-  key: string;
-  value: string;
-}
-
-interface FilterMapItem {
-  title?: string;
-  key: string;
-  size?: number;
-  type?: 'text' | 'select' | 'multiSelect' | 'range';
-  placeholder?: string;
-  options?: FilterOption[];
-  multiSelectLabel?: string;
-  multiSelectKey?: string;
-  multipleSelect?: boolean;
-  filterOptions?: any[];
-  description?: string;
-  descriptionStyle?: string;
-  subTitle1?: string;
-  subTitle2?: string;
-  description1?: string;
-  description2?: string;
-  descriptionStyle1?: string;
-  descriptionStyle2?: string;
-  selectPlaceholder?: string;
-}
-
-interface FilteredItem {
-  key?: string;
-  value?: any;
-  title?: string;
-  type?: string;
-  all?: { title: string };
-}
-
+<script setup>
 const props = defineProps({
   filterOptions: {
-    type: Array as PropType<FilterOption[]>,
-    default: () => [
-      {
-        key: 'All',
-        value: 'All'
-      },
-      {
-        key: 'id',
-        value: 'id'
-      },
-      {
-        key: 'name',
-        value: 'name'
-      },
-      {
-        key: 'title',
-        value: 'title'
-      },
-      {
-        key: 'status',
-        value: 'status'
-      },
-      {
-        key: 'role',
-        value: 'role'
-      },
-    ]
+    type: Array,
+    default() {
+      return [
+        {
+          key: 'All',
+          value: 'All'
+        },
+        {
+          key: 'id',
+          value: 'id'
+        },
+        {
+          key: 'name',
+          value: 'name'
+        },
+        {
+          key: 'title',
+          value: 'title'
+        },
+        {
+          key: 'status',
+          value: 'status'
+        },
+        {
+          key: 'role',
+          value: 'role'
+        },
+      ]
+    }
   },
+  // eslint-disable-next-line vue/prop-name-casing
   filter_map: {
-    type: Object as PropType<{ [key: string]: FilterMapItem }>,
-    default: () => ({
-      All: { key: 'All', size: 3 },
-      id: {
-        title: 'ID',
-        key: 'id',
-        size: 5,
-        type: 'text',
-      },
-      name: {
-        title: 'Name',
-        key: 'name',
-        size: 5,
-        type: 'text',
-      },
-      title: {
-        title: 'Title',
-        key: 'title',
-        size: 5,
-        type: 'text',
-      },
-      status: {
-        title: 'Status',
-        key: 'status',
-        size: 5,
-        type: 'text',
-      },
-      role: {
-        title: 'Role',
-        key: 'role',
-        size: 5,
-        type: 'text',
-      },
-    })
+    type: Object,
+    default() {
+      return {
+        All: { key: 'All', size: 3 },
+        id: {
+          title: 'ID',
+          key: 'id',
+          size: 5,
+          type: 'text',
+        },
+        name: {
+          title: 'Name',
+          key: 'name',
+          size: 5,
+          type: 'text',
+        },
+        title: {
+          title: 'Title',
+          key: 'title',
+          size: 5,
+          type: 'text',
+        },
+        status: {
+          title: 'Status',
+          key: 'status',
+          size: 5,
+          type: 'text',
+        },
+        role: {
+          title: 'Role',
+          key: 'role',
+          size: 5,
+          type: 'text',
+        },
+      }
+    }
   },
   filterByText: {
     type: String,
@@ -251,7 +220,7 @@ const props = defineProps({
   },
   alterValue: {
     type: Function,
-    default: (value: any) => value
+    default: (value) => {return value}
   },
   filteredValuesStyle: {
     type: String,
@@ -263,218 +232,226 @@ const props = defineProps({
   },
   mainFilterOptions: {
     type: Object,
-    default: () => ({
-      selectWrapperStyle: 'w-max',
-      selectStyle: 'default-select-style-chooser relative',
-      labelStyle: 'text-md font-base mr-2 mb-1',
-      labelInsideStyle: 'absolute top-2 text-xs font-base text-Blue mr-2 mb-1 z-10',
-      labelInsideDefaultStyle: 'absolute top-3 text-md font-base text-darkGray mr-2 mb-1 defaultSearching z-10',
-      labelPaddingWithIcon: 'left-12',
-      labelPadding: 'left-3',
-      selectErrorClass: 'select-error-class',
-      selectIconClass: 'select-icon-class',
-      labelInsideClass: 'label-inside-class',
-      trackBy: '',
-      focused: false,
-      filterDisabled: false,
-      multiple: false,
-      closeOnSelect: true,
-      preserveSearch: false,
-      preselectFirst: false,
-      clearOnSelect: false,
-      multipleSelection: false,
-      labelOutside: true,
-      mainFilter: '',
-      selectPlaceholder: '',
-      filterLabelProp: 'value',
-      filterIconIcomoon: 'absolute top-4.5 left-4 icon-filterIcon icon-filterIcon filterIconStyle',
-      focusStyle: 'border border-Blue rounded-xl',
-      focusMarginStyle: 'px-0.5 py-0.5',
-      filterClearable: false,
-      filterSearchable: false,
-      errorOccurred: false,
-      withIcon: true,
-    })
+    default() {
+      return {
+        selectWrapperStyle:  'w-max',
+        selectStyle:  'default-select-style-chooser relative',
+        labelStyle:  'text-md font-base mr-2 mb-1',
+        labelInsideStyle:  'absolute top-2 text-xs font-base text-Blue mr-2 mb-1 z-10',
+        labelInsideDefaultStyle:  'absolute top-3 text-md font-base text-darkGray mr-2 mb-1 defaultSearching z-10',
+        labelPaddingWithIcon:  'left-12',
+        labelPadding:  'left-3',
+        selectErrorClass:  'select-error-class',
+        selectIconClass:  'select-icon-class',
+        labelInsideClass:  'label-inside-class',
+        trackBy:  '',
+        focused:  false,
+        filterDisabled:  false,
+        multiple:  false,
+        closeOnSelect:  true,
+        preserveSearch:  false,
+        preselectFirst:  false,
+        clearOnSelect:  false,
+        multipleSelection:  false,
+        labelOutside:  true,
+        mainFilter:  '',
+        selectPlaceholder:  '',
+        filterLabelProp:  'value',
+        filterIconIcomoon:  'absolute top-4.5 left-4 icon-filterIcon icon-filterIcon filterIconStyle',
+        focusStyle:  'border border-Blue rounded-xl',
+        focusMarginStyle:  'px-0.5 py-0.5',
+        filterClearable:  false,
+        filterSearchable:  false,
+        errorOccurred:  false,
+        withIcon:  true,
+      }
+    }
   },
   singleSelectFilterOptions: {
     type: Object,
-    default: () => ({
-      selectLabel: '',
-      selectWrapperStyle: 'w-max',
-      selectStyle: 'default-select-style-chooser relative',
-      labelStyle: 'text-md font-base mr-2 mb-1',
-      labelInsideStyle: 'absolute top-2 text-xs font-base text-Blue mr-2 mb-1 z-10',
-      labelInsideDefaultStyle: 'absolute top-3 text-md font-base text-darkGray mr-2 mb-1 defaultSearching z-10',
-      labelPaddingWithIcon: 'left-12',
-      labelPadding: 'left-3',
-      selectErrorClass: 'select-error-class',
-      selectIconClass: 'select-icon-class',
-      labelInsideClass: 'label-inside-class',
-      trackBy: '',
-      focused: false,
-      filterDisabled: false,
-      multiple: false,
-      closeOnSelect: true,
-      preserveSearch: false,
-      preselectFirst: false,
-      clearOnSelect: false,
-      multipleSelection: false,
-      labelOutside: true,
-      mainFilter: '',
-      selectPlaceholder: '',
-      filterLabelProp: 'translation',
-      filterIconIcomoon: 'absolute top-4.5 left-4 icon-filterIcon icon-filterIcon filterIconStyle',
-      focusStyle: 'border border-Blue rounded-xl',
-      focusMarginStyle: 'px-0.5 py-0.5',
-      filterClearable: false,
-      filterSearchable: false,
-      errorOccurred: false,
-      withIcon: false,
-    })
+    default() {
+      return {
+        selectLabel: '',
+        selectWrapperStyle:  'w-max',
+        selectStyle:  'default-select-style-chooser relative',
+        labelStyle:  'text-md font-base mr-2 mb-1',
+        labelInsideStyle:  'absolute top-2 text-xs font-base text-Blue mr-2 mb-1 z-10',
+        labelInsideDefaultStyle:  'absolute top-3 text-md font-base text-darkGray mr-2 mb-1 defaultSearching z-10',
+        labelPaddingWithIcon:  'left-12',
+        labelPadding:  'left-3',
+        selectErrorClass:  'select-error-class',
+        selectIconClass:  'select-icon-class',
+        labelInsideClass:  'label-inside-class',
+        trackBy:  '',
+        focused:  false,
+        filterDisabled:  false,
+        multiple:  false,
+        closeOnSelect:  true,
+        preserveSearch:  false,
+        preselectFirst:  false,
+        clearOnSelect:  false,
+        multipleSelection:  false,
+        labelOutside:  true,
+        mainFilter:  '',
+        selectPlaceholder:  '',
+        filterLabelProp:  'translation',
+        filterIconIcomoon:  'absolute top-4.5 left-4 icon-filterIcon icon-filterIcon filterIconStyle',
+        focusStyle:  'border border-Blue rounded-xl',
+        focusMarginStyle:  'px-0.5 py-0.5',
+        filterClearable:  false,
+        filterSearchable:  false,
+        errorOccurred:  false,
+        withIcon:  false,
+      }
+    }
   },
   multiSelectFilterOptions: {
     type: Object,
-    default: () => ({
-      selectLabel: '',
-      selectWrapperStyle: 'w-max',
-      selectStyle: 'default-select-style-chooser relative',
-      labelStyle: 'text-md font-base mr-2 mb-1',
-      labelInsideStyle: 'absolute top-2 text-xs font-base text-Blue mr-2 mb-1 z-10',
-      labelInsideDefaultStyle: 'absolute top-3 text-md font-base text-darkGray mr-2 mb-1 defaultSearching z-10',
-      labelPaddingWithIcon: 'left-12',
-      labelPadding: 'left-3',
-      selectErrorClass: 'select-error-class',
-      selectIconClass: 'select-icon-class',
-      labelInsideClass: 'label-inside-class',
-      trackBy: '',
-      focused: false,
-      filterDisabled: false,
-      multiple: false,
-      closeOnSelect: false,
-      preserveSearch: true,
-      preselectFirst: true,
-      clearOnSelect: false,
-      multipleSelection: false,
-      labelOutside: true,
-      mainFilter: '',
-      selectPlaceholder: '',
-      filterLabelProp: 'value',
-      filterIconIcomoon: 'absolute top-4.5 left-4 icon-filterIcon icon-filterIcon filterIconStyle',
-      focusStyle: 'border border-Blue rounded-xl',
-      focusMarginStyle: 'px-0.5 py-0.5',
-      filterClearable: false,
-      filterSearchable: true,
-      errorOccurred: false,
-      withIcon: false,
-    })
-  }
-});
-
-const emit = defineEmits(['apply_filter', 'remove_filter', 'getValue', 'clearFilters']);
-
-const filters = ref([{ value: '' }]);
-const filtered = ref<FilteredItem[]>([]);
-const filterLength = ref(0);
-const filterRef = ref<any[]>([]);
-
-watch(() => props.filtersQuery, () => {
-  if(props.filtersQuery && props.filtersQuery !== '') {
-    filtered.value = JSON.parse(props.filtersQuery);
-    filters.value = [];
-    /* eslint-disable no-unused-vars */
-    for(const filter in JSON.parse(props.filtersQuery)) {
-      filters.value.push({value: ''});
+    default() {
+      return {
+        selectLabel: '',
+        selectWrapperStyle:  'w-max',
+        selectStyle:  'default-select-style-chooser relative',
+        labelStyle:  'text-md font-base mr-2 mb-1',
+        labelInsideStyle:  'absolute top-2 text-xs font-base text-Blue mr-2 mb-1 z-10',
+        labelInsideDefaultStyle:  'absolute top-3 text-md font-base text-darkGray mr-2 mb-1 defaultSearching z-10',
+        labelPaddingWithIcon:  'left-12',
+        labelPadding:  'left-3',
+        selectErrorClass:  'select-error-class',
+        selectIconClass:  'select-icon-class',
+        labelInsideClass:  'label-inside-class',
+        trackBy:  '',
+        focused:  false,
+        filterDisabled:  false,
+        multiple:  false,
+        closeOnSelect:  false,
+        preserveSearch:  true,
+        preselectFirst:  true,
+        clearOnSelect:  false,
+        multipleSelection:  false,
+        labelOutside:  true,
+        mainFilter:  '',
+        selectPlaceholder:  '',
+        filterLabelProp:  'value',
+        filterIconIcomoon:  'absolute top-4.5 left-4 icon-filterIcon icon-filterIcon filterIconStyle',
+        focusStyle:  'border border-Blue rounded-xl',
+        focusMarginStyle:  'px-0.5 py-0.5',
+        filterClearable:  false,
+        filterSearchable:  true,
+        errorOccurred:  false,
+        withIcon:  false,
+      }
     }
   }
-}, { deep: true, immediate: true });
+})
 
+const emit = defineEmits(['apply_filter', 'remove_filter', 'getValue', 'clearFilters'])
+
+// Reactive state
+const filters = useState('filters', () => ([{ value: '' }]))
+const filtered = useState('filtered', () => ([]))
+const filterLength = ref(0)
+
+// Refs for accessing child components
+const filterRef = ref(null)
+
+// Watcher for filtersQuery
+watch(() => props.filtersQuery, (newQuery) => {
+  if(newQuery && newQuery !== '') {
+    const parsedQuery = JSON.parse(newQuery)
+    filtered.value = parsedQuery
+    filters.value = []
+
+    for(const filter in parsedQuery) {
+      filters.value.push({value: ''})
+    }
+  }
+}, { deep: true, immediate: true })
+
+// Methods
 const add_filter = () => {
-  let filled = true;
-  // eslint-disable-next-line array-callback-return
+  let filled = true
   filtered.value.map(fil => {
     if (!fil.value) {
-      filled = false;
+      filled = false
     }
-  });
+  })
+
   if (filled) {
-    filters.value.push({value: ''});
+    filters.value.push({value: ''})
   } else {
-    alert('You must select or fill all filters to add new one');
+    alert('You must select or fill all filters to add new one')
   }
-};
+}
 
 const apply_filter = () => {
   if(filtered.value.length !== 0) {
-    emit('apply_filter', filtered.value);
+    emit('apply_filter', filtered.value)
   } else {
-    alert('You must select a filter');
+    alert('You must select a filter')
   }
-};
-
-const removeFilter = (i: number) => {
-  emit('remove_filter', i, filtered.value[i]);
-  if (filtered.value.length === 1 && filters.value.length === 1) {
-    clearFilters();
-    return;
-  }
-  if(filters.value.length !== 1) {
-    filters.value = filters.value.filter((fil, index) => index !== i);
-  }
-  filtered.value = filtered.value.filter((fil, index) => index !== i);
-};
-
-const getvalue = (val: any): any => {
-  emit('getValue', val);
-  if (typeof val !== 'object' && val !== null) {
-    if(String(val) === 'undefined') {
-      return '';
-    } else  {
-      return val;
-    }
-  } else {
-    let value: any[] = (val as any[]).map((v: any) => {
-      v = v.title;
-      return v;
-    });
-    value = value ? value.join(' - ') : '';
-    return value;
-  }
-};
-
-const alterValue = (val: any): any => {
-    return props.alterValue(val);
 }
 
-const getFilter = (filter: any, idx: number) => {
-  filterLength.value = filter.length;
-  let finalFiltersArray = [...filtered.value];
+const removeFilter = (i) => {
+  emit('remove_filter', i, filtered.value[i])
 
-  finalFiltersArray[idx] = filter;
-  finalFiltersArray = finalFiltersArray.filter(fil => fil.key !== 'All');
-  filtered.value = finalFiltersArray;
-};
+  if (filtered.value.length === 1 && filters.value.length === 1) {
+    clearFilters()
+    return
+  }
+
+  if(filters.value.length !== 1) {
+    filters.value = filters.value.filter((fil, index) => index !== i)
+  }
+
+  filtered.value = filtered.value.filter((fil, index) => index !== i)
+}
+
+const getvalue = (val) => {
+  emit('getValue', val)
+
+  if (typeof val !== 'object') {
+    return val.toString() === 'undefined' ? '' : val
+  } else {
+    val = val.map(v => v.title)
+    return val.join(' - ')
+  }
+}
+
+const getFilter = (filter, idx) => {
+  filterLength.value = filter.length
+  let finalFiltersArray = [...filtered.value]
+
+  finalFiltersArray[idx] = filter
+  finalFiltersArray = finalFiltersArray.filter(fil => fil.key !== 'All')
+  filtered.value = finalFiltersArray
+}
 
 const clearFilters = () => {
-  emit('clearFilters');
-  filtered.value = [];
-  filters.value = [{ value: '' }]; // Reset to one empty filter selector
+  emit('clearFilters')
+  filtered.value = []
+  filters.value = [{}]
 
-  // Iterate through the FilterSelect component instances via their refs
-  // and call a 'clear' method on each.
-  // NOTE: This assumes FilterSelect.vue exposes a 'clear()' method.
-  // TODO: Needs testing to ensure FilterSelect exposes clear() and refs work as expected.
-  filterRef.value.forEach(filterComponentInstance => {
-    if (filterComponentInstance && typeof filterComponentInstance.clear === 'function') {
-      filterComponentInstance.clear();
-    } else {
-      console.warn('MainFilter: Could not find clear() method on FilterSelect instance.');
-    }
-  });
-};
+  // Note: This part might need adjustment based on how you're referencing child components
+  if (filterRef.value && filterRef.value[0]) {
+    filterRef.value[0].clearFilterVal()
+  }
+}
 
-const getMainFilterValue = (idx: number): any => {
-  return filtered.value[idx];
-};
+const getMainFilterValue = (idx) => {
+  return filtered.value[idx]
+}
+
+// Expose methods if needed
+defineExpose({
+  add_filter,
+  apply_filter,
+  removeFilter,
+  getvalue,
+  getFilter,
+  clearFilters,
+  getMainFilterValue
+})
 </script>
 
 <style scoped>

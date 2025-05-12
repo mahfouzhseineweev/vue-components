@@ -29,7 +29,7 @@
     </div>
 
     <div class="flex flex-col md:flex-row mt-4 w-full gap-4 md:gap-0" :class="nuxtSections ? '' : 'md:pl-6'">
-      <div class="flex flex-col md:w-300px py-8 px-6 shadow rounded-xl">
+      <div class="flex flex-col md:w-[300px] py-8 px-6 shadow rounded-xl">
         <label class="text-lg">{{ $t(mediaTranslationPrefix + 'EditMedia.mediaTitle') }}</label>
         <div v-if="!(lockedStatus === 'locked' && media.author !== sectionsUserId)">
           <input
@@ -50,11 +50,11 @@
 
         <label class="mt-8 text-lg">{{ $t(mediaTranslationPrefix + 'EditMedia.type') }}</label>
         <div class="mt-3 flex">
-          <div class="w-7px h-6px bg-Blue rounded-full mt-2.5 mr-2"></div>
+          <div class="w-[7px] [h-6px] bg-Blue rounded-full mt-2.5 mr-2"></div>
           <div class="text-md text-mediaTextGray">{{ $t(mediaTranslationPrefix + 'EditMedia.privateDesc') }}</div>
         </div>
         <div class="mt-3 flex">
-          <div class="w-7px h-6px bg-Blue rounded-full mt-2.5 mr-2"></div>
+          <div class="w-[7px] [h-6px] bg-Blue rounded-full mt-2.5 mr-2"></div>
           <div class="text-md text-mediaTextGray">{{ $t(mediaTranslationPrefix + 'EditMedia.publicDesc') }}</div>
         </div>
 
@@ -70,11 +70,11 @@
 
         <label class="mt-8 text-lg">{{ $t(mediaTranslationPrefix + 'EditMedia.state') }}</label>
         <div class="mt-3 flex">
-          <div class="w-7px h-6px bg-Blue rounded-full mt-2.5 mr-2"></div>
+          <div class="w-[7px] [h-6px] bg-Blue rounded-full mt-2.5 mr-2"></div>
           <div class="text-md text-mediaTextGray">{{ $t(mediaTranslationPrefix + 'EditMedia.lockedDesc') }}</div>
         </div>
         <div class="mt-3 flex">
-          <div class="w-7px h-6px bg-Blue rounded-full mt-2.5 mr-2"></div>
+          <div class="w-[7px] [h-6px] bg-Blue rounded-full mt-2.5 mr-2"></div>
           <div class="text-md text-mediaTextGray">{{ $t(mediaTranslationPrefix + 'EditMedia.unlockedDesc') }}</div>
         </div>
 
@@ -82,8 +82,8 @@
           class="mt-4 flex items-center justify-center cursor-pointer"
           :class="
             media.locked_status === 'locked'
-              ? 'w-48px h-48px rounded-full bg-mediaLocked'
-              : 'w-48px h-48px rounded-full bg-mediaUnLocked'
+              ? 'w-[48px] h-[48px] rounded-full bg-mediaLocked'
+              : 'w-[48px] h-[48px] rounded-full bg-mediaUnLocked'
           "
           @click="toggleLockStatus"
         >
@@ -113,7 +113,7 @@
                     </div>
                     <div v-if="popupContent && popupContent.content" class="mt-2" style="overflow: auto !important; max-height: 450px">
                       <div v-for="content in popupContent.content" :key="content.id" class="flex flex-row items-center p-1">
-                        <div class="w-2.5 h-2.5 mr-3 rounded-full bg-darkBlue"></div>
+                        <div class="w-[2.5] h-[2.5] mr-3 rounded-full bg-darkBlue"></div>
                         <div class="content-used font-medium text-lg pr-3">
                           {{
                             `${contentUsedKey ? content[contentUsedKey] : content.name} (${content.id}) ${$t(
@@ -195,7 +195,7 @@
             <div class="flex flex-col items-center gap-4" :style="hiddenContainerStyle">
               <span class="icon-mediaDocument text-6xl"></span>
             </div>
-            <div class="absolute top-1/3 left-1/3 -translate-x-1/3 -translate-y-1/3" @click="$refs.imagePick.click()">
+            <div class="absolute top-1/3 left-1/3 -translate-x-1/3 -translate-y-1/3" @click="imagePick.click()">
               <span class="icon-reload text-8xl cursor-pointer"></span>
               <input ref="imagePick" type="file" class="hidden" accept="*" @change="onFileSelected" />
             </div>
@@ -203,8 +203,8 @@
 
           <div v-else-if="!(lockedStatus === 'locked' && media.author !== sectionsUserId)">
             <div v-if="media.files && media.files[0].url !== ''" class="relative w-max">
-              <img :src="media.files[0].url" alt="" class="rounded-md md:w-400px w-300px" />
-              <div class="absolute top-1/3 left-1/3 -translate-x-1/3 -translate-y-1/3" @click="$refs.imagePick.click()">
+              <img :src="media.files[0].url" alt="" class="rounded-md md:w-[400px] w-[300px]" />
+              <div class="absolute top-1/3 left-1/3 -translate-x-1/3 -translate-y-1/3" @click="imagePick.click()">
                 <span class="icon-reload text-8xl cursor-pointer"></span>
                 <input ref="imagePick" type="file" class="hidden" accept="image/*" @change="onFileSelected" />
               </div>
@@ -213,13 +213,13 @@
 
           <div v-else-if="media.files">
             <div v-if="media.files[0].url !== ''" class="relative w-max">
-              <img :src="mediaPreview || media.files[0].url" alt="" class="rounded-md w-400px" />
+              <img :src="mediaPreview || media.files[0].url" alt="" class="rounded-md w-[400px]" />
             </div>
           </div>
         </div>
 
-        <div v-else class="w-400px cursor-pointer rounded-xl mt-8" style="background: #EDEDED">
-          <div class="flex w-full h-200px justify-center items-center object-cover">
+        <div v-else class="w-[400px] cursor-pointer rounded-xl mt-8" style="background: #EDEDED">
+          <div class="flex w-full h-[200px] justify-center items-center object-cover">
             <div class="flex flex-col items-center gap-4">
               <span class="icon-alert text-4xl"></span>
               <div class="text-center font-light">{{ $t(mediaTranslationPrefix + 'previewNotAvailable') }}</div>
@@ -285,12 +285,12 @@
       @apply="deleteMediaByID"
     />
 
-    <LazyGAnimatedLoading :loading="loading" :animated-loading-icon="require('../../assets/images/loading_animated.svg')" />
+    <LazyGAnimatedLoading :loading="loading" />
   </div>
 </template>
 
 <script setup>
-import { acceptedFileTypes, mediaHeader, showSectionsToast } from './medias.js'
+import { acceptedFileTypes, mediaHeader, showToast } from './medias.js'
 
 const props = defineProps({
   contentUsedKey: {
@@ -393,6 +393,8 @@ headerItems.value[2].label = useI18n().t(props.mediaTranslationPrefix + 'headerI
 headerItems.value[3].label = useI18n().t(props.mediaTranslationPrefix + 'headerItems.mediaType')
 headerItems.value[4].label = useI18n().t(props.mediaTranslationPrefix + 'headerItems.contents')
 
+const imagePick = ref(null)
+
 const media = ref({
   type: '',
   title: '',
@@ -436,6 +438,7 @@ const media = ref({
 })
 
 const mediaPreview = ref('')
+const sectionsUserId = ref('')
 const showPopup = ref(false)
 const file = ref(null)
 const showPopupCode = ref(false)
@@ -567,9 +570,7 @@ async function getMediaByID() {
   } catch (e) {
     loading.value = false
     if (props.nuxtSections) {
-      showSectionsToast(useToast(), 'error', e.message)
-    } else {
-      useToast().show({ message: e.message, timeout: 5, classToast: 'bg-error', classMessage: 'text-white' })
+      showToast('Error', 'error', e.message)
     }
     backClicked()
   } finally {
@@ -605,13 +606,7 @@ async function updateMediaByID() {
     if (props.nuxtSections) {
       await getMediaByID()
       if (isEditingMedia.value) emit('onMediaSelected', media.value)
-      showSectionsToast(useToast(), 'success', useI18n().t(props.mediaTranslationPrefix + 'mediaUpdated'))
-    } else {
-      useToast().show({
-        message: useI18n().t(props.mediaTranslationPrefix + 'mediaUpdated'),
-        classToast: 'bg-Blue',
-        classMessage: 'text-white'
-      })
+      showToast('', 'success', useI18n().t(props.mediaTranslationPrefix + 'mediaUpdated'))
     }
   } catch (e) {
     let errorMessage = ''
@@ -626,9 +621,7 @@ async function updateMediaByID() {
     }
 
     if (props.nuxtSections) {
-      showSectionsToast(useToast(), 'error', errorMessage)
-    } else {
-      useToast().show({ message: errorMessage, timeout: 5, classToast: 'bg-error', classMessage: 'text-white' })
+      showToast('Error', 'error', errorMessage)
     }
   } finally {
     loading.value = false
@@ -647,13 +640,7 @@ async function deleteMediaByID() {
     if (response.error.value) throw new Error(response.error.value.message)
 
     if (props.nuxtSections) {
-      showSectionsToast(useToast(), 'success', response.data.value.message)
-    } else {
-      useToast().show({
-        message: response.data.value.message,
-        classToast: 'bg-Blue',
-        classMessage: 'text-white'
-      })
+      showToast('', 'success', response.data.value.message)
     }
 
     if (props.mediasPath) {

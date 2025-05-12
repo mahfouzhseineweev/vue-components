@@ -1,10 +1,12 @@
+import path from 'path'
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
     './components/**/*.{vue,js,ts}',
     './pages/**/*.{vue,js,ts}',
     './app.vue',
-    '../src/runtime/components/*.{vue,js,ts}'
+    path.resolve(__dirname, '../src/runtime/components/**/*.{vue,js,ts}')
   ],
   theme: {
     extend: {

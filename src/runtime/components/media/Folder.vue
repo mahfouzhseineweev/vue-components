@@ -9,7 +9,7 @@
           <!-- Iterate over a slice of the medias array -->
           <div v-for="(media, i) in props.medias.slice(0, props.mediasNumber)" :key="i">
             <!-- Display document icon if media type is not image -->
-            <div v-if="media.type &amp;&amp; !media.type.includes('image')" :class="[props.mediaStyle, props.documentClass]" :style="props.documentStyle">
+            <div v-if="media.type && !media.type.includes('image')" :class="[props.mediaStyle, props.documentClass]" :style="props.documentStyle">
               <span class="icon-mediaDocument text-xl"></span>
             </div>
             <!-- Display image otherwise -->
@@ -48,7 +48,7 @@
 
 <script setup lang="ts">
 // Import the default asset
-import defaultMediaImage from './assets/images/temp1.png';
+import defaultMediaImage from '../../assets/images/temp1.png';
 
 // Define the structure for a media item within the medias array prop
 interface MediaItem {
@@ -157,6 +157,7 @@ const props = defineProps({
     default: () => {}
   }
 });
+
 </script>
 
 <style scoped>

@@ -42,12 +42,14 @@
       </label>
     </div>
 
-    <LazyGAnimatedLoading :loading="loading" :animated-loading-icon="require('../../assets/images/loading_animated.svg')" />
+    <LazyGAnimatedLoading :loading="loading" />
   </div>
 </template>
 
 <script setup>
-import { acceptedFileTypes, mediaHeader, showSectionsToast } from './medias'
+import { acceptedFileTypes, mediaHeader, showToast } from './medias'
+
+const { t } = useI18n()
 
 const props = defineProps({
   appliedFilters: {
@@ -143,69 +145,73 @@ async function onFileSelected(e) {
   }
 
   if (!fileData) return
-
   loading.value = true
   const data = new FormData()
+
   data.append('files[1][platform_id]', '1')
   data.append('files[1][file]', fileData)
   data.append('type', fileData.type.includes('image') ? 'image' : 'document')
   data.append('private_status', 'public')
   data.append('locked_status', 'unlocked')
 
+
   try {
-    const response = await useFetch(mediaByIdUri.value, {
+    // $fetch returns the response directly, not an object with .value properties
+    const response = await $fetch(mediaByIdUri.value, {
       method: 'POST',
       headers: mediaHeader({ token: token.value }, projectId.value),
-      body: data
+      body: data,
+      // Add error handling to $fetch
+      onRequestError({ request, error }) {
+        throw error
+      },
+      onResponseError({ response, error }) {
+        throw error
+      }
     })
 
-    if (!response.error.value && response.data.value) {
-      if (props.nuxtSections) {
-        showSectionsToast(useToast(), 'success', useI18n().t(props.mediaTranslationPrefix + 'mediaCreated'))
-      } else {
-        useToast().show({
-          message: useI18n().t(props.mediaTranslationPrefix + 'mediaCreated'),
-          classToast: 'bg-Blue',
-          classMessage: 'text-white'
-        })
-      }
+    // Direct handling of successful response
+    if (props.nuxtSections) {
+      showToast('', 'success', t(props.mediaTranslationPrefix + 'mediaCreated'))
+    }
 
-      if (props.editMediaPath) {
-        navigateTo(useLocalePath({ path: props.editMediaPath, query: { id: response.data.value.id, isCreate: true } }))
-      } else {
-        emit('updateMediaComponent', {
-          name: 'MediaEditMedia',
-          mediaId: response.data.value.id,
-          isCreateMedia: true,
-          appliedFilters: props.appliedFilters,
-          folderType: props.folderType
-        })
-      }
+    if (props.editMediaPath) {
+      navigateTo(useLocalePath({ path: props.editMediaPath, query: { id: response.id, isCreate: true } }))
+    } else {
+      emit('updateMediaComponent', {
+        name: 'MediaEditMedia',
+        mediaId: response.id,
+        isCreateMedia: true,
+        appliedFilters: props.appliedFilters,
+        folderType: props.folderType
+      })
     }
   } catch (e) {
     let errorMessage = ''
-
+    // Comprehensive error handling
     if (e.request && !e.response) {
-      errorMessage = useI18n().t('mediaTooLarge')
-    } else if (e.response._data.options) {
-      const root = e.response._data.options.link.root || ''
-      const path = e.response._data.options.link.path || ''
-      errorMessage = `<a href='${root}${path}' target='_blank'>${e.response._data.error}, ${e.response._data.message}</a>`
-    } else if (e.response._data.errors) {
-      errorMessage = e.response._data.errors.files[0]
+      // Network error or request couldn't be sent
+      errorMessage = t('mediaTooLarge')
+    } else if (e.response) {
+      // Server responded with an error
+      if (e.response._data?.options?.link) {
+        const root = e.response._data.options.link.root || ''
+        const path = e.response._data.options.link.path || ''
+        errorMessage = `<a href='${root}${path}' target='_blank'>${e.response._data.error}, ${e.response._data.message}</a>`
+      } else if (e.response._data?.errors?.files) {
+        errorMessage = e.response._data.errors.files[0]
+      } else if (e.response._data?.message) {
+        errorMessage = e.response._data.message
+      } else {
+        errorMessage = e.message || 'An unknown error occurred'
+      }
     } else {
-      errorMessage = e.response._data.message || e.message
+      // Fallback error message
+      errorMessage = e.message || 'An unexpected error occurred'
     }
 
     if (props.nuxtSections) {
-      showSectionsToast(useToast(), 'error', errorMessage)
-    } else {
-      useToast().show({
-        message: errorMessage,
-        timeout: 5,
-        classToast: 'bg-error',
-        classMessage: 'text-white'
-      })
+      showToast('Error', 'error', errorMessage)
     }
   } finally {
     loading.value = false

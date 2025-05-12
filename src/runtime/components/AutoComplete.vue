@@ -38,8 +38,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import 'vue-select/dist/vue-select.css';
+<script setup>
 
 const props = defineProps({
   selectWrapperStyle: {
@@ -124,7 +123,7 @@ const props = defineProps({
   },
   reduce: {
     type: Function,
-    default: (val: any) => val
+    default: (val) => val
   },
   labelOutside: {
     type: Boolean,

@@ -8,7 +8,7 @@
 
 <script setup lang="ts">
 // Import the asset directly for better handling in Nuxt 3/Vite
-import loadingSvg from '~/assets/images/loading_animated.svg';
+import loadingSvg from '../assets/images/loading_animated.svg';
 
 const props = defineProps({
   loading: {

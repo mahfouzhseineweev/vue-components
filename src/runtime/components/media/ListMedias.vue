@@ -12,7 +12,7 @@
             :filter-icon-icomoon="'icon-filterIcon'"
             :filter-icon-style="''"
             :main-filter-style="'flex items-center pl-2 mr-6 ml-2 border border-FieldGray rounded-xl h-48px w-284px focus:outline-none'"
-            :select-style="'h-35px w-220px ml-8'"
+            :select-style="'h-[35px] w-[220px] ml-8'"
             :filter-select-default="$t(mediaTranslationPrefix + 'selectFilter')"
             :filter-by-text="$t(mediaTranslationPrefix + 'filterMedias')"
             :clear-filters="filterClear"
@@ -56,7 +56,7 @@
             :all-text="$t(mediaTranslationPrefix + 'all')"
             :total-value="allMediasLength.toString()"
             folder-style="font-size: 185px"
-            :media-style="'rounded-full ml-2 h-40px w-40px'"
+            :media-style="'rounded-full ml-2 h-[40px] w-[40px]'"
             :folder-clicked="() => { selectedFolder = 'all'; getAllMedias('all'); }"
           />
           <div v-if="selectedFolder === 'all'" class="h-10px bg-Blue flex mt-6"></div>
@@ -71,7 +71,7 @@
             :category-value="$t(mediaTranslationPrefix + 'images')"
             :total-value="imageMediasLength.toString()"
             folder-style="font-size: 185px"
-            :media-style="'rounded-full ml-2 h-40px w-40px'"
+            :media-style="'rounded-full ml-2 h-[40px] w-[40px]'"
             :folder-clicked="() => { selectedFolder = 'image'; getAllMedias('image'); }"
           />
           <div v-if="selectedFolder === 'image'" class="h-10px bg-Blue flex mt-6"></div>
@@ -87,7 +87,7 @@
             :total-value="videoMediasLength.toString()"
             :category-icon="'icon-play pr-2'"
             folder-style="font-size: 185px"
-            :media-style="'rounded-full ml-2 h-40px w-40px'"
+            :media-style="'rounded-full ml-2 h-[40px] w-[40px]'"
             :folder-clicked="() => { selectedFolder = 'video'; getAllMedias('video'); }"
           />
           <div v-if="selectedFolder === 'video'" class="h-10px bg-Blue flex mt-6"></div>
@@ -103,7 +103,7 @@
             :total-value="documentMediasLength.toString()"
             :category-icon="'icon-mediaDocumentBlue pr-2'"
             folder-style="font-size: 185px"
-            :media-style="'rounded-full ml-2 h-40px w-40px'"
+            :media-style="'rounded-full ml-2 h-[40px] w-[40px]'"
             :folder-clicked="() => { selectedFolder = 'document'; getAllMedias('document'); }"
           />
           <div v-if="selectedFolder === 'document'" class="h-10px bg-Blue flex mt-6"></div>
@@ -114,7 +114,7 @@
 
       <div v-show="mediaResponse.length !== 0">
         <div class="flex justify-center md:justify-start text-FieldGray pt-2" :class="nuxtSections ? 'pl-4' : 'md:pl-16'">
-          {{ mediaResponse.length + ` ${$t(mediaTranslationPrefix + 'of')} ` + totalMedias.value + ` ${$t(mediaTranslationPrefix + 'medias')} ` }}
+          {{ mediaResponse.length + ` ${$t(mediaTranslationPrefix + 'of')} ` + totalMedias + ` ${$t(mediaTranslationPrefix + 'medias')} ` }}
         </div>
         <div class="py-8 flex flex-wrap" :class="nuxtSections ? '' : 'md:pl-16'">
           <div v-for="media in mediaResponse" :key="`media--${media.id}`" class="m-2">
@@ -132,7 +132,7 @@
               :hidden-media-src="'icon-alert text-4xl'"
               :hidden-container-style="media.type === 'document' ? 'background: #61035B' : 'background: #EDEDED'"
               :hidden-message="$t(mediaTranslationPrefix + 'previewNotAvailable')"
-              :is-author="media.author === sectionsUserId.value"
+              :is-author="media.author === sectionsUserId"
               :size-value="media.files[0].size > Math.pow(10, 6) ? `${(media.files[0].size * Math.pow(10, -6)).toFixed(2)} MB` : `${(media.files[0].size * Math.pow(10, -3)).toFixed(2)} KB`"
               :with-duration="media.type === 'video'"
               :media-type="media.type"
@@ -145,13 +145,17 @@
       </div>
 
       <div v-show="mediaResponse.length === 0 && loading === false" class="text-FieldGray p-16">{{ $t(mediaTranslationPrefix + 'noMediasFound') }}</div>
-      <LazyGAnimatedLoading :loading="loading" :animated-loading-icon="require('../../assets/images/loading_animated.svg')" />
+      <LazyGAnimatedLoading :loading="loading" />
     </div>
   </div>
 </template>
 
 <script setup>
-import { mediaHeader, showSectionsToast } from './medias'
+import {mediaHeader, showToast} from './medias'
+
+const route = useRoute()
+const router = useRouter()
+const nuxtApp = useNuxtApp()
 
 const props = defineProps({
   appliedFilters: {
@@ -528,56 +532,133 @@ function hasObjectWithKey(arr, key, value) {
   return arr.some(item => item.hasOwnProperty(key) && item[key] === value)
 }
 
-async function getAllMedias(folderMediaType, filtered) {
+// getAllMedias function using Composition API for Nuxt 3
+async function getAllMedias (folderMediaType, filtered) {
   try {
     if (props.nuxtSections && props.mediaCategory === 'document') {
       selectedFolder.value = 'document'
     }
-
     loading.value = true
 
-    const response = await useFetch(mediaUri.value, {
+    // First API call to get all media counts
+    const { data: allMediaResponse } = await useFetch(mediaUri.value, {
       method: 'POST',
-      headers: mediaHeader({ token: token.value }, projectId.value),
-      body: payloadData.value
+      body: {
+        sort: {
+          inserted_at: payloadData.value.sort.inserted_at
+        }
+      },
+      headers: mediaHeader({ token: token.value }, projectId.value)
     })
 
-    if (!response.error.value) {
-      mediaResponse.value = response.data.value?.result || []
-      totalMedias.value = response.data.value?.total || 0
-
-      // Update folder counts
+    if (allMediaResponse && allMediaResponse.value) {
+      // Process the response to categorize media files
       allMedias.value = []
       imageMedias.value = []
       videoMedias.value = []
       documentMedias.value = []
 
-      mediaResponse.value.forEach((media) => {
+      allMediaResponse.value.result.forEach((media) => {
         allMedias.value.push(media.files[0])
-        if (media.type === 'image') imageMedias.value.push(media.files[0])
-        else if (media.type === 'video') videoMedias.value.push(media.files[0])
-        else if (media.type === 'document') documentMedias.value.push(media.files[0])
+        if (media.type === 'image') {
+          imageMedias.value.push(media.files[0])
+        } else if (media.type === 'video') {
+          videoMedias.value.push(media.files[0])
+        } else if (media.type === 'document') {
+          documentMedias.value.push(media.files[0])
+        }
       })
 
-      // Update lengths
       allMediasLength.value = allMedias.value.length
       imageMediasLength.value = imageMedias.value.length
       videoMediasLength.value = videoMedias.value.length
       documentMediasLength.value = documentMedias.value.length
+
+      // Handle route updates if not in nuxtSections and not filtered
+      if (!props.nuxtSections && filtered !== true) {
+
+        if (route.query.filters && route.query.filters !== "") {
+          router.push(localePath({ path: props.mediasPath, query: { filters: route.query.filters, folder: folderMediaType } }))
+        } else {
+          router.push(localePath({ path: props.mediasPath, query: { folder: selectedFolder.value } }))
+        }
+      }
+
+      // Update filters based on selected folder
+      if (selectedFolder.value) {
+        if (selectedFolder.value === 'document') {
+          if (hasObjectWithKey(payloadData.value.filters, 'key', 'type')) {
+            payloadData.value.filters.find(filter => filter.key === 'type').value = 'document'
+          } else {
+            payloadData.value.filters.push({
+              key: "type",
+              value: "document"
+            })
+          }
+        } else if (selectedFolder.value === 'image') {
+          if (hasObjectWithKey(payloadData.value.filters, 'key', 'type')) {
+            payloadData.value.filters.find(filter => filter.key === 'type').value = 'image'
+          } else {
+            payloadData.value.filters.push({
+              key: "type",
+              value: "image"
+            })
+          }
+        } else {
+          payloadData.value.filters = payloadData.value.filters.filter((filter) => filter.key !== "type")
+        }
+      }
     }
 
-    if (!props.nuxtSections && !filtered) {
-      const path = useLocalePath({ path: props.mediasPath, query: { filters: filtersQuery.value, folder: selectedFolder.value } })
-      navigateTo(path)
+    // Second API call with updated filters
+    const { data: filteredResponse } = await useFetch(mediaUri.value, {
+      method: 'POST',
+      body: payloadData.value,
+      headers: mediaHeader({ token: token.value }, projectId.value)
+    })
+
+    if (mediaResponse && mediaResponse.value) {
+      mediaResponse.value = filteredResponse.value.result
+      totalMedias.value = filteredResponse.value.total
+
+      // Process filtered results based on selected folder
+      if (!selectedFolder.value || selectedFolder.value === 'all') {
+        allMedias.value = []
+        imageMedias.value = []
+        videoMedias.value = []
+
+        filteredResponse.value.result.forEach((media) => {
+          allMedias.value.push(media.files[0])
+          if (media.type === 'image') {
+            imageMedias.value.push(media.files[0])
+          } else if (media.type === 'video') {
+            videoMedias.value.push(media.files[0])
+          } else if (media.type === 'document') {
+            documentMedias.value.push(media.files[0])
+          }
+        })
+      } else if (selectedFolder.value === 'document') {
+        documentMedias.value = []
+        filteredResponse.value.result.forEach((media) => {
+          if (media.type === 'document') {
+            documentMedias.value.push(media.files[0])
+          }
+        })
+      } else if (selectedFolder.value === 'image') {
+        imageMedias.value = []
+        filteredResponse.value.result.forEach((media) => {
+          if (media.type === 'image') {
+            imageMedias.value.push(media.files[0])
+          }
+        })
+      }
     }
 
     loading.value = false
   } catch (e) {
     loading.value = false
     if (props.nuxtSections) {
-      showSectionsToast(useToast(), 'error', e.response?.data?.message)
-    } else {
-      useToast().show({ message: e.message, timeout: 5, classToast: 'bg-error', classMessage: 'text-white' })
+      showToast("Error", 'error', e.response.data.message)
     }
   }
 }
@@ -617,7 +698,7 @@ function copyMediaLink(link) {
 }
 
 function getFilter(filter) {
-  console.log('Filter received:', filter)
+
 }
 
 function filterMedias(filter) {
@@ -718,9 +799,12 @@ function updateFilterValues(value) {
   return value
 }
 
-definePageMeta({
-  layout: false
+useHead({
+  title: 'bo - Medias'
 })
+
+const emit = defineEmits(['updateMediaComponent']);
+
 </script>
 
 <style scoped>

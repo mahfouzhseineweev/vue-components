@@ -1,33 +1,36 @@
 <template>
-  <component
-    :is="componentsPrefix + componentName"
-    :content-used-key="contentUsedKey"
-    :media-category="mediaCategory"
-    :media-uri-prop="mediaUriProp"
-    :authors-uri-prop="authorsUriProp"
-    :project-id-prop="projectIdProp"
-    :auth-token="authToken"
-    :sections-user-id-prop="sectionsUserIdProp"
-    :media-translation-prefix="mediaTranslationPrefix"
-    :show-create-media-button="showCreateMediaButton"
-    :media-response-prop="mediaResponseProp"
-    :media-by-id-uri-prop="mediaByIdUriProp"
-    :media-by-id-response-prop="mediaByIdResponseProp"
-    :media-id-prop="mediaId"
-    :create-media-path="createMediaPath"
-    :edit-media-path="editMediaPath"
-    :medias-path="mediasPath"
-    :bo-usage="boUsage"
-    :access-limited="accessLimited"
-    :with-select-media-button="withSelectMediaButton"
-    :nuxt-sections="nuxtSections"
-    :is-create-media="isCreateMedia"
-    :media-id-editing="mediaIdEditing"
-    :applied-filters="appliedFilters"
-    :folder-type="folderType"
-    @updateMediaComponent="onMediaComponentUpdate"
-    @onMediaSelected="(media) => $emit('getSelectedMedia', media)"
-  />
+  <div>
+    <component
+        :is="componentsPrefix + componentName"
+        :key="componentKey"
+        :content-used-key="contentUsedKey"
+        :media-category="mediaCategory"
+        :media-uri-prop="mediaUriProp"
+        :authors-uri-prop="authorsUriProp"
+        :project-id-prop="projectIdProp"
+        :auth-token="authToken"
+        :sections-user-id-prop="sectionsUserIdProp"
+        :media-translation-prefix="mediaTranslationPrefix"
+        :show-create-media-button="showCreateMediaButton"
+        :media-response-prop="mediaResponseProp"
+        :media-by-id-uri-prop="mediaByIdUriProp"
+        :media-by-id-response-prop="mediaByIdResponseProp"
+        :media-id-prop="mediaId"
+        :create-media-path="createMediaPath"
+        :edit-media-path="editMediaPath"
+        :medias-path="mediasPath"
+        :bo-usage="boUsage"
+        :access-limited="accessLimited"
+        :with-select-media-button="withSelectMediaButton"
+        :nuxt-sections="nuxtSections"
+        :is-create-media="isCreateMedia"
+        :media-id-editing="mediaIdEditing"
+        :applied-filters="appliedFilters"
+        :folder-type="folderType"
+        @updateMediaComponent="onMediaComponentUpdate"
+        @onMediaSelected="(media) => $emit('getSelectedMedia', media)"
+    />
+  </div>
 </template>
 
 <script setup>
@@ -130,6 +133,7 @@ const props = defineProps({
 const emit = defineEmits(['mediaComponentUpdated', 'getSelectedMedia'])
 
 // Reactive state
+const componentKey = ref(0)
 const componentName = ref('MediaListMedias')
 const mediaId = ref('')
 const isCreateMedia = ref(false)
@@ -175,9 +179,12 @@ onMounted(() => {
 })
 
 // Methods
-function onMediaComponentUpdate(component) {
+const onMediaComponentUpdate = (component) => {
   emit('mediaComponentUpdated', component)
-  componentName.value = component.name
+  if (componentName.value !== component.name) {
+    componentKey.value++
+    componentName.value = component.name
+  }
   mediaId.value = component.mediaId ? component.mediaId.toString() : component.mediaId
   isCreateMedia.value = component.isCreateMedia
   appliedFilters.value = component.appliedFilters

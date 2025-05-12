@@ -109,7 +109,7 @@ const props = defineProps({
     type: Array as PropType<ErrorItem[]>,
     default: () => [
       {
-        authorNameStyle: 'italic text-TextGray pr-4 border-r h-20px',
+        authorNameStyle: 'italic text-TextGray pr-4 border-r h-[20px]',
         authorName: 'By Name of author',
         dateStyle: 'italic text-TextGray pl-2',
         date: '18 March 2020',
@@ -125,7 +125,7 @@ const props = defineProps({
   },
   errorsContainerStyle: {
     type: String,
-    default: 'mt-10 mb-14 self-center h-270px overflow-y-auto'
+    default: 'mt-10 mb-14 self-center h-[270px] overflow-y-auto'
   },
   createdOnStyle: {
     type: String,

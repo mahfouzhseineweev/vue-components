@@ -26,8 +26,7 @@
 </template>
 
 <script setup>
-// Import the asset directly
-import rotateSvg from '../assets/images/rotate.svg'
+
 // Define props using the new Vue 3 syntax
 const props = defineProps({
   submitFunction: {
@@ -84,7 +83,7 @@ const props = defineProps({
       activeIconStyle: '',
       inActiveIconStyle: '',
       // Use the imported asset as the default value
-      src: rotateSvg
+      src: '/images/rotate.svg'
     })
   }
 })

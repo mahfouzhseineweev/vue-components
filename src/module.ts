@@ -1,4 +1,4 @@
-import { defineNuxtModule, addComponentsDir, installModule, createResolver } from '@nuxt/kit'
+import { defineNuxtModule, addComponentsDir, installModule, createResolver, addPluginTemplate } from '@nuxt/kit'
 import { join } from 'path'
 
 export default defineNuxtModule({
@@ -38,6 +38,10 @@ export default defineNuxtModule({
         },
       ]
     })
+
+    addPluginTemplate(resolve('./runtime/plugin'))
+
+    nuxt.options.css.push(resolve('./runtime/assets/icons/icomoon/style.css'))
 
   }
 })
