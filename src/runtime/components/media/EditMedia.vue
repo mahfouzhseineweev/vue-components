@@ -292,6 +292,8 @@
 <script setup>
 import { acceptedFileTypes, mediaHeader, showToast } from './medias.js'
 
+const { t } = useI18n()
+
 const props = defineProps({
   contentUsedKey: {
     type: String,
@@ -387,11 +389,11 @@ const headerItems = ref([
   { label: '', value: '', headerStyle: 'text-sm text-Blue underline cursor-pointer', clickable: true }
 ])
 
-headerItems.value[0].label = useI18n().t(props.mediaTranslationPrefix + 'headerItems.id')
-headerItems.value[1].label = useI18n().t(props.mediaTranslationPrefix + 'headerItems.creationDate')
-headerItems.value[2].label = useI18n().t(props.mediaTranslationPrefix + 'headerItems.createdBy')
-headerItems.value[3].label = useI18n().t(props.mediaTranslationPrefix + 'headerItems.mediaType')
-headerItems.value[4].label = useI18n().t(props.mediaTranslationPrefix + 'headerItems.contents')
+headerItems.value[0].label = t(props.mediaTranslationPrefix + 'headerItems.id')
+headerItems.value[1].label = t(props.mediaTranslationPrefix + 'headerItems.creationDate')
+headerItems.value[2].label = t(props.mediaTranslationPrefix + 'headerItems.createdBy')
+headerItems.value[3].label = t(props.mediaTranslationPrefix + 'headerItems.mediaType')
+headerItems.value[4].label = t(props.mediaTranslationPrefix + 'headerItems.contents')
 
 const imagePick = ref(null)
 
@@ -450,21 +452,21 @@ const fileTypes = acceptedFileTypes
 // Computed
 const allowedPermission = computed(() => {
   if (lockedStatus.value === 'locked' && privateStatus.value === 'private') {
-    return useI18n().t(props.mediaTranslationPrefix + 'previewOrEditMediaLabel')
+    return t(props.mediaTranslationPrefix + 'previewOrEditMediaLabel')
   } else if (privateStatus.value === 'private') {
-    return useI18n().t(props.mediaTranslationPrefix + 'previewMediaLabel')
+    return t(props.mediaTranslationPrefix + 'previewMediaLabel')
   } else if (lockedStatus.value === 'locked') {
-    return useI18n().t(props.mediaTranslationPrefix + 'editMediaLabel')
+    return t(props.mediaTranslationPrefix + 'editMediaLabel')
   }
 })
 
 const statusAvailable = computed(() => {
   if (lockedStatus.value === 'locked' && privateStatus.value === 'private') {
-    return useI18n().t(props.mediaTranslationPrefix + 'privateAndLocked')
+    return t(props.mediaTranslationPrefix + 'privateAndLocked')
   } else if (privateStatus.value === 'private') {
-    return useI18n().t(props.mediaTranslationPrefix + 'private')
+    return t(props.mediaTranslationPrefix + 'private')
   } else if (lockedStatus.value === 'locked') {
-    return useI18n().t(props.mediaTranslationPrefix + 'locked')
+    return t(props.mediaTranslationPrefix + 'locked')
   }
 })
 
@@ -473,7 +475,7 @@ const noDeleteErrors = computed(() => {
   if (media.value.meta && media.value.meta.content && media.value.meta.content.length > 0) {
     media.value.meta.content.forEach(m => {
       errorsArray.push({
-        authorName: useI18n().t(props.mediaTranslationPrefix + 'by') + media.value.meta.author,
+        authorName: t(props.mediaTranslationPrefix + 'by') + media.value.meta.author,
         errorTitle: props.contentUsedKey ? `${m[props.contentUsedKey]} (${m.id})` : `${m.name} (${m.id})`
       })
     })
@@ -606,12 +608,12 @@ async function updateMediaByID() {
     if (props.nuxtSections) {
       await getMediaByID()
       if (isEditingMedia.value) emit('onMediaSelected', media.value)
-      showToast('', 'success', useI18n().t(props.mediaTranslationPrefix + 'mediaUpdated'))
+      showToast('', 'success', t(props.mediaTranslationPrefix + 'mediaUpdated'))
     }
   } catch (e) {
     let errorMessage = ''
     if (e.request && e.response === undefined) {
-      errorMessage = useI18n().t('mediaTooLarge')
+      errorMessage = t('mediaTooLarge')
     } else if (e.response?.data?.options) {
       errorMessage = `<a href='${e.response.data.options.link.root}${e.response.data.options.link.path}' target='_blank'>${e.response.data.error}, ${e.response.data.message}</a>`
     } else if (e.response?.data?.errors) {
