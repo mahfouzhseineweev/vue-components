@@ -85,16 +85,7 @@
   </div>
 </template>
 
-<script setup lang="ts">
-
-interface ErrorItem {
-  authorNameStyle?: string;
-  authorName?: string;
-  dateStyle?: string;
-  date?: string;
-  errorTitle?: string;
-  errorTitleStyle?: string;
-}
+<script setup>
 
 const props = defineProps({
   showPopupCode: {
@@ -106,7 +97,7 @@ const props = defineProps({
     default: true
   },
   errors: {
-    type: Array as PropType<ErrorItem[]>,
+    type: Array,
     default: () => [
       {
         authorNameStyle: 'italic text-TextGray pr-4 border-r h-[20px]',

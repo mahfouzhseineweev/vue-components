@@ -1,5 +1,4 @@
 import { defineNuxtModule, addComponentsDir, installModule, createResolver, addPluginTemplate } from '@nuxt/kit'
-import { join } from 'path'
 
 export default defineNuxtModule({
   meta: {
@@ -25,7 +24,6 @@ export default defineNuxtModule({
     })
 
     await installModule('@nuxtjs/i18n', {
-      vueI18n: resolve('./runtime/i18n.config.ts'),
       langDir: resolve('./runtime/lang'),
       locales: [
         {

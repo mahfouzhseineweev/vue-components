@@ -34,6 +34,7 @@
 </template>
 
 <script setup>
+import { useI18n, ref, computed, useRoute, useRouter, onMounted } from '#imports'
 
 const props = defineProps({
   componentsPrefix: {

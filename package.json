@@ -18,8 +18,7 @@
     ".": {
       "types": "./dist/types.d.mts",
       "import": "./dist/module.mjs"
-    },
-    "./icomoon.css": "./src/runtime/assets/icons/icomoon/style.css"
+    }
   },
   "main": "./dist/module.mjs",
   "typesVersions": {
@@ -75,5 +74,8 @@
     "typescript": "~5.8.3",
     "vitest": "^3.1.2",
     "vue-tsc": "^2.2.10"
+  },
+  "peerDependencies": {
+    "quill": "2.0.0-dev.3"
   }
 }

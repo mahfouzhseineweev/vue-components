@@ -47,6 +47,8 @@
 </template>
 
 <script setup>
+import { useI18n, ref, useRoute, navigateTo, useLocalePath, watch } from '#imports'
+
 import { acceptedFileTypes, mediaHeader, showToast } from './medias'
 
 const { t } = useI18n()

@@ -41,7 +41,7 @@
         <div v-else-if="Array.isArray(added.value)" class="max-w-xs">
           <div v-if = "added.value" :style = "props.filteredValuesStyle">
             <div class = "val">
-              {{ added.title }} = {{ alterValue(getvalue((added.value).map((u: any) => u.translation).join(','))) }}
+              {{ added.title }} = {{ alterValue(getvalue((added.value).map((u) => u.translation).join(','))) }}
             </div>
             <div style="margin-left: 10px;cursor: pointer" @click = "removeFilter(i)">X</div>
           </div>
@@ -91,6 +91,8 @@
 </template>
 
 <script setup>
+import { ref, useState ,watch } from '#imports'
+
 const props = defineProps({
   filterOptions: {
     type: Array,

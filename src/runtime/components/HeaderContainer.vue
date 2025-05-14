@@ -12,18 +12,11 @@
   </div>
 </template>
 
-<script setup lang="ts">
-
-interface HeaderItem {
-  label: string;
-  value: string;
-  headerStyle?: string;
-  clickable?: boolean;
-}
+<script setup>
 
 const props = defineProps({
   items: {
-    type: Array as PropType<HeaderItem[]>,
+    type: Array,
     default: () => [
       {
         label: 'ID:',

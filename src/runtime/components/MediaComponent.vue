@@ -31,7 +31,8 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref } from '#imports'
+
 import Media from './media/Media.vue'
 import IconsClose from './icons/close.vue'
 

@@ -7,6 +7,8 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from '#imports'
+
 // Import the asset directly for better handling in Nuxt 3/Vite
 import loadingSvg from '../assets/images/loading_animated.svg';
 

@@ -39,6 +39,12 @@
 </template>
 
 <script setup>
+import { ref, computed ,watch, defineAsyncComponent } from '#imports'
+
+const VSelect = defineAsyncComponent(() =>
+    import('vue-select')
+)
+import 'vue-select/dist/vue-select.css'
 
 const props = defineProps({
   selectWrapperStyle: {

@@ -290,6 +290,8 @@
 </template>
 
 <script setup>
+import { useFetch, useI18n, ref, computed, useRoute, navigateTo, useLocalePath, onMounted ,watch } from '#imports'
+
 import { acceptedFileTypes, mediaHeader, showToast } from './medias.js'
 
 const { t } = useI18n()
@@ -717,7 +719,7 @@ function handleFileName(fileName) {
 }
 
 const emit = defineEmits(['updateMediaComponent', 'onMediaSelected'])
-definePageMeta({ layout: false })
+
 </script>
 
 <style scoped>

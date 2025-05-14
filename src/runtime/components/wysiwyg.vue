@@ -29,6 +29,8 @@
 </template>
 
 <script setup>
+import { ref, useRoute, useCookie, onMounted, onBeforeUnmount ,watch } from '#imports'
+
 // Variables to hold dynamically imported components and libraries
 let QuillEditorComponent;
 let Quill;
@@ -389,6 +391,7 @@ const initEditorOptions = () => {
   } else {
     editorOptionsObject.value = {
       theme: 'snow',
+      placeholder: 'Compose an epic...',
       modules: {
         toolbar: {
           container: [
@@ -419,7 +422,29 @@ const initEditorOptions = () => {
         buttonToolbar: true,
         html: true,
         table: true,
-        tableUI: true
+        tableUI: true,
+        keyboard: {
+          bindings: {
+            custom: {
+              key: 'Enter',
+              shiftKey: null,
+              handler: function(range, context) {
+                console.log("ENTER CLICKED", range)
+                // Insert a newline
+                QuillEditorComponent.insertText(range.index, '\n', Quill.sources.USER);
+
+                // Move the cursor to the new line
+                QuillEditorComponent.setSelection(range.index + 1, 0, Quill.sources.SILENT);
+
+                // Remove all formatting at the current cursor position
+                QuillEditorComponent.removeFormat(range.index + 1, 1, Quill.sources.USER);
+
+                // Prevent default Enter behavior
+                return false;
+              }
+            }
+          }
+        }
       }
     };
 

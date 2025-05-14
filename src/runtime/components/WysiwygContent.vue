@@ -5,6 +5,8 @@
 </template>
 
 <script setup>
+import {useRouter, onMounted} from "#imports";
+// import {useRouter} from "#app";
 
 const props = defineProps({
   htmlContent: {

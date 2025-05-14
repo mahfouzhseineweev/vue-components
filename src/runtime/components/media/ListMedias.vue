@@ -151,6 +151,8 @@
 </template>
 
 <script setup>
+import { useFetch, useI18n, ref, computed, useNuxtApp, useRoute, useRouter, navigateTo, useHead, useLocalePath ,watch } from '#imports'
+
 import {mediaHeader, showToast} from './medias'
 
 const route = useRoute()
