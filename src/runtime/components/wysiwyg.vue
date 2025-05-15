@@ -1,5 +1,5 @@
 <template>
-  <div title="" class="input wyzywig-wrapper" ref="myQuillEditorRef">
+  <div title="" class="quill-editor wyzywig input wyzywig-wrapper" ref="myQuillEditorRef">
     <span class="flex text-start text-xs pb-1 wyzywig-desc">{{ $t('quillEditor.quillDesc') }}</span>
 
     <ClientOnly>
