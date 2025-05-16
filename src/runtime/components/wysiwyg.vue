@@ -472,6 +472,7 @@ watch(() => props.html, (newHtml) => {
       if (newHtml === "<p><br></p>" && quill.getLength() <= 1) {
         // Do nothing if newHTML is empty placeholder and quill is already empty
       } else {
+        quill.setContents([]);
         quill.clipboard.dangerouslyPasteHTML(0, newHtml);
       }
     }
