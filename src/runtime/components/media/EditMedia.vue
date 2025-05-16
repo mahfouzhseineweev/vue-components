@@ -191,13 +191,15 @@
             <div>{{ $t(mediaTranslationPrefix + 'EditMedia.downloadMedia') }}</div>
           </div>
 
-          <div v-if="media.type === 'document'" class="flex justify-center items-center relative">
-            <div class="flex flex-col items-center gap-4" :style="hiddenContainerStyle">
-              <span class="icon-mediaDocument text-6xl"></span>
-            </div>
-            <div class="absolute top-1/3 left-1/3 -translate-x-1/3 -translate-y-1/3" @click="imagePick.click()">
-              <span class="icon-reload text-8xl cursor-pointer"></span>
-              <input ref="imagePick" type="file" class="hidden" accept="*" @change="onFileSelected" />
+          <div v-if="media.type === 'document'">
+            <div class="flex w-[350px] h-[200px] justify-center items-center object-cover relative" :style="hiddenContainerStyle">
+              <div class="flex flex-col items-center gap-4">
+                <span class="icon-mediaDocument text-6xl"></span>
+              </div>
+              <div class="absolute top-1/3 left-1/3 -translate-x-1/3 -translate-y-1/3" @click="imagePick.click()">
+                <span class="icon-reload text-8xl cursor-pointer"></span>
+                <input ref="imagePick" type="file" class="hidden" :accept="fileTypes" @change="onFileSelected" />
+              </div>
             </div>
           </div>
 
