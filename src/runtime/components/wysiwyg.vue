@@ -429,7 +429,6 @@ const initEditorOptions = () => {
               key: 'Enter',
               shiftKey: null,
               handler: function(range, context) {
-                console.log("ENTER CLICKED", range)
                 // Insert a newline
                 QuillEditorComponent.insertText(range.index, '\n', Quill.sources.USER);
 
