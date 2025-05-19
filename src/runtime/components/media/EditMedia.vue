@@ -60,7 +60,7 @@
 
         <select
           v-model="media.private_status"
-          :disabled="nuxtSections ? isCreateMedia !== true : $route.query.isCreate !== 'true'"
+          :disabled="nuxtSections ? isCreateMedia !== true : useRoute().query.isCreate !== 'true'"
           class="border border-SmallTextGray shadow rounded-md outline-none py-1 px-2 mt-3 mr-16"
         >
           <option value="none" disabled selected>{{ $t(mediaTranslationPrefix + 'EditMedia.selectOption') }}</option>
