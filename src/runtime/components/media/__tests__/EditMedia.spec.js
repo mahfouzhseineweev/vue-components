@@ -2,6 +2,7 @@ import { shallowMount } from "@vue/test-utils";
 import EditMedia from "../EditMedia.vue";
 
 import { createI18n } from 'vue-i18n'
+import {ref, watch, nextTick} from "#imports"
 
 const i18n = createI18n({
   legacy: false,
@@ -74,10 +75,68 @@ describe('EditMedia', () => {
     await wrapper.vm.$nextTick()
 
     const contentUsedDivs = wrapper.findAll('.content-used')
-    console.log(contentUsedDivs)
     contentUsedDivs.forEach(div => {
       expect(div.exists()).toBe(true);
       expect(div.text()).not.toContain('undefined')
     })
+  })
+
+  it('should update headerItems correctly when media changes', async () => {
+    const media = ref({
+      id: '',
+      creation_date: null,
+      inserted_at: 1680000000000, // ms timestamp
+      meta: {
+        author: ''
+      },
+      type: '',
+      number_of_contents: 0
+    })
+
+    const headerItems = ref([
+      { label: 'ID', value: '' },
+      { label: 'Date', value: '' },
+      { label: 'Author', value: '' },
+      { label: 'Type', value: '' },
+      { label: 'Count', value: '' }
+    ])
+
+    // Watcher logic from your code
+    watch(
+        media,
+        () => {
+          if (Object.keys(media.value).length > 0) {
+            headerItems.value[0].value = media.value.id
+            headerItems.value[1].value = media.value.creation_date
+                ? new Date(media.value.creation_date * 1000).toLocaleDateString()
+                : new Date(media.value.inserted_at).toLocaleDateString()
+            headerItems.value[2].value = media.value.meta.author
+            headerItems.value[3].value =
+                media.value.type[0].toUpperCase() + media.value.type.substring(1)
+            headerItems.value[4].value = media.value.number_of_contents
+          }
+        },
+        { deep: true }
+    )
+
+    // Update media to trigger the watcher
+    media.value = {
+      id: 'abc123',
+      creation_date: 1710000000, // UNIX timestamp (sec)
+      inserted_at: 1680000000000,
+      meta: {
+        author: 'Jane Doe'
+      },
+      type: 'video',
+      number_of_contents: 42
+    }
+
+    await nextTick() // Wait for Vue to update
+
+    expect(headerItems.value[0].value).toBe('abc123')
+    expect(headerItems.value[1].value).toBe(new Date(1710000000 * 1000).toLocaleDateString())
+    expect(headerItems.value[2].value).toBe('Jane Doe')
+    expect(headerItems.value[3].value).toBe('Video')
+    expect(headerItems.value[4].value).toBe(42)
   })
 })

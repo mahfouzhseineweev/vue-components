@@ -543,6 +543,20 @@ watch(
   { deep: true, immediate: true }
 )
 
+watch(
+    media,
+    () => {
+      if(Object.keys(media.value).length > 0) {
+        headerItems.value[0].value = media.value.id
+        headerItems.value[1].value = media.value.creation_date ? new Date(media.value.creation_date * 1000).toLocaleDateString() : new Date(media.value.inserted_at).toLocaleDateString()
+        headerItems.value[2].value = media.value.meta.author
+        headerItems.value[3].value = media.value.type[0].toUpperCase() + media.value.type.substring(1)
+        headerItems.value[4].value = media.value.number_of_contents
+      }
+    },
+    { deep: true }
+)
+
 // Lifecycle
 onMounted(() => {
   if (mediaByIdUri.value !== '') getMediaByID()
