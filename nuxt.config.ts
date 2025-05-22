@@ -15,5 +15,11 @@ export default defineNuxtConfig({
     optimizeDeps: {
       exclude: ['quill']
     }
+  },
+  nitro: {
+    compressPublicAssets: {
+      gzip: true,
+      brotli: true
+    }
   }
 })
