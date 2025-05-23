@@ -35,7 +35,7 @@ export default defineNuxtConfig({
   },
   vite: {
     optimizeDeps: {
-      exclude: ['quill']
+      exclude: ['quillasd']
     }
   },
   nitro: {
