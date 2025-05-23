@@ -45,7 +45,7 @@
     "link": "npm link",
     "storybook": "storybook dev --port 6006",
     "build-storybook": "storybook build",
-    "chromatic": "npx chromatic --project-token=$CHROMATIC_PROJECT_TOKEN_V3 --auto-accept-changes -d storybook-static/"
+    "chromatic": "nuxt prepare && npx chromatic --project-token=$CHROMATIC_PROJECT_TOKEN_V3 --auto-accept-changes -d storybook-static/"
   },
   "publishConfig": {
     "access": "public"
