@@ -42,7 +42,10 @@
     "test": "vitest run",
     "test:watch": "vitest watch",
     "test:types": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit",
-    "link": "npm link"
+    "link": "npm link",
+    "storybook": "storybook dev --port 6006",
+    "build-storybook": "storybook build",
+    "chromatic": "npx chromatic --project-token=$CHROMATIC_PROJECT_TOKEN_V3 --auto-accept-changes -d storybook-static/"
   },
   "publishConfig": {
     "access": "public"
@@ -73,7 +76,16 @@
     "nuxt": "^3.17.1",
     "typescript": "~5.8.3",
     "vitest": "^3.1.2",
-    "vue-tsc": "^2.2.10"
+    "vue-tsc": "^2.2.10",
+    "@nuxtjs/tailwindcss": "^6.14.0",
+    "@nuxtjs/storybook": "^8.3.3",
+    "@storybook/addon-essentials": "8.3.3",
+    "@storybook/addon-interactions": "8.3.3",
+    "@storybook/addon-links": "8.3.3",
+    "@storybook/blocks": "8.3.3",
+    "chromatic": "^11.28.3",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
   },
   "peerDependencies": {
     "quill": "2.0.0-dev.3"
