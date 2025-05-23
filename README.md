@@ -1,94 +1,84 @@
-# vue-components
+<!--
+Get your module up and running quickly.
 
-## Build Setup Locally
+Find and replace all on all files (CMD+SHIFT+F):
+- Name: My Module
+- Package name: my-module
+- Description: My new Nuxt module
+-->
+
+# My Module
+
+[![npm version][npm-version-src]][npm-version-href]
+[![npm downloads][npm-downloads-src]][npm-downloads-href]
+[![License][license-src]][license-href]
+[![Nuxt][nuxt-src]][nuxt-href]
+
+My new Nuxt module for doing amazing things.
+
+- [✨ &nbsp;Release Notes](/CHANGELOG.md)
+<!-- - [🏀 Online playground](https://stackblitz.com/github/your-org/my-module?file=playground%2Fapp.vue) -->
+<!-- - [📖 &nbsp;Documentation](https://example.com) -->
+
+## Features
+
+<!-- Highlight some of the features your module provide here -->
+- ⛰ &nbsp;Foo
+- 🚠 &nbsp;Bar
+- 🌲 &nbsp;Baz
+
+## Quick Setup
+
+Install the module to your Nuxt application with one command:
 
 ```bash
-# build the component library
-$ npm run build
-
-# create a pack tarball from the build
-$ npm pack
-
-# the above commands will result in creating a .tgz file for the component library which will be added to the main DIR
-
-# copy the path reference of the last created .tgz file ex.: "/Users/YOUR_USER/Documents/Eweev Gitlab Repositories/Geeks Apps BO/geeks-apps-bo/geeks.solutions-vue-components-1.0.0.tgz"
-
-# in your host project, Add "@geeks.solutions/vue-components": "file://{paste here the file path you copied in the previous step}" to you package.json dependencies
-
-# install the dependencies
-$ npm install
-
-# inside buildModules of your host project nuxt.config.js add '@geeks.solutions/vue-components/nuxt':
-$ ex.: buildModules: [
-    ...,
-    '@geeks.solutions/vue-components/nuxt'
-  ]
-
+npx nuxi module add my-module
 ```
 
-## Build Setup
+That's it! You can now use My Module in your Nuxt app ✨
 
-```bash
-# install dependencies
-$ npm install
 
-# serve with hot reload at localhost:3000
-$ npm run dev
+## Contribution
 
-# build for production and launch server
-$ npm run build
-$ npm run start
+<details>
+  <summary>Local development</summary>
+  
+  ```bash
+  # Install dependencies
+  npm install
+  
+  # Generate type stubs
+  npm run dev:prepare
+  
+  # Develop with the playground
+  npm run dev
+  
+  # Build the playground
+  npm run dev:build
+  
+  # Run ESLint
+  npm run lint
+  
+  # Run Vitest
+  npm run test
+  npm run test:watch
+  
+  # Release new version
+  npm run release
+  ```
 
-# generate static project
-$ npm run generate
-```
+</details>
 
-For detailed explanation on how things work, check out the [documentation](https://nuxtjs.org).
 
-## Special Directories
+<!-- Badges -->
+[npm-version-src]: https://img.shields.io/npm/v/my-module/latest.svg?style=flat&colorA=020420&colorB=00DC82
+[npm-version-href]: https://npmjs.com/package/my-module
 
-You can create the following extra directories, some of which have special behaviors. Only `pages` is required; you can delete them if you don't want to use their functionality.
+[npm-downloads-src]: https://img.shields.io/npm/dm/my-module.svg?style=flat&colorA=020420&colorB=00DC82
+[npm-downloads-href]: https://npm.chart.dev/my-module
 
-### `assets`
+[license-src]: https://img.shields.io/npm/l/my-module.svg?style=flat&colorA=020420&colorB=00DC82
+[license-href]: https://npmjs.com/package/my-module
 
-The assets directory contains your uncompiled assets such as Stylus or Sass files, images, or fonts.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/assets).
-
-### `components`
-
-The components directory contains your Vue.js components. Components make up the different parts of your page and can be reused and imported into your pages, layouts and even other components.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/components).
-
-### `layouts`
-
-Layouts are a great help when you want to change the look and feel of your Nuxt app, whether you want to include a sidebar or have distinct layouts for mobile and desktop.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/layouts).
-
-### `pages`
-
-This directory contains your application views and routes. Nuxt will read all the `*.vue` files inside this directory and setup Vue Router automatically.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/get-started/routing).
-
-### `plugins`
-
-The plugins directory contains JavaScript plugins that you want to run before instantiating the root Vue.js Application. This is the place to add Vue plugins and to inject functions or constants. Every time you need to use `Vue.use()`, you should create a file in `plugins/` and add its path to plugins in `nuxt.config.js`.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/plugins).
-
-### `static`
-
-This directory contains your static files. Each file inside this directory is mapped to `/`.
-
-Example: `/static/robots.txt` is mapped as `/robots.txt`.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/static).
-
-### `store`
-
-This directory contains your Vuex store files. Creating a file in this directory automatically activates Vuex.
-
-More information about the usage of this directory in [the documentation](https://nuxtjs.org/docs/2.x/directory-structure/store).
+[nuxt-src]: https://img.shields.io/badge/Nuxt-020420?logo=nuxt.js
+[nuxt-href]: https://nuxt.com
