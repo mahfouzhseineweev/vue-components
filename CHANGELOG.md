@@ -2,6 +2,20 @@
 
 ---
 
+### v3.0.0 (23/05/2025)
+
+---
+
+- BREAKING CHANGE: Library migrated to nuxt 3
+- 
+
+### v1.0.21 (07/05/2025)
+
+---
+
+- Sanitize Blogs and media API responses
+- Fix edit blog component automatic scrolling 
+
 
 ### v3.0.0 (24/05/2025)
 
