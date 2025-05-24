@@ -109,6 +109,7 @@
 </template>
 
 <script setup lang="ts">
+
 import defaultMediaSvg from '../../assets/images/temp2.svg';
 
 const props = defineProps({
