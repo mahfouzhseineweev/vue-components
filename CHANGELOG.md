@@ -7,7 +7,7 @@
 ---
 
 - BREAKING CHANGE: Library migrated to nuxt 3
-- 
+
 
 ### v1.0.21 (07/05/2025)
 
