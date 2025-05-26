@@ -1,10 +1,69 @@
 import Media from '../src/runtime/components/media/Media.vue';
 
-export default {
-  component: Media,
-  title: 'Components/Media/Media',
-  args: {
-    mediaResponseProp: {
+const defaultControls = {
+  componentsPrefix: {
+    type: String,
+    default: ''
+  },
+  mediaUriProp: {
+    type: String,
+    default: ''
+  },
+  mediaByIdUriProp: {
+    type: String,
+    default: ''
+  },
+  authorsUriProp: {
+    type: String,
+    default: ''
+  },
+  projectIdProp: {
+    type: String,
+    default: ''
+  },
+  authToken: {
+    type: String,
+    default: ''
+  },
+  sectionsUserIdProp: {
+    type: String,
+    default: ''
+  },
+  mediaIdProp: {
+    type: String,
+    default: ''
+  },
+  mediaTranslationPrefix: {
+    type: String,
+    default: 'mediaT.'
+  },
+  createMediaPath: {
+    type: String,
+    default: ''
+  },
+  editMediaPath: {
+    type: String,
+    default: ''
+  },
+  mediasPath: {
+    type: String,
+    default: ''
+  },
+  mediaCategory: {
+    type: String,
+    default: ''
+  },
+  showCreateMediaButton: {
+    type: Boolean,
+    default: false
+  },
+  accessLimited: {
+    type: Boolean,
+    default: false
+  },
+  mediaResponseProp: {
+    type: Object,
+    default: () => ({
       "total": 144,
       "result": [
         {
@@ -386,8 +445,11 @@ export default {
           "author": "63a30c5a009566000727977c"
         }
       ]
-    },
-    mediaByIdResponseProp: {
+    })
+  },
+  mediaByIdResponseProp: {
+    type: Object,
+    default: () => ({
       "type": "image",
       "title": "akram title",
       "tags": null,
@@ -429,8 +491,46 @@ export default {
       ],
       "creation_date": 1681384701,
       "author": "63a30c5a009566000727977c"
-    }
+    })
+  },
+  boUsage: {
+    type: Boolean,
+    default: true
+  },
+  withSelectMediaButton: {
+    type: Boolean,
+    default: false
+  },
+  selectedMedia: {
+    type: Object,
+    default: () => ({})
+  },
+  nuxtSections: {
+    type: Boolean,
+    default: false
+  },
+  mediaIdEditing: {
+    type: String,
+    default: ''
+  },
+  contentUsedKey: {
+    type: String,
+    default: ''
   }
+}
+
+export default {
+  component: Media,
+  title: 'Components/Media/Media',
+  args:  Object.fromEntries(
+      Object.entries(defaultControls).map(([key, value]) => {
+        const defaultVal = typeof value.default === 'function'
+            ? value.default()
+            : value.default;
+
+        return [key, defaultVal];
+      })
+  )
 };
 
 const Template = (args, { argTypes }) => ({
