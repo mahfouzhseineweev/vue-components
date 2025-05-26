@@ -17,8 +17,7 @@
               <img :src="media.url" :width="props.mediasWidth" :height="props.mediasHeight" :class="props.mediaStyle"/>
             </div>
           </div>
-          <!-- Show ellipsis if there are more medias than displayed -->
-          <div v-if="props.medias.length > props.mediasNumber" class="self-end">...</div>
+          <div class="self-end">...</div>
         </div>
 
         <div :class="props.categoryStyle">

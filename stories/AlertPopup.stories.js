@@ -13,14 +13,53 @@ const defaultControls = {
     type: Array,
     default: () => [
       {
-        authorNameStyle: 'italic text-TextGray pr-4 border-r h-[20px]',
+        authorNameStyle: 'italic text-TextGray pr-4 border-r h-20px',
         authorName: 'By Name of author',
         dateStyle: 'italic text-TextGray pl-2',
         date: '18 March 2020',
         errorTitle: 'Title of content very long long long long long...',
         errorTitleStyle: 'font-medium text-Blue text-lg',
       },
-      // ... (autres erreurs par défaut si nécessaire, mais généralement il vaut mieux passer un tableau vide par défaut)
+      {
+        authorNameStyle: 'italic text-TextGray pr-4 border-r h-20px',
+        authorName: 'By Name of author',
+        dateStyle: 'italic text-TextGray pl-2',
+        date: '18 March 2020',
+        errorTitle: 'Title of content very long long long long long...',
+        errorTitleStyle: 'font-medium text-Blue text-lg',
+      },
+      {
+        authorNameStyle: 'italic text-TextGray pr-4 border-r h-20px',
+        authorName: 'By Name of author',
+        dateStyle: 'italic text-TextGray pl-2',
+        date: '18 March 2020',
+        errorTitle: 'Title of content very long long long long long...',
+        errorTitleStyle: 'font-medium text-Blue text-lg',
+      },
+      {
+        authorNameStyle: 'italic text-TextGray pr-4 border-r h-20px',
+        authorName: 'By Name of author',
+        dateStyle: 'italic text-TextGray pl-2',
+        date: '18 March 2020',
+        errorTitle: 'Title of content very long long long long long...',
+        errorTitleStyle: 'font-medium text-Blue text-lg',
+      },
+      {
+        authorNameStyle: 'italic text-TextGray pr-4 border-r h-20px',
+        authorName: 'By Name of author',
+        dateStyle: 'italic text-TextGray pl-2',
+        date: '18 March 2020',
+        errorTitle: 'Title of content very long long long long long...',
+        errorTitleStyle: 'font-medium text-Blue text-lg',
+      },
+      {
+        authorNameStyle: 'italic text-TextGray pr-4 border-r h-20px',
+        authorName: 'By Name of author',
+        dateStyle: 'italic text-TextGray pl-2',
+        date: '18 March 2020',
+        errorTitle: 'Title of content very long long long long long...',
+        errorTitleStyle: 'font-medium text-Blue text-lg',
+      }
     ]
   },
   containerStyle: {

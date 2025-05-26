@@ -3,7 +3,7 @@
     <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
       <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="false"></div>
 
-      <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="false">&amp;#8203;</span>
+      <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="false">&#8203;</span>
 
       <div :class="props.containerStyle">
         <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
