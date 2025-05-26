@@ -1,6 +1,6 @@
 {
   "name": "@geeks.solutions/vue-components",
-  "version": "1.0.20",
+  "version": "3.0.0",
   "author": "Geeks Solutions info@geeks.solutions (https://www.geeks.solutions)",
   "repository": {
     "type": "git",
@@ -13,73 +13,83 @@
   "license": "ISC",
   "homepage": "https://sections.geeks.solutions",
   "contributors": [],
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/types.d.mts",
+      "import": "./dist/module.mjs"
+    }
+  },
+  "main": "./dist/module.mjs",
+  "typesVersions": {
+    "*": {
+      ".": [
+        "./dist/types.d.mts"
+      ]
+    }
+  },
   "files": [
-    "assets",
-    "components",
-    "lang",
-    "plugins",
-    "static",
-    "utils",
-    "tailwind.config.js",
-    "nuxt.js",
-    "nuxt.config.js"
+    "dist"
   ],
   "private": false,
   "scripts": {
-    "dev": "nuxt",
-    "build": "nuxt build",
-    "start": "nuxt start",
-    "generate": "nuxt generate",
-    "lint:js": "eslint --ext \".js,.vue\" --ignore-path .gitignore .",
-    "lint": "npm run lint:js",
-    "test": "jest",
-    "storybook": "npx nuxt storybook",
-    "build-storybook": "npx nuxt storybook build",
-    "chromatic": "npx chromatic --project-token=$CHROMATIC_PROJECT_TOKEN --auto-accept-changes -d storybook-static/"
+    "prepack": "nuxt-module-build build",
+    "dev": "nuxi dev playground",
+    "dev:build": "nuxi build playground",
+    "dev:prepare": "nuxt-module-build build --stub && nuxt-module-build prepare && nuxi prepare playground",
+    "release": "npm run lint && npm run test && npm run prepack && changelogen --release && npm publish && git push --follow-tags",
+    "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest watch",
+    "test:types": "vue-tsc --noEmit && cd playground && vue-tsc --noEmit",
+    "link": "npm link",
+    "storybook": "storybook dev --port 6006",
+    "build-storybook": "storybook build",
+    "chromatic": "npx chromatic --project-token=$CHROMATIC_PROJECT_TOKEN_V3 --auto-accept-changes -d storybook-static/"
   },
   "publishConfig": {
     "access": "public"
   },
   "dependencies": {
     "@devdcodes9/quill-emojijs": "^0.0.8",
-    "@nuxt/content": "^1.14.0",
-    "@nuxtjs/axios": "^5.13.6",
-    "@nuxtjs/pwa": "^3.3.5",
-    "core-js": "^3.15.1",
-    "nuxt": "^2.15.8",
-    "nuxt-i18n": "^6.28.0",
-    "nuxt-tailvue": "^1.0.95",
-    "quill": "^2.0.3",
-    "quill-html-edit-button": "^2.2.15",
+    "@nuxt/kit": "^3.17.2",
+    "@nuxtjs/i18n": "^9.5.3",
+    "nuxt": "^3.17.1",
+    "quill": "2.0.0-dev.3",
     "quill-table-ui": "^1.0.7",
-    "tailwindcss-pixel-dimensions": "^1.0.2",
-    "v-tooltip": "^2.1.3",
-    "vue-quill-editor": "^3.0.6",
-    "vue-select": "^3.18.3"
+    "vue-select": "^4.0.0-beta.6"
   },
   "devDependencies": {
-    "@babel/eslint-parser": "^7.14.7",
-    "@nuxtjs/eslint-config": "^6.0.1",
-    "@nuxtjs/eslint-module": "^3.0.2",
-    "@nuxtjs/google-fonts": "^1.3.0",
-    "@nuxtjs/storybook": "4.0.4",
-    "@nuxtjs/tailwindcss": "^4.2.0",
-    "@vue/test-utils": "^1.2.1",
-    "babel-core": "7.0.0-bridge.0",
-    "babel-jest": "^27.0.5",
-    "chromatic": "^6.19.9",
-    "eslint": "^7.29.0",
-    "eslint-config-prettier": "^8.3.0",
-    "eslint-plugin-nuxt": "^2.0.0",
-    "eslint-plugin-vue": "^7.12.1",
-    "eslint-webpack-plugin": "^2.5.4",
-    "jest": "^27.0.5",
-    "postcss": "8.3.5",
-    "prettier": "^2.3.2",
-    "vue-jest": "^3.0.4",
-    "webpack-cli": "^4.9.1"
+    "@nuxt/devtools": "^2.4.0",
+    "@nuxt/eslint": "^1.3.0",
+    "@nuxt/eslint-config": "^1.3.0",
+    "@nuxt/module-builder": "^1.0.1",
+    "@nuxt/schema": "^3.17.1",
+    "@nuxt/test-utils": "^3.17.2",
+    "@nuxtjs/storybook": "^8.3.3",
+    "@nuxtjs/tailwindcss": "^6.14.0",
+    "@storybook/addon-essentials": "8.3.3",
+    "@storybook/addon-interactions": "8.3.3",
+    "@storybook/addon-links": "8.3.3",
+    "@storybook/blocks": "8.3.3",
+    "@storybook/manager-api": "^8.6.14",
+    "@storybook/theming": "^8.6.14",
+    "@testing-library/vue": "^8.1.0",
+    "@types/node": "latest",
+    "@vue/test-utils": "^2.4.6",
+    "changelogen": "^0.6.1",
+    "chromatic": "^11.28.3",
+    "eslint": "^9.25.1",
+    "happy-dom": "^17.4.6",
+    "jsdom": "^26.1.0",
+    "nuxt": "^3.17.1",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "typescript": "~5.8.3",
+    "vitest": "^3.1.2",
+    "vue-tsc": "^2.2.10"
   },
   "peerDependencies": {
-    "consola": "3.0.1"
+    "quill": "2.0.0-dev.3"
   }
 }
