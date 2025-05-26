@@ -1,6 +1,35 @@
 import AutoComplete from '../src/runtime/components/AutoComplete.vue';
 
 const defaultControls = {
+  filterOptions: {
+    type: Array,
+    default: () => [
+      {
+        key: 'All',
+        value: 'All'
+      },
+      {
+        key: 'id',
+        value: 'id'
+      },
+      {
+        key: 'name',
+        value: 'name'
+      },
+      {
+        key: 'title',
+        value: 'title'
+      },
+      {
+        key: 'status',
+        value: 'status'
+      },
+      {
+        key: 'role',
+        value: 'role'
+      }
+    ]
+  },
   selectWrapperStyle: {
     type: String,
     default: 'w-max'
@@ -128,10 +157,6 @@ const defaultControls = {
   withIcon: {
     type: Boolean,
     default: false
-  },
-  filterOptions: {
-    type: Array,
-    default: () => []
   }
 }
 
