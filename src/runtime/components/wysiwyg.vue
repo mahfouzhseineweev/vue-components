@@ -356,7 +356,7 @@ const defineQuillModules = async () => {
   }
 
   .ql-html-editor-save {
-    background-color: #31a9db;
+    background-color: #03b1c7;
     color: white;
   }
 `;
@@ -841,14 +841,11 @@ onMounted(async () => {
 main.sections-main .input.wyzywig-wrapper {
   margin: 0 128px;
 }
-aside.sections-aside .input.wyzywig-wrapper {
-  margin-right: 80px;
-}
 .ql-html-popupContainer button.ql-html-buttonCancel {
   outline: none;
   max-width: 1000px;
   display: flex;
-  background: #31a9db;
+  background: #03b1c7;
   border: none;
   color: white;
   align-items: center;
@@ -861,7 +858,7 @@ aside.sections-aside .input.wyzywig-wrapper {
   outline: none;
   max-width: 1000px;
   display: flex;
-  background: #31a9db;
+  background: #03b1c7;
   border: none;
   color: white;
   align-items: center;
