@@ -518,7 +518,7 @@ const initEditorOptions = () => {
             [{ 'font': [] }],
             [{ 'size': fontsArray }],
             ['bold', 'italic', 'underline', 'strike'],
-            [{ 'color': ['#51AEC3', '#fce085', '#03B1C7', '#61035B', '#fff', '#868686', '#011321', '#000000', '#e60000', '#ff9900', '#ffff00', '#008a00', '#0066cc', '#9933ff', '#ffffff', '#facccc', '#ffebcc', '#ffffcc', '#cce8cc', '#cce0f5', '#ebd6ff', '#bbbbbb', '#f06666', '#ffc266', '#ffff66', '#66b966', '#66a3e0', '#c285ff', '#888888', '#a10000', '#b26b00', '#b2b200', '#006100', '#0047b2', '#6b24b2', '#444444', '#5c0000', '#663d00', '#666600', '#003700', '#002966', '#3d1466'] }, { 'background': ['#51AEC3', '#fce085', '#03B1C7', '#61035B', '#fff', '#868686', '#011321', '#000000', '#e60000', '#ff9900', '#ffff00', '#008a00', '#0066cc', '#9933ff', '#ffffff', '#facccc', '#ffebcc', '#ffffcc', '#cce8cc', '#cce0f5', '#ebd6ff', '#bbbbbb', '#f06666', '#ffc266', '#ffff66', '#66b966', '#66a3e0', '#c285ff', '#888888', '#a10000', '#b26b00', '#b2b200', '#006100', '#0047b2', '#6b24b2', '#444444', '#5c0000', '#663d00', '#666600', '#003700', '#002966', '#3d1466'] }],
+            [{ 'color': ['#51aec3', '#fce085', '#03b1c7', '#61035b', '#ffffff', '#868686', '#011321', '#000000', '#e60000', '#ff9900', '#ffff00', '#008a00', '#0066cc', '#9933ff', '#ffffff', '#facccc', '#ffebcc', '#ffffcc', '#cce8cc', '#cce0f5', '#ebd6ff', '#bbbbbb', '#f06666', '#ffc266', '#ffff66', '#66b966', '#66a3e0', '#c285ff', '#888888', '#a10000', '#b26b00', '#b2b200', '#006100', '#0047b2', '#6b24b2', '#444444', '#5c0000', '#663d00', '#666600', '#003700', '#002966', '#3d1466'] }, { 'background': ['#51aec3', '#fce085', '#03B1C7', '#61035B', '#ffffff', '#868686', '#011321', '#000000', '#e60000', '#ff9900', '#ffff00', '#008a00', '#0066cc', '#9933ff', '#ffffff', '#facccc', '#ffebcc', '#ffffcc', '#cce8cc', '#cce0f5', '#ebd6ff', '#bbbbbb', '#f06666', '#ffc266', '#ffff66', '#66b966', '#66a3e0', '#c285ff', '#888888', '#a10000', '#b26b00', '#b2b200', '#006100', '#0047b2', '#6b24b2', '#444444', '#5c0000', '#663d00', '#666600', '#003700', '#002966', '#3d1466'] }],
             ['link', 'image', 'video'],
             [{ 'align': [] }],
             [{ 'list': 'bullet' }, { 'list': 'ordered'}],
@@ -558,32 +558,10 @@ watch(settings, (newSettings) => {
   }
 });
 
-const extractQuillHTMLContent = (htmlString) => {
-  if (!htmlString || typeof htmlString !== 'string') return htmlString;
-
-  // Check if the HTML contains the Quill custom HTML wrapper
-  if (htmlString.includes('class="ql-custom-html"') && htmlString.includes('class="ql-html-container"')) {
-    try {
-      const tempDiv = document.createElement('div');
-      tempDiv.innerHTML = htmlString;
-
-      const htmlContainer = tempDiv.querySelector('.ql-custom-html .ql-html-container');
-
-      if (htmlContainer) {
-        return htmlContainer.innerHTML;
-      }
-    } catch (error) {
-      console.warn('Error extracting Quill HTML content:', error);
-    }
-  }
-
-  return htmlString;
-};
-
 // Watch for changes to props.html
 watch(() => props.html, (newHtml) => {
   if (settings.value !== newHtml) {
-    const htmlContent = extractQuillHTMLContent(newHtml)
+    const htmlContent = appendEmptyParagraphIfOnlyRawHtmlContainer (newHtml)
     settings.value = htmlContent;
     // If Quill instance is ready, update content directly if needed
     const quill = QuillEditorComponent;
@@ -908,11 +886,48 @@ const onQuillEditorReady = async (quillInstance) => {
     if (props.html === "<p><br></p>" && quill.getLength() <= 1) {
       // Do nothing if both are empty
     } else {
-      const htmlContent = extractQuillHTMLContent(props.html)
+      const htmlContent = appendEmptyParagraphIfOnlyRawHtmlContainer (props.html)
       const delta = quill.clipboard.convert({ html: htmlContent, text: '\n' });
       quill.setContents(delta);
       // quill.clipboard.dangerouslyPasteHTML(0, htmlContent);
     }
+  }
+};
+
+const appendEmptyParagraphIfOnlyRawHtmlContainer  = (htmlContent) => {
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlContent, 'text/html');
+    const bodyChildren = Array.from(doc.body.children);
+
+    const isQLOne = (el) =>
+        el.tagName === 'DIV' && el.classList.contains('ql-custom-html');
+
+    const len = bodyChildren.length;
+
+    if (
+        len === 1 &&
+        isQLOne(bodyChildren[0])
+    ) {
+      // Only element
+      htmlContent += '<p>&nbsp;</p>';
+    } else if (
+        len >= 1 &&
+        isQLOne(bodyChildren[len - 1])
+    ) {
+      // Last element
+      htmlContent += '<p>&nbsp;</p>';
+    } else if (
+        len >= 2 &&
+        isQLOne(bodyChildren[len - 2])
+    ) {
+      // Second-to-last element
+      htmlContent += '<p>&nbsp;</p>';
+    }
+
+    return htmlContent;
+  } catch {
+    return htmlContent;
   }
 };
 

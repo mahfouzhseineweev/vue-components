@@ -334,21 +334,6 @@ describe('QuillEditor Component', () => {
             expect(wrapper.emitted('settingsUpdate')).toBeTruthy()
         })
 
-        it('should extract HTML content from Quill custom HTML wrapper', () => {
-            const vm = wrapper.vm
-            const wrappedHtml = '<div class="ql-custom-html"><div class="ql-html-container"><p>Custom HTML</p></div></div>'
-
-            const result = vm.extractQuillHTMLContent(wrappedHtml)
-            expect(result).toBe('<p>Custom HTML</p>')
-        })
-
-        it('should return original HTML when no wrapper is present', () => {
-            const vm = wrapper.vm
-            const normalHtml = '<p>Normal content</p>'
-
-            const result = vm.extractQuillHTMLContent(normalHtml)
-            expect(result).toBe('<p>Normal content</p>')
-        })
     })
 
     describe('Media Handling', () => {
