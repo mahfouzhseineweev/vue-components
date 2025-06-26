@@ -35,7 +35,6 @@ import { ref, useRoute, useCookie, onMounted, onBeforeUnmount ,watch } from '#im
 let QuillEditorComponent;
 let Quill;
 let EmojiLib;
-let TableLib;
 let QuillTableUILib;
 
 const props = defineProps({
@@ -74,8 +73,6 @@ const fontsArray = [
 // HTML Modal elements
 let htmlModalElement = null;
 let htmlEditorTextareaElement = null;
-let currentEditingHTMLBlot = null;
-let currentEditingHTMLBlotRange = ref(null);
 
 // Define Quill modules and custom blots
 const defineQuillModules = async () => {
@@ -215,18 +212,50 @@ const defineQuillModules = async () => {
   }
   Quill.register('modules/buttonToolbar', ButtonToolbarModule);
 
-  // Register HTML blot
-  const BlockEmbed2 = Quill.import('blots/block/embed');
-  class HTMLBlot extends BlockEmbed2 {
-    static blotName = 'html'; static tagName = 'div'; static className = 'ql-custom-html';
+  const BlockEmbed = Quill.import('blots/block/embed');
+  class HTMLBlot extends BlockEmbed {
+    static blotName = 'html';
+    static tagName = 'div';
+    static className = 'ql-custom-html';
     static create(value) {
       const node = super.create();
-      const container = document.createElement('div');
-      container.classList.add('ql-html-container'); container.innerHTML = value;
-      node.appendChild(container); node.setAttribute('data-html', value);
+      node.setAttribute('data-html', value); // store raw HTML for editing
+      node.setAttribute('contenteditable', 'false');
+
+      // Create content wrapper
+      const contentWrapper = document.createElement('div');
+      contentWrapper.innerHTML = value;
+      node.appendChild(contentWrapper);
+
+      // Add edit button
+      const overlay = document.createElement('span');
+      node.appendChild(overlay);
+      overlay.className = 'overlay';
+      const editBtn = document.createElement('span');
+      editBtn.className = 'html-edit-overlay'
+      editBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 32 32" fill="white"><path d="M29.535 20.102c-0.44 0-0.797 0.357-0.797 0.797v7.076c-0.002 1.32-1.071 2.39-2.391 2.391h-22.362c-1.32-0.001-2.389-1.071-2.391-2.391v-20.768c0.002-1.32 1.071-2.389 2.391-2.391h7.076c0.44 0 0.797-0.357 0.797-0.797s-0.357-0.797-0.797-0.797h-7.076c-2.2 0.002-3.982 1.785-3.985 3.985v20.768c0.003 2.2 1.785 3.982 3.985 3.985h22.362c2.2-0.003 3.982-1.785 3.985-3.985v-7.076c0-0.44-0.357-0.797-0.797-0.797z"/><path d="M30.016 1.172c-1.401-1.401-3.671-1.401-5.072 0l-14.218 14.218c-0.097 0.097-0.168 0.218-0.205 0.351l-1.87 6.75c-0.077 0.277 0.001 0.573 0.204 0.776s0.5 0.281 0.776 0.205l6.75-1.87c0.133-0.037 0.253-0.107 0.351-0.205l14.218-14.219c1.398-1.402 1.398-3.67 0-5.072zM12.462 15.908l11.637-11.637 3.753 3.753-11.637 11.637zM11.713 17.412l2.998 2.999-4.147 1.149zM29.824 6.052l-0.845 0.845-3.753-3.753 0.846-0.845c0.778-0.778 2.039-0.778 2.817 0l0.936 0.935c0.777 0.779 0.777 2.039 0 2.818z"/></svg>';
+      editBtn.setAttribute('contenteditable', 'false');
+      editBtn.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const currentHTML = node.getAttribute('data-html') || '';
+        window.showHTMLEditor(currentHTML);
+        const newHTML = currentHTML;
+        if (newHTML !== null && newHTML !== currentHTML) {
+          node.setAttribute('data-html', newHTML);
+          contentWrapper.innerHTML = newHTML;
+        }
+      };
+      node.appendChild(editBtn);
+
       return node;
     }
-    static value(node) { return node.getAttribute('data-html'); }
+    static value(node) {
+      return node.getAttribute('data-html');
+    }
+    length() {
+      return 1;
+    }
   }
   Quill.register(HTMLBlot);
 
@@ -234,7 +263,7 @@ const defineQuillModules = async () => {
   class HTMLModule {
     constructor(q, opts) {
       this.quill = q; this.options = opts || {}; this.toolbar = q.getModule('toolbar');
-      if (this.toolbar) this.toolbar.addHandler('html', this.handleHTML.bind(this));
+      if (this.toolbar) this.toolbar.addHandler('html', this.handleHTMLPlus.bind(this));
       this.createHTMLEditor(); // Uses global refs htmlModalElement, etc.
     }
     createHTMLEditor() {
@@ -248,19 +277,23 @@ const defineQuillModules = async () => {
       buttonContainer.appendChild(saveButton); buttonContainer.appendChild(cancelButton); buttonContainer.appendChild(noteText);
       modalContent.appendChild(htmlEditorTextareaElement); modalContent.appendChild(buttonContainer);
       htmlModalElement.appendChild(modalContent);
-      saveButton.addEventListener('click', () => this.saveHTML());
+      saveButton.addEventListener('click', () => this.saveHTMLPlus());
       cancelButton.addEventListener('click', () => this.hideHTMLEditor());
       htmlModalElement.addEventListener('click', (event) => { if (event.target === htmlModalElement) this.hideHTMLEditor(); });
       document.body.appendChild(htmlModalElement);
       htmlModalElement.style.display = 'none';
+      window.showHTMLEditor = this.showHTMLEditor;
     }
-    handleHTML() {
+    handleHTMLPlus() {
       const range = this.quill.getSelection(true);
-      currentEditingHTMLBlotRange.value = range;
-      let existingHTML = '';
-      // Simplified: always edit full content for now, or implement blot detection
-      existingHTML = this.quill.root.innerHTML;
-      this.showHTMLEditor(existingHTML);
+      const [blot, offset] = this.quill.scroll.descendant(HTMLBlot, range.index);
+      let currentHTML = '';
+      if (blot !== null) {
+        currentHTML = blot.domNode.getAttribute('data-html') || '';
+      }
+      // Prompt user for HTML input (can be replaced with nicer modal)
+      window.showHTMLEditor = this.showHTMLEditor;
+      this.showHTMLEditor(currentHTML);
     }
     showHTMLEditor(html) {
       htmlEditorTextareaElement.value = html;
@@ -268,13 +301,30 @@ const defineQuillModules = async () => {
       setTimeout(() => htmlEditorTextareaElement.focus(), 0);
     }
     hideHTMLEditor() { htmlModalElement.style.display = 'none'; }
-    saveHTML() {
-      const html = htmlEditorTextareaElement.value;
-      if (html) {
-        const length = this.quill.getLength();
-        this.quill.deleteText(0, length, Quill.sources.USER);
-        this.quill.insertEmbed(0, 'html', html, Quill.sources.USER);
-        this.quill.setSelection(this.quill.getLength(), 0, Quill.sources.USER);
+    saveHTMLPlus() {
+      const range = this.quill.getSelection(true);
+      const [blot, offset] = this.quill.scroll.descendant(HTMLBlot, range.index);
+
+      const userHTML = htmlEditorTextareaElement.value
+
+      if (userHTML === null || userHTML === '') return; // canceled
+      if (blot !== null) {
+        // Update existing blot
+        blot.domNode.setAttribute('data-html', userHTML);
+        const contentWrapper = blot.domNode.querySelector('div');
+        if (contentWrapper) {
+          contentWrapper.innerHTML = userHTML;
+        }
+      } else {
+        // Insert new blot
+        const insertIndex = range.index;
+        this.quill.insertEmbed(insertIndex, 'html', userHTML, Quill.sources.USER);
+
+        // Ensure there's a line break after the HTML block
+        const nextIndex = insertIndex;
+
+        // Position cursor after the HTML block
+        this.quill.setSelection(nextIndex + 2, 0, Quill.sources.SILENT);
       }
       this.hideHTMLEditor();
     }
@@ -359,6 +409,74 @@ const defineQuillModules = async () => {
     background-color: #03b1c7;
     color: white;
   }
+  .quill-editor .ql-custom-html .overlay {
+  position: absolute;
+  inset: 0;
+  background: transparent;
+  pointer-events: all; /* This blocks interactions */
+  z-index: 10;
+}
+  .quill-editor .ql-custom-html {
+      position: relative;
+      white-space: normal;
+      width: fit-content;
+      min-width: 250px;
+      min-height: 250px;
+    }
+    .quill-editor .ql-custom-html:hover {
+      border: 2px dashed #03b1c7;
+      padding: 15px;
+      margin: 10px 0;
+      background-color: #f8f9fa;
+    }
+    .quill-editor .ql-custom-html::before {
+      content: "Custom HTML Block";
+      position: absolute;
+      top: -10px;
+      left: 10px;
+      background: #03b1c7;
+      color: white;
+      padding: 2px 8px;
+      font-size: 12px;
+      border-radius: 3px;
+      font-weight: bold;
+      visibility: hidden;
+    }
+    .quill-editor .ql-custom-html:hover::before {
+      visibility: visible;
+    }
+    .quill-editor .html-edit-overlay {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: #03b1c7;
+      color: white;
+      border: none;
+      padding: 4px 8px;
+      cursor: pointer;
+      border-radius: 3px;
+      font-size: 11px;
+      font-weight: bold;
+      z-index: 10;
+      transition: background-color 0.2s;
+      visibility: hidden;
+    }
+    .quill-editor .ql-custom-html:hover .html-edit-overlay {
+      visibility: visible;
+    }
+    .quill-editor .ql-editor .ql-custom-html + * {
+      margin-top: 10px;
+    }
+    .quill-editor .ql-editor .ql-custom-html {
+      margin: 15px 0;
+    }
+    .quill-editor .ql-custom-html * {
+      max-width: 100%;
+    }
+    .quill-editor .ql-custom-html img {
+      max-width: 100%;
+      height: auto;
+    }
 `;
   document.head.appendChild(style);
 
@@ -400,7 +518,7 @@ const initEditorOptions = () => {
             [{ 'font': [] }],
             [{ 'size': fontsArray }],
             ['bold', 'italic', 'underline', 'strike'],
-            [{ 'color': ['#51AEC3', '#fce085', '#03B1C7', '#61035B', '#fff', '#868686', '#011321', '#000000', '#e60000', '#ff9900', '#ffff00', '#008a00', '#0066cc', '#9933ff', '#ffffff', '#facccc', '#ffebcc', '#ffffcc', '#cce8cc', '#cce0f5', '#ebd6ff', '#bbbbbb', '#f06666', '#ffc266', '#ffff66', '#66b966', '#66a3e0', '#c285ff', '#888888', '#a10000', '#b26b00', '#b2b200', '#006100', '#0047b2', '#6b24b2', '#444444', '#5c0000', '#663d00', '#666600', '#003700', '#002966', '#3d1466'] }, { 'background': ['#51AEC3', '#fce085', '#03B1C7', '#61035B', '#fff', '#868686', '#011321', '#000000', '#e60000', '#ff9900', '#ffff00', '#008a00', '#0066cc', '#9933ff', '#ffffff', '#facccc', '#ffebcc', '#ffffcc', '#cce8cc', '#cce0f5', '#ebd6ff', '#bbbbbb', '#f06666', '#ffc266', '#ffff66', '#66b966', '#66a3e0', '#c285ff', '#888888', '#a10000', '#b26b00', '#b2b200', '#006100', '#0047b2', '#6b24b2', '#444444', '#5c0000', '#663d00', '#666600', '#003700', '#002966', '#3d1466'] }],
+            [{ 'color': ['#51aec3', '#fce085', '#03b1c7', '#61035b', '#ffffff', '#868686', '#011321', '#000000', '#e60000', '#ff9900', '#ffff00', '#008a00', '#0066cc', '#9933ff', '#ffffff', '#facccc', '#ffebcc', '#ffffcc', '#cce8cc', '#cce0f5', '#ebd6ff', '#bbbbbb', '#f06666', '#ffc266', '#ffff66', '#66b966', '#66a3e0', '#c285ff', '#888888', '#a10000', '#b26b00', '#b2b200', '#006100', '#0047b2', '#6b24b2', '#444444', '#5c0000', '#663d00', '#666600', '#003700', '#002966', '#3d1466'] }, { 'background': ['#51aec3', '#fce085', '#03B1C7', '#61035B', '#ffffff', '#868686', '#011321', '#000000', '#e60000', '#ff9900', '#ffff00', '#008a00', '#0066cc', '#9933ff', '#ffffff', '#facccc', '#ffebcc', '#ffffcc', '#cce8cc', '#cce0f5', '#ebd6ff', '#bbbbbb', '#f06666', '#ffc266', '#ffff66', '#66b966', '#66a3e0', '#c285ff', '#888888', '#a10000', '#b26b00', '#b2b200', '#006100', '#0047b2', '#6b24b2', '#444444', '#5c0000', '#663d00', '#666600', '#003700', '#002966', '#3d1466'] }],
             ['link', 'image', 'video'],
             [{ 'align': [] }],
             [{ 'list': 'bullet' }, { 'list': 'ordered'}],
@@ -422,28 +540,7 @@ const initEditorOptions = () => {
         buttonToolbar: true,
         html: true,
         table: true,
-        tableUI: true,
-        keyboard: {
-          bindings: {
-            custom: {
-              key: 'Enter',
-              shiftKey: null,
-              handler: function(range, context) {
-                // Insert a newline
-                QuillEditorComponent.insertText(range.index, '\n', Quill.sources.USER);
-
-                // Move the cursor to the new line
-                QuillEditorComponent.setSelection(range.index + 1, 0, Quill.sources.SILENT);
-
-                // Remove all formatting at the current cursor position
-                QuillEditorComponent.removeFormat(range.index + 1, 1, Quill.sources.USER);
-
-                // Prevent default Enter behavior
-                return false;
-              }
-            }
-          }
-        }
+        tableUI: true
       }
     };
 
@@ -456,7 +553,7 @@ const initEditorOptions = () => {
 // Watch for changes to settings
 watch(settings, (newSettings) => {
   // Avoid emitting for initial empty state from Quill or if unchanged from prop
-  if (newSettings !== '<p><br></p>' && newSettings !== props.html) {
+  if (newSettings !== props.html) {
     emit('settingsUpdate', newSettings);
   }
 });
@@ -464,15 +561,17 @@ watch(settings, (newSettings) => {
 // Watch for changes to props.html
 watch(() => props.html, (newHtml) => {
   if (settings.value !== newHtml) {
-    settings.value = newHtml;
+    const htmlContent = appendEmptyParagraphIfOnlyRawHtmlContainer (newHtml)
+    settings.value = htmlContent;
     // If Quill instance is ready, update content directly if needed
     const quill = QuillEditorComponent;
-    if (quill && quill.root.innerHTML !== newHtml) {
-      if (newHtml === "<p><br></p>" && quill.getLength() <= 1) {
+    if (quill && quill.root.innerHTML !== htmlContent) {
+      if (htmlContent === "<p><br></p>" && quill.getLength() <= 1) {
         // Do nothing if newHTML is empty placeholder and quill is already empty
       } else {
         quill.setContents([]);
-        quill.clipboard.dangerouslyPasteHTML(0, newHtml);
+        const delta = quill.clipboard.convert({ html: htmlContent, text: '\n' });
+        quill.setContents(delta);
       }
     }
   }
@@ -516,7 +615,9 @@ watch(selectedMedia, (mediaObject) => {
 
   quill.setSelection(insertIndex + 1, 0, Quill.sources.SILENT);
   emit('wysiwygMedia', media);
-  sectionsMediaComponentRef.value?.closeModal();
+  try {
+    sectionsMediaComponentRef.value?.closeModal();
+  } catch {}
 });
 
 // Helper functions
@@ -785,8 +886,48 @@ const onQuillEditorReady = async (quillInstance) => {
     if (props.html === "<p><br></p>" && quill.getLength() <= 1) {
       // Do nothing if both are empty
     } else {
-      quill.clipboard.dangerouslyPasteHTML(0, props.html);
+      const htmlContent = appendEmptyParagraphIfOnlyRawHtmlContainer (props.html)
+      const delta = quill.clipboard.convert({ html: htmlContent, text: '\n' });
+      quill.setContents(delta);
+      // quill.clipboard.dangerouslyPasteHTML(0, htmlContent);
     }
+  }
+};
+
+const appendEmptyParagraphIfOnlyRawHtmlContainer  = (htmlContent) => {
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlContent, 'text/html');
+    const bodyChildren = Array.from(doc.body.children);
+
+    const isQLOne = (el) =>
+        el.tagName === 'DIV' && el.classList.contains('ql-custom-html');
+
+    const len = bodyChildren.length;
+
+    if (
+        len === 1 &&
+        isQLOne(bodyChildren[0])
+    ) {
+      // Only element
+      htmlContent += '<p>&nbsp;</p>';
+    } else if (
+        len >= 1 &&
+        isQLOne(bodyChildren[len - 1])
+    ) {
+      // Last element
+      htmlContent += '<p>&nbsp;</p>';
+    } else if (
+        len >= 2 &&
+        isQLOne(bodyChildren[len - 2])
+    ) {
+      // Second-to-last element
+      htmlContent += '<p>&nbsp;</p>';
+    }
+
+    return htmlContent;
+  } catch {
+    return htmlContent;
   }
 };
 
@@ -836,7 +977,7 @@ onMounted(async () => {
   position: sticky;
   top: 0;
   background: white;
-  z-index: 10;
+  z-index: 11;
 }
 main.sections-main .input.wyzywig-wrapper {
   margin: 0 128px;
