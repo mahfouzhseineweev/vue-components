@@ -647,3 +647,436 @@ describe('QuillEditor Component', () => {
 
     })
 })
+
+// Mock Quill - you'll need to adjust this based on your actual Quill setup
+const mockQuill = {
+    import: vi.fn(),
+    register: vi.fn(),
+    sources: { USER: 'user', SILENT: 'silent' }
+}
+
+// Mock your HTML module and blot classes here
+// This is a simplified version - adjust based on your actual implementation
+global.Quill = mockQuill
+
+describe('Quill HTML Module Multi-Instance Tests', () => {
+    let wrapper1, wrapper2
+    let quillInstance1, quillInstance2
+    let htmlModule1, htmlModule2
+
+    beforeEach(async () => {
+        // Create mock DOM elements for Quill containers
+        const container1 = document.createElement('div')
+        const container2 = document.createElement('div')
+        container1.className = 'ql-container'
+        container2.className = 'ql-container'
+        document.body.appendChild(container1)
+        document.body.appendChild(container2)
+
+        // Mock Quill instances
+        quillInstance1 = {
+            container: container1,
+            getSelection: vi.fn(() => ({ index: 0 })),
+            getModule: vi.fn(() => ({ addHandler: vi.fn() })),
+            insertEmbed: vi.fn(),
+            setSelection: vi.fn(),
+            scroll: {
+                descendant: vi.fn(() => [null, 0])
+            }
+        }
+
+        quillInstance2 = {
+            container: container2,
+            getSelection: vi.fn(() => ({ index: 0 })),
+            getModule: vi.fn(() => ({ addHandler: vi.fn() })),
+            insertEmbed: vi.fn(),
+            setSelection: vi.fn(),
+            scroll: {
+                descendant: vi.fn(() => [null, 0])
+            }
+        }
+
+        // Import your HTMLModule class here
+        const HTMLModule = class HTMLModule {
+            constructor(quill, opts) {
+                this.quill = quill;
+                this.options = opts || {};
+                this.toolbar = quill.getModule('toolbar');
+                this.currentEditingNode = null; // Track which node is being edited
+
+                // Store reference to this module instance on the quill container
+                const container = this.quill.container;
+                container.__quill_html_module = this;
+
+                if (this.toolbar) {
+                    this.toolbar.addHandler('html', this.handleHTMLPlus.bind(this));
+                }
+
+                this.createHTMLEditor();
+            }
+
+            createHTMLEditor() {
+                // Create instance-specific modal elements
+                this.htmlModalElement = document.createElement('div');
+                this.htmlModalElement.className = 'ql-html-editor-modal';
+
+                const modalContent = document.createElement('div');
+                modalContent.className = 'ql-html-editor-content';
+
+                this.htmlEditorTextareaElement = document.createElement('textarea');
+                this.htmlEditorTextareaElement.className = 'ql-html-editor-textarea';
+
+                const buttonContainer = document.createElement('div');
+                buttonContainer.className = 'ql-html-editor-buttons';
+
+                const saveButton = document.createElement('button');
+                saveButton.textContent = 'Save';
+                saveButton.className = 'ql-html-editor-save';
+
+                const cancelButton = document.createElement('button');
+                cancelButton.textContent = 'Cancel';
+                cancelButton.className = 'ql-html-editor-cancel';
+
+                const noteText = document.createElement('div');
+                noteText.textContent = 'Use with cautions, when adding a new html content, make sure to wrap it with a <p></p> tag';
+                noteText.className = 'ql-html-editor-noteText';
+
+                buttonContainer.appendChild(saveButton);
+                buttonContainer.appendChild(cancelButton);
+                buttonContainer.appendChild(noteText);
+
+                modalContent.appendChild(this.htmlEditorTextareaElement);
+                modalContent.appendChild(buttonContainer);
+                this.htmlModalElement.appendChild(modalContent);
+
+                // Bind event handlers to this instance
+                saveButton.addEventListener('click', () => this.saveHTMLPlus());
+                cancelButton.addEventListener('click', () => this.hideHTMLEditor());
+
+                this.htmlModalElement.addEventListener('click', (event) => {
+                    if (event.target === this.htmlModalElement) {
+                        this.hideHTMLEditor();
+                    }
+                });
+
+                document.body.appendChild(this.htmlModalElement);
+                this.htmlModalElement.style.display = 'none';
+            }
+
+            handleHTMLPlus() {
+                const range = this.quill.getSelection(true);
+                const [blot, offset] = this.quill.scroll.descendant(HTMLBlot, range.index);
+
+                let currentHTML = '';
+                if (blot !== null) {
+                    currentHTML = blot.domNode.getAttribute('data-html') || '';
+                    this.currentEditingNode = blot.domNode;
+                } else {
+                    this.currentEditingNode = null;
+                }
+
+                this.showHTMLEditor(currentHTML);
+            }
+
+            showHTMLEditor(html, editingNode = null) {
+                this.htmlEditorTextareaElement.value = html;
+                this.htmlModalElement.style.display = 'flex';
+
+                // Set the current editing node if provided (from edit button click)
+                if (editingNode) {
+                    this.currentEditingNode = editingNode;
+                }
+
+                setTimeout(() => this.htmlEditorTextareaElement.focus(), 0);
+            }
+
+            hideHTMLEditor() {
+                this.htmlModalElement.style.display = 'none';
+                this.currentEditingNode = null;
+            }
+
+            saveHTMLPlus() {
+                const userHTML = this.htmlEditorTextareaElement.value;
+
+                if (userHTML === null || userHTML === '') {
+                    this.hideHTMLEditor();
+                    return;
+                }
+
+                if (this.currentEditingNode) {
+                    // Update existing blot
+                    this.currentEditingNode.setAttribute('data-html', userHTML);
+                    const contentWrapper = this.currentEditingNode.querySelector('div');
+                    if (contentWrapper) {
+                        contentWrapper.innerHTML = userHTML;
+                    }
+                } else {
+                    // Insert new blot
+                    const range = this.quill.getSelection(true);
+                    const insertIndex = range.index;
+                    this.quill.insertEmbed(insertIndex, 'html', userHTML, Quill.sources.USER);
+
+                    // Position cursor after the HTML block
+                    this.quill.setSelection(insertIndex + 2, 0, Quill.sources.SILENT);
+                }
+
+                this.hideHTMLEditor();
+            }
+
+            // Cleanup method to remove modal when module is destroyed
+            destroy() {
+                if (this.htmlModalElement && this.htmlModalElement.parentNode) {
+                    this.htmlModalElement.parentNode.removeChild(this.htmlModalElement);
+                }
+
+                // Remove reference from container
+                const container = this.quill.container;
+                if (container.__quill_html_module === this) {
+                    delete container.__quill_html_module;
+                }
+            }
+        }
+
+        // Create instances
+        htmlModule1 = new HTMLModule(quillInstance1, {})
+        htmlModule2 = new HTMLModule(quillInstance2, {})
+    })
+
+    afterEach(() => {
+        // Cleanup
+        if (htmlModule1) htmlModule1.destroy()
+        if (htmlModule2) htmlModule2.destroy()
+
+        // Remove DOM elements
+        const containers = document.querySelectorAll('.ql-container')
+        containers.forEach(container => container.remove())
+
+        // Clear all modals
+        const modals = document.querySelectorAll('.ql-html-editor-modal')
+        modals.forEach(modal => modal.remove())
+    })
+
+    it('should create separate modal instances for each Quill editor', () => {
+        const modals = document.querySelectorAll('.ql-html-editor-modal')
+        expect(modals).toHaveLength(2)
+
+        // Each module should have its own modal element
+        expect(htmlModule1.htmlModalElement).toBeDefined()
+        expect(htmlModule2.htmlModalElement).toBeDefined()
+        expect(htmlModule1.htmlModalElement).not.toBe(htmlModule2.htmlModalElement)
+    })
+
+    it('should store module references on their respective containers', () => {
+        expect(quillInstance1.container.__quill_html_module).toBe(htmlModule1)
+        expect(quillInstance2.container.__quill_html_module).toBe(htmlModule2)
+        expect(quillInstance1.container.__quill_html_module).not.toBe(quillInstance2.container.__quill_html_module)
+    })
+
+    it('should show correct modal when showHTMLEditor is called on different instances', async () => {
+        const testHTML1 = '<p>Test HTML 1</p>'
+        const testHTML2 = '<p>Test HTML 2</p>'
+
+        // Show editor for first instance
+        htmlModule1.showHTMLEditor(testHTML1)
+        await nextTick()
+
+        expect(htmlModule1.htmlModalElement.style.display).toBe('flex')
+        expect(htmlModule1.htmlEditorTextareaElement.value).toBe(testHTML1)
+        expect(htmlModule2.htmlModalElement.style.display).toBe('none')
+
+        // Hide first modal
+        htmlModule1.hideHTMLEditor()
+        await nextTick()
+
+        // Show editor for second instance
+        htmlModule2.showHTMLEditor(testHTML2)
+        await nextTick()
+
+        expect(htmlModule1.htmlModalElement.style.display).toBe('none')
+        expect(htmlModule2.htmlModalElement.style.display).toBe('flex')
+        expect(htmlModule2.htmlEditorTextareaElement.value).toBe(testHTML2)
+    })
+
+    it('should handle HTML editing independently for each instance', async () => {
+        const testHTML1 = '<p>Instance 1 HTML</p>'
+        const testHTML2 = '<p>Instance 2 HTML</p>'
+
+        // Mock HTML nodes
+        const mockNode1 = document.createElement('div')
+        mockNode1.setAttribute('data-html', testHTML1)
+        const contentWrapper1 = document.createElement('div')
+        contentWrapper1.innerHTML = testHTML1
+        mockNode1.appendChild(contentWrapper1)
+
+        const mockNode2 = document.createElement('div')
+        mockNode2.setAttribute('data-html', testHTML2)
+        const contentWrapper2 = document.createElement('div')
+        contentWrapper2.innerHTML = testHTML2
+        mockNode2.appendChild(contentWrapper2)
+
+        // Test editing on first instance
+        htmlModule1.showHTMLEditor(testHTML1, mockNode1)
+        htmlModule1.htmlEditorTextareaElement.value = '<p>Updated Instance 1</p>'
+        htmlModule1.saveHTMLPlus()
+
+        await nextTick()
+
+        expect(mockNode1.getAttribute('data-html')).toBe('<p>Updated Instance 1</p>')
+        expect(mockNode2.getAttribute('data-html')).toBe(testHTML2) // Should remain unchanged
+
+        // Test editing on second instance
+        htmlModule2.showHTMLEditor(testHTML2, mockNode2)
+        htmlModule2.htmlEditorTextareaElement.value = '<p>Updated Instance 2</p>'
+        htmlModule2.saveHTMLPlus()
+
+        await nextTick()
+
+        expect(mockNode2.getAttribute('data-html')).toBe('<p>Updated Instance 2</p>')
+        expect(mockNode1.getAttribute('data-html')).toBe('<p>Updated Instance 1</p>') // Should remain unchanged
+    })
+
+    it('should track currentEditingNode independently for each instance', () => {
+        const mockNode1 = document.createElement('div')
+        const mockNode2 = document.createElement('div')
+
+        // Set different editing nodes
+        htmlModule1.currentEditingNode = mockNode1
+        htmlModule2.currentEditingNode = mockNode2
+
+        expect(htmlModule1.currentEditingNode).toBe(mockNode1)
+        expect(htmlModule2.currentEditingNode).toBe(mockNode2)
+        expect(htmlModule1.currentEditingNode).not.toBe(htmlModule2.currentEditingNode)
+    })
+
+    it('should insert new HTML blocks in the correct Quill instance', async () => {
+        const testHTML = '<p>New HTML Block</p>'
+        const range1 = { index: 5 }
+        const range2 = { index: 10 }
+
+        // Mock selections for different instances
+        quillInstance1.getSelection.mockReturnValue(range1)
+        quillInstance2.getSelection.mockReturnValue(range2)
+
+        // Insert HTML in first instance
+        htmlModule1.currentEditingNode = null // Ensure it's treated as new insertion
+        htmlModule1.htmlEditorTextareaElement.value = testHTML
+        htmlModule1.saveHTMLPlus()
+
+        expect(quillInstance1.insertEmbed).toHaveBeenCalledWith(
+            range1.index,
+            'html',
+            testHTML,
+            mockQuill.sources.USER
+        )
+        expect(quillInstance2.insertEmbed).not.toHaveBeenCalled()
+
+        // Reset mocks
+        vi.clearAllMocks()
+
+        // Insert HTML in second instance
+        htmlModule2.currentEditingNode = null
+        htmlModule2.htmlEditorTextareaElement.value = testHTML
+        htmlModule2.saveHTMLPlus()
+
+        expect(quillInstance2.insertEmbed).toHaveBeenCalledWith(
+            range2.index,
+            'html',
+            testHTML,
+            mockQuill.sources.USER
+        )
+        expect(quillInstance1.insertEmbed).not.toHaveBeenCalled()
+    })
+
+    it('should properly cleanup when destroy is called', () => {
+        const modal1 = htmlModule1.htmlModalElement
+        const modal2 = htmlModule2.htmlModalElement
+        const container1 = quillInstance1.container
+        const container2 = quillInstance2.container
+
+        // Verify modals are in DOM
+        expect(document.body.contains(modal1)).toBe(true)
+        expect(document.body.contains(modal2)).toBe(true)
+
+        // Destroy first module
+        htmlModule1.destroy()
+
+        // First modal should be removed, second should remain
+        expect(document.body.contains(modal1)).toBe(false)
+        expect(document.body.contains(modal2)).toBe(true)
+
+        // Container reference should be removed
+        expect(container1.__quill_html_module).toBeUndefined()
+        expect(container2.__quill_html_module).toBe(htmlModule2)
+
+        // Destroy second module
+        htmlModule2.destroy()
+
+        // Both modals should be removed
+        expect(document.body.contains(modal2)).toBe(false)
+        expect(container2.__quill_html_module).toBeUndefined()
+    })
+
+    it('should handle edit button clicks correctly for different instances', async () => {
+        // Create mock HTML blots with edit buttons
+        const createMockHTMLBlot = (htmlContent, container) => {
+            const node = document.createElement('div')
+            node.className = 'ql-custom-html'
+            node.setAttribute('data-html', htmlContent)
+
+            const contentWrapper = document.createElement('div')
+            contentWrapper.innerHTML = htmlContent
+            node.appendChild(contentWrapper)
+
+            const editBtn = document.createElement('span')
+            editBtn.className = 'html-edit-overlay'
+
+            // Simulate the click handler logic
+            editBtn.onclick = (e) => {
+                e.preventDefault()
+                e.stopPropagation()
+
+                const quillContainer = container
+                if (quillContainer && quillContainer.__quill_html_module) {
+                    const htmlModule = quillContainer.__quill_html_module
+                    const currentHTML = node.getAttribute('data-html') || ''
+                    htmlModule.showHTMLEditor(currentHTML, node)
+                }
+            }
+
+            node.appendChild(editBtn)
+            container.appendChild(node)
+
+            return { node, editBtn }
+        }
+
+        const { node: node1, editBtn: editBtn1 } = createMockHTMLBlot(
+            '<p>HTML Block 1</p>',
+            quillInstance1.container
+        )
+        const { node: node2, editBtn: editBtn2 } = createMockHTMLBlot(
+            '<p>HTML Block 2</p>',
+            quillInstance2.container
+        )
+
+        // Click edit button on first instance
+        editBtn1.click()
+        await nextTick()
+
+        expect(htmlModule1.htmlModalElement.style.display).toBe('flex')
+        expect(htmlModule1.htmlEditorTextareaElement.value).toBe('<p>HTML Block 1</p>')
+        expect(htmlModule1.currentEditingNode).toBe(node1)
+        expect(htmlModule2.htmlModalElement.style.display).toBe('none')
+
+        htmlModule1.hideHTMLEditor()
+        await nextTick()
+
+        // Click edit button on second instance
+        editBtn2.click()
+        await nextTick()
+
+        expect(htmlModule2.htmlModalElement.style.display).toBe('flex')
+        expect(htmlModule2.htmlEditorTextareaElement.value).toBe('<p>HTML Block 2</p>')
+        expect(htmlModule2.currentEditingNode).toBe(node2)
+        expect(htmlModule1.htmlModalElement.style.display).toBe('none')
+    })
+})
