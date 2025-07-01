@@ -74,6 +74,8 @@ const fontsArray = [
 let htmlModalElement = null;
 let htmlEditorTextareaElement = null;
 
+let showHTMLFunction = null;
+
 // Define Quill modules and custom blots
 const defineQuillModules = async () => {
   if (!Quill) {
@@ -213,13 +215,15 @@ const defineQuillModules = async () => {
   Quill.register('modules/buttonToolbar', ButtonToolbarModule);
 
   const BlockEmbed = Quill.import('blots/block/embed');
+
   class HTMLBlot extends BlockEmbed {
     static blotName = 'html';
     static tagName = 'div';
     static className = 'ql-custom-html';
+
     static create(value) {
       const node = super.create();
-      node.setAttribute('data-html', value); // store raw HTML for editing
+      node.setAttribute('data-html', value);
       node.setAttribute('contenteditable', 'false');
 
       // Create content wrapper
@@ -232,103 +236,182 @@ const defineQuillModules = async () => {
       node.appendChild(overlay);
       overlay.className = 'overlay';
       const editBtn = document.createElement('span');
-      editBtn.className = 'html-edit-overlay'
+      editBtn.className = 'html-edit-overlay';
       editBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 32 32" fill="white"><path d="M29.535 20.102c-0.44 0-0.797 0.357-0.797 0.797v7.076c-0.002 1.32-1.071 2.39-2.391 2.391h-22.362c-1.32-0.001-2.389-1.071-2.391-2.391v-20.768c0.002-1.32 1.071-2.389 2.391-2.391h7.076c0.44 0 0.797-0.357 0.797-0.797s-0.357-0.797-0.797-0.797h-7.076c-2.2 0.002-3.982 1.785-3.985 3.985v20.768c0.003 2.2 1.785 3.982 3.985 3.985h22.362c2.2-0.003 3.982-1.785 3.985-3.985v-7.076c0-0.44-0.357-0.797-0.797-0.797z"/><path d="M30.016 1.172c-1.401-1.401-3.671-1.401-5.072 0l-14.218 14.218c-0.097 0.097-0.168 0.218-0.205 0.351l-1.87 6.75c-0.077 0.277 0.001 0.573 0.204 0.776s0.5 0.281 0.776 0.205l6.75-1.87c0.133-0.037 0.253-0.107 0.351-0.205l14.218-14.219c1.398-1.402 1.398-3.67 0-5.072zM12.462 15.908l11.637-11.637 3.753 3.753-11.637 11.637zM11.713 17.412l2.998 2.999-4.147 1.149zM29.824 6.052l-0.845 0.845-3.753-3.753 0.846-0.845c0.778-0.778 2.039-0.778 2.817 0l0.936 0.935c0.777 0.779 0.777 2.039 0 2.818z"/></svg>';
       editBtn.setAttribute('contenteditable', 'false');
+
+      // Store reference to the HTMLBlot instance for later access
+      editBtn.setAttribute('data-blot-id', Math.random().toString(36).substr(2, 9));
+
       editBtn.onclick = (e) => {
         e.preventDefault();
         e.stopPropagation();
-        const currentHTML = node.getAttribute('data-html') || '';
-        window.showHTMLEditor(currentHTML);
-        const newHTML = currentHTML;
-        if (newHTML !== null && newHTML !== currentHTML) {
-          node.setAttribute('data-html', newHTML);
-          contentWrapper.innerHTML = newHTML;
+
+        // Find the HTMLModule instance associated with this blot
+        const quillContainer = node.closest('.ql-container');
+        if (quillContainer && quillContainer.__quill_html_module) {
+          const htmlModule = quillContainer.__quill_html_module;
+          const currentHTML = node.getAttribute('data-html') || '';
+          htmlModule.showHTMLEditor(currentHTML, node);
         }
       };
-      node.appendChild(editBtn);
 
+      node.appendChild(editBtn);
       return node;
     }
+
     static value(node) {
       return node.getAttribute('data-html');
     }
+
     length() {
       return 1;
     }
   }
+
   Quill.register(HTMLBlot);
 
-  // Register HTML module
+// Register HTML module
   class HTMLModule {
-    constructor(q, opts) {
-      this.quill = q; this.options = opts || {}; this.toolbar = q.getModule('toolbar');
-      if (this.toolbar) this.toolbar.addHandler('html', this.handleHTMLPlus.bind(this));
-      this.createHTMLEditor(); // Uses global refs htmlModalElement, etc.
+    constructor(quill, opts) {
+      this.quill = quill;
+      this.options = opts || {};
+      this.toolbar = quill.getModule('toolbar');
+      this.currentEditingNode = null; // Track which node is being edited
+
+      // Store reference to this module instance on the quill container
+      const container = this.quill.container;
+      container.__quill_html_module = this;
+
+      if (this.toolbar) {
+        this.toolbar.addHandler('html', this.handleHTMLPlus.bind(this));
+      }
+
+      this.createHTMLEditor();
     }
+
     createHTMLEditor() {
-      htmlModalElement = document.createElement('div'); htmlModalElement.className = 'ql-html-editor-modal';
-      const modalContent = document.createElement('div'); modalContent.className = 'ql-html-editor-content';
-      htmlEditorTextareaElement = document.createElement('textarea'); htmlEditorTextareaElement.className = 'ql-html-editor-textarea';
-      const buttonContainer = document.createElement('div'); buttonContainer.className = 'ql-html-editor-buttons';
-      const saveButton = document.createElement('button'); saveButton.textContent = 'Save'; saveButton.className = 'ql-html-editor-save';
-      const cancelButton = document.createElement('button'); cancelButton.textContent = 'Cancel'; cancelButton.className = 'ql-html-editor-cancel';
-      const noteText = document.createElement('div'); noteText.textContent = 'Use with cautions, when adding a new html content, make sure to wrap it with a <p></p> tag'; noteText.className = 'ql-html-editor-noteText';
-      buttonContainer.appendChild(saveButton); buttonContainer.appendChild(cancelButton); buttonContainer.appendChild(noteText);
-      modalContent.appendChild(htmlEditorTextareaElement); modalContent.appendChild(buttonContainer);
-      htmlModalElement.appendChild(modalContent);
+      // Create instance-specific modal elements
+      this.htmlModalElement = document.createElement('div');
+      this.htmlModalElement.className = 'ql-html-editor-modal';
+
+      const modalContent = document.createElement('div');
+      modalContent.className = 'ql-html-editor-content';
+
+      this.htmlEditorTextareaElement = document.createElement('textarea');
+      this.htmlEditorTextareaElement.className = 'ql-html-editor-textarea';
+
+      const buttonContainer = document.createElement('div');
+      buttonContainer.className = 'ql-html-editor-buttons';
+
+      const saveButton = document.createElement('button');
+      saveButton.textContent = 'Save';
+      saveButton.className = 'ql-html-editor-save';
+
+      const cancelButton = document.createElement('button');
+      cancelButton.textContent = 'Cancel';
+      cancelButton.className = 'ql-html-editor-cancel';
+
+      const noteText = document.createElement('div');
+      noteText.textContent = 'Use with cautions, when adding a new html content, make sure to wrap it with a <p></p> tag';
+      noteText.className = 'ql-html-editor-noteText';
+
+      buttonContainer.appendChild(saveButton);
+      buttonContainer.appendChild(cancelButton);
+      buttonContainer.appendChild(noteText);
+
+      modalContent.appendChild(this.htmlEditorTextareaElement);
+      modalContent.appendChild(buttonContainer);
+      this.htmlModalElement.appendChild(modalContent);
+
+      // Bind event handlers to this instance
       saveButton.addEventListener('click', () => this.saveHTMLPlus());
       cancelButton.addEventListener('click', () => this.hideHTMLEditor());
-      htmlModalElement.addEventListener('click', (event) => { if (event.target === htmlModalElement) this.hideHTMLEditor(); });
-      document.body.appendChild(htmlModalElement);
-      htmlModalElement.style.display = 'none';
-      window.showHTMLEditor = this.showHTMLEditor;
+
+      this.htmlModalElement.addEventListener('click', (event) => {
+        if (event.target === this.htmlModalElement) {
+          this.hideHTMLEditor();
+        }
+      });
+
+      document.body.appendChild(this.htmlModalElement);
+      this.htmlModalElement.style.display = 'none';
     }
+
     handleHTMLPlus() {
       const range = this.quill.getSelection(true);
       const [blot, offset] = this.quill.scroll.descendant(HTMLBlot, range.index);
+
       let currentHTML = '';
       if (blot !== null) {
         currentHTML = blot.domNode.getAttribute('data-html') || '';
+        this.currentEditingNode = blot.domNode;
+      } else {
+        this.currentEditingNode = null;
       }
-      // Prompt user for HTML input (can be replaced with nicer modal)
-      window.showHTMLEditor = this.showHTMLEditor;
+
       this.showHTMLEditor(currentHTML);
     }
-    showHTMLEditor(html) {
-      htmlEditorTextareaElement.value = html;
-      htmlModalElement.style.display = 'flex';
-      setTimeout(() => htmlEditorTextareaElement.focus(), 0);
+
+    showHTMLEditor(html, editingNode = null) {
+      this.htmlEditorTextareaElement.value = html;
+      this.htmlModalElement.style.display = 'flex';
+
+      // Set the current editing node if provided (from edit button click)
+      if (editingNode) {
+        this.currentEditingNode = editingNode;
+      }
+
+      setTimeout(() => this.htmlEditorTextareaElement.focus(), 0);
     }
-    hideHTMLEditor() { htmlModalElement.style.display = 'none'; }
+
+    hideHTMLEditor() {
+      this.htmlModalElement.style.display = 'none';
+      this.currentEditingNode = null;
+    }
+
     saveHTMLPlus() {
-      const range = this.quill.getSelection(true);
-      const [blot, offset] = this.quill.scroll.descendant(HTMLBlot, range.index);
+      const userHTML = this.htmlEditorTextareaElement.value;
 
-      const userHTML = htmlEditorTextareaElement.value
+      if (userHTML === null || userHTML === '') {
+        this.hideHTMLEditor();
+        return;
+      }
 
-      if (userHTML === null || userHTML === '') return; // canceled
-      if (blot !== null) {
+      if (this.currentEditingNode) {
         // Update existing blot
-        blot.domNode.setAttribute('data-html', userHTML);
-        const contentWrapper = blot.domNode.querySelector('div');
+        this.currentEditingNode.setAttribute('data-html', userHTML);
+        const contentWrapper = this.currentEditingNode.querySelector('div');
         if (contentWrapper) {
           contentWrapper.innerHTML = userHTML;
         }
       } else {
         // Insert new blot
+        const range = this.quill.getSelection(true);
         const insertIndex = range.index;
         this.quill.insertEmbed(insertIndex, 'html', userHTML, Quill.sources.USER);
 
-        // Ensure there's a line break after the HTML block
-        const nextIndex = insertIndex;
-
         // Position cursor after the HTML block
-        this.quill.setSelection(nextIndex + 2, 0, Quill.sources.SILENT);
+        this.quill.setSelection(insertIndex + 2, 0, Quill.sources.SILENT);
       }
+
       this.hideHTMLEditor();
     }
+
+    // Cleanup method to remove modal when module is destroyed
+    destroy() {
+      if (this.htmlModalElement && this.htmlModalElement.parentNode) {
+        this.htmlModalElement.parentNode.removeChild(this.htmlModalElement);
+      }
+
+      // Remove reference from container
+      const container = this.quill.container;
+      if (container.__quill_html_module === this) {
+        delete container.__quill_html_module;
+      }
+    }
   }
+
   Quill.register('modules/html', HTMLModule);
   const style = document.createElement('style');
   style.innerHTML = `
