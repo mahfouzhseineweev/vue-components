@@ -29,6 +29,7 @@
         :folder-type="folderType"
         @updateMediaComponent="onMediaComponentUpdate"
         @onMediaSelected="(media) => $emit('getSelectedMedia', media)"
+        @responseReceived="(method, url, payload) => $emit('responseReceived', method, url, payload)"
     />
   </div>
 </template>
@@ -131,7 +132,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['mediaComponentUpdated', 'getSelectedMedia'])
+const emit = defineEmits(['mediaComponentUpdated', 'getSelectedMedia', 'responseReceived'])
 
 // Reactive state
 const componentKey = ref(0)

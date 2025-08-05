@@ -47,7 +47,7 @@
 </template>
 
 <script setup>
-import { useI18n, ref, useRoute, navigateTo, useLocalePath, watch } from '#imports'
+import { useI18n, ref, useRoute, navigateTo, useLocalePath, watch, useCookie } from '#imports'
 
 import { acceptedFileTypes, mediaHeader, showToast } from './medias'
 
@@ -100,7 +100,9 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['updateMediaComponent'])
+const offlineMode = useCookie('offline-mode').value?.toString() === 'true'
+
+const emit = defineEmits(['updateMediaComponent', 'responseReceived'])
 
 // Reactive state
 const loading = ref(false)
@@ -171,6 +173,10 @@ async function onFileSelected(e) {
         throw error
       }
     })
+
+    if (offlineMode) {
+      emit('responseReceived', 'POST', mediaByIdUri.value, data)
+    }
 
     // Direct handling of successful response
     if (props.nuxtSections) {

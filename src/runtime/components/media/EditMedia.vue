@@ -292,7 +292,18 @@
 </template>
 
 <script setup>
-import { useFetch, useI18n, ref, computed, useRoute, navigateTo, useLocalePath, onMounted ,watch } from '#imports'
+import {
+  useFetch,
+  useI18n,
+  ref,
+  computed,
+  useRoute,
+  navigateTo,
+  useLocalePath,
+  onMounted,
+  watch,
+  useCookie
+} from '#imports'
 
 import { acceptedFileTypes, mediaHeader, showToast } from './medias.js'
 
@@ -372,6 +383,8 @@ const props = defineProps({
     default: ''
   }
 })
+
+const offlineMode = useCookie('offline-mode').value?.toString() === 'true'
 
 // Reactive state
 const loading = ref(false)
@@ -621,10 +634,16 @@ async function updateMediaByID() {
       body: data
     })
 
-    if (response.error.value) throw new Error(response.error.value.message)
+    if (offlineMode) {
+      emit('responseReceived', 'PUT', mediaByIdUri.value + mediaId.value, data)
+    }
+
+    if (response.error && response.error.value) throw new Error(response.error.value.message)
 
     if (props.nuxtSections) {
-      await getMediaByID()
+      if (!offlineMode) {
+        await getMediaByID()
+      }
       if (isEditingMedia.value) emit('onMediaSelected', media.value)
       showToast('', 'success', t(props.mediaTranslationPrefix + 'mediaUpdated'))
     }
@@ -656,6 +675,10 @@ async function deleteMediaByID() {
       method: 'DELETE',
       headers: mediaHeader({ token: token.value }, projectId.value)
     })
+
+    if (offlineMode) {
+      emit('responseReceived', 'DELETE', mediaByIdUri.value, mediaId.value)
+    }
 
     if (response.error.value) throw new Error(response.error.value.message)
 
@@ -734,7 +757,7 @@ function handleFileName(fileName) {
   return fileName
 }
 
-const emit = defineEmits(['updateMediaComponent', 'onMediaSelected'])
+const emit = defineEmits(['updateMediaComponent', 'onMediaSelected', 'responseReceived'])
 
 </script>
 
