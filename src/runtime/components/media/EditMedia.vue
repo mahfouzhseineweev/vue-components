@@ -239,7 +239,7 @@
       "
       class="sticky bottom-0 py-2 m-4 rounded-md shadow bg-white"
     >
-      <div class="flex w-full items-center justify-end">
+      <div class="flex w-full items-center justify-end btns-row">
         <div
           v-if="privateStatus !== 'private' || (privateStatus === 'private' && media.author === sectionsUserId)"
           class="cursor-pointer flex items-center"
@@ -767,5 +767,10 @@ const emit = defineEmits(['updateMediaComponent', 'onMediaSelected', 'responseRe
 }
 .bg-mediaLocked {
   background-color: #ffe5dd;
+}
+@media screen and (max-width: 768px) {
+  .btns-row {
+    flex-wrap: wrap;
+  }
 }
 </style>

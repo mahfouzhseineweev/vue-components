@@ -7,6 +7,7 @@
 ---
 
 - Offline Mode management
+- Mobile friendly adjustment #226
 
 ### v3.0.3 (27/06/2025)
 
