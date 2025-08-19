@@ -27,9 +27,9 @@
         :media-id-editing="mediaIdEditing"
         :applied-filters="appliedFilters"
         :folder-type="folderType"
+        :response-received="responseReceived"
         @updateMediaComponent="onMediaComponentUpdate"
         @onMediaSelected="(media) => $emit('getSelectedMedia', media)"
-        @responseReceived="(method, url, payload) => $emit('responseReceived', method, url, payload)"
     />
   </div>
 </template>
@@ -129,10 +129,14 @@ const props = defineProps({
   contentUsedKey: {
     type: String,
     default: ''
+  },
+  responseReceived: {
+    type: Function,
+    required: true
   }
 })
 
-const emit = defineEmits(['mediaComponentUpdated', 'getSelectedMedia', 'responseReceived'])
+const emit = defineEmits(['mediaComponentUpdated', 'getSelectedMedia'])
 
 // Reactive state
 const componentKey = ref(0)

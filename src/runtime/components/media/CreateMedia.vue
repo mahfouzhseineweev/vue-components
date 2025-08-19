@@ -97,12 +97,16 @@ const props = defineProps({
   mediaCategory: {
     type: String,
     default: ''
+  },
+  responseReceived: {
+    type: Function,
+    required: true
   }
 })
 
 const offlineMode = useCookie('offline-mode').value?.toString() === 'true'
 
-const emit = defineEmits(['updateMediaComponent', 'responseReceived'])
+const emit = defineEmits(['updateMediaComponent'])
 
 // Reactive state
 const loading = ref(false)
@@ -175,7 +179,7 @@ async function onFileSelected(e) {
     })
 
     if (offlineMode) {
-      emit('responseReceived', 'POST', mediaByIdUri.value, data)
+      await props.responseReceived('POST', mediaByIdUri.value, data)
     }
 
     // Direct handling of successful response

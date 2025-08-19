@@ -381,6 +381,10 @@ const props = defineProps({
   mediaIdEditing: {
     type: String,
     default: ''
+  },
+  responseReceived: {
+    type: Function,
+    required: true
   }
 })
 
@@ -635,7 +639,7 @@ async function updateMediaByID() {
     })
 
     if (offlineMode) {
-      emit('responseReceived', 'PUT', mediaByIdUri.value + mediaId.value, data)
+      await props.responseReceived('PUT', mediaByIdUri.value + mediaId.value, data)
     }
 
     if (response.error && response.error.value) throw new Error(response.error.value.message)
@@ -677,7 +681,7 @@ async function deleteMediaByID() {
     })
 
     if (offlineMode) {
-      emit('responseReceived', 'DELETE', mediaByIdUri.value, mediaId.value)
+      await props.responseReceived('DELETE', mediaByIdUri.value, mediaId.value)
     }
 
     if (response.error.value) throw new Error(response.error.value.message)
@@ -757,7 +761,7 @@ function handleFileName(fileName) {
   return fileName
 }
 
-const emit = defineEmits(['updateMediaComponent', 'onMediaSelected', 'responseReceived'])
+const emit = defineEmits(['updateMediaComponent', 'onMediaSelected'])
 
 </script>
 
