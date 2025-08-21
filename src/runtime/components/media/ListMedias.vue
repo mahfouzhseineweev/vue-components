@@ -338,6 +338,10 @@ const props = defineProps({
       errorOccurred: false,
       withIcon: false,
     })
+  },
+  responseReceived: {
+    type: Function,
+    required: true
   }
 })
 
@@ -543,7 +547,7 @@ async function getAllMedias (folderMediaType, filtered) {
     loading.value = true
 
     // First API call to get all media counts
-    const { data: allMediaResponse } = await useFetch(mediaUri.value, {
+    let { data: allMediaResponse } = await useFetch(mediaUri.value, {
       method: 'POST',
       body: {
         sort: {
@@ -552,6 +556,18 @@ async function getAllMedias (folderMediaType, filtered) {
       },
       headers: mediaHeader({ token: token.value }, projectId.value)
     })
+
+    let responseReceivedData
+    try {
+      responseReceivedData = await props.responseReceived('POST', mediaUri.value, {
+        sort: {
+          inserted_at: payloadData.value.sort.inserted_at
+        }
+      }, allMediaResponse.value)
+    } catch {}
+    if (responseReceivedData) {
+      allMediaResponse.value = responseReceivedData
+    }
 
     if (allMediaResponse && allMediaResponse.value) {
       // Process the response to categorize media files
@@ -613,13 +629,25 @@ async function getAllMedias (folderMediaType, filtered) {
     }
 
     // Second API call with updated filters
-    const { data: filteredResponse } = await useFetch(mediaUri.value, {
+    let { data: filteredResponse } = await useFetch(mediaUri.value, {
       method: 'POST',
       body: payloadData.value,
       headers: mediaHeader({ token: token.value }, projectId.value)
     })
 
     if (mediaResponse && mediaResponse.value) {
+
+      let responseReceivedData
+      try {
+        responseReceivedData = await props.responseReceived('POST', mediaUri.value, {
+          ...payloadData.value,
+          filteredFetch: true
+        }, filteredResponse.value)
+      } catch {}
+      if (responseReceivedData) {
+        filteredResponse.value = responseReceivedData
+      }
+
       mediaResponse.value = filteredResponse.value.result
       totalMedias.value = filteredResponse.value.total
 

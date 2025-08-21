@@ -104,8 +104,6 @@ const props = defineProps({
   }
 })
 
-const offlineMode = useCookie('offline-mode').value?.toString() === 'true'
-
 const emit = defineEmits(['updateMediaComponent'])
 
 // Reactive state
@@ -173,9 +171,9 @@ async function onFileSelected(e) {
 
     if (response.error && response.error.value) throw new Error(response.error.value)
 
-    if (offlineMode) {
+    try {
       await props.responseReceived('POST', mediaByIdUri.value, data)
-    }
+    } catch {}
 
     // Direct handling of successful response
     if (props.nuxtSections) {

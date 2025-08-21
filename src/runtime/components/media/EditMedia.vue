@@ -388,8 +388,6 @@ const props = defineProps({
   }
 })
 
-const offlineMode = useCookie('offline-mode').value?.toString() === 'true'
-
 // Reactive state
 const loading = ref(false)
 const saveButtonStyle = "py-2.5 px-12 ml-12 mr-2 text-white rounded-xl bg-Blue hover:bg-white hover:text-Blue border border-Blue hover:border-Blue"
@@ -583,12 +581,20 @@ onMounted(() => {
 async function getMediaByID() {
   try {
     loading.value = true
-    const response = await useFetch(mediaByIdUri.value + mediaId.value, {
+    let response = await useFetch(mediaByIdUri.value + mediaId.value, {
       method: 'GET',
       headers: mediaHeader({ token: token.value }, projectId.value)
     })
 
     if (response.error.value) throw new Error(response.error.value.message)
+
+    let responseReceivedData
+    try {
+      responseReceivedData = await props.responseReceived('GET', mediaByIdUri.value + mediaId.value, {}, response.data.value)
+    } catch {}
+    if (responseReceivedData) {
+      response.data.value = responseReceivedData
+    }
 
     media.value = response.data.value
     if (media.value.title === 'null') media.value.title = ''
@@ -638,14 +644,15 @@ async function updateMediaByID() {
       body: data
     })
 
-    if (offlineMode) {
-      await props.responseReceived('PUT', mediaByIdUri.value + mediaId.value, data)
-    }
+    let responseReceivedData
+    try {
+      responseReceivedData = await props.responseReceived('PUT', mediaByIdUri.value + mediaId.value, data)
+    } catch {}
 
     if (response.error && response.error.value) throw new Error(response.error.value)
 
     if (props.nuxtSections) {
-      if (!offlineMode) {
+      if (!responseReceivedData) {
         await getMediaByID()
       }
       if (isEditingMedia.value) emit('onMediaSelected', media.value)
