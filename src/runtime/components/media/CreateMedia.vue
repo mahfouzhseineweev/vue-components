@@ -47,7 +47,7 @@
 </template>
 
 <script setup>
-import { useI18n, ref, useRoute, navigateTo, useLocalePath, watch, useCookie } from '#imports'
+import { useI18n, ref, useRoute, navigateTo, useLocalePath, watch, useCookie, useFetch } from '#imports'
 
 import { acceptedFileTypes, mediaHeader, showToast } from './medias'
 
@@ -165,18 +165,13 @@ async function onFileSelected(e) {
 
   try {
     // $fetch returns the response directly, not an object with .value properties
-    const response = await $fetch(mediaByIdUri.value, {
+    const response = await useFetch(mediaByIdUri.value, {
       method: 'POST',
       headers: mediaHeader({ token: token.value }, projectId.value),
-      body: data,
-      // Add error handling to $fetch
-      onRequestError({ request, error }) {
-        throw error
-      },
-      onResponseError({ response, error }) {
-        throw error
-      }
+      body: data
     })
+
+    if (response.error && response.error.value) throw new Error(response.error.value)
 
     if (offlineMode) {
       await props.responseReceived('POST', mediaByIdUri.value, data)
@@ -188,11 +183,11 @@ async function onFileSelected(e) {
     }
 
     if (props.editMediaPath) {
-      navigateTo(useLocalePath({ path: props.editMediaPath, query: { id: response.id, isCreate: true } }))
+      navigateTo(useLocalePath({ path: props.editMediaPath, query: { id: response.data.value.id, isCreate: true } }))
     } else {
       emit('updateMediaComponent', {
         name: 'MediaEditMedia',
-        mediaId: response.id,
+        mediaId: response.data.value.id,
         isCreateMedia: true,
         appliedFilters: props.appliedFilters,
         folderType: props.folderType
@@ -201,19 +196,19 @@ async function onFileSelected(e) {
   } catch (e) {
     let errorMessage = ''
     // Comprehensive error handling
-    if (e.request && !e.response) {
+    if ((e && e.request && !e.response) || (e && e.message && e.message.includes('<no response>'))) {
       // Network error or request couldn't be sent
       errorMessage = t('mediaTooLarge')
     } else if (e.response) {
       // Server responded with an error
-      if (e.response._data?.options?.link) {
-        const root = e.response._data.options.link.root || ''
-        const path = e.response._data.options.link.path || ''
-        errorMessage = `<a href='${root}${path}' target='_blank'>${e.response._data.error}, ${e.response._data.message}</a>`
-      } else if (e.response._data?.errors?.files) {
-        errorMessage = e.response._data.errors.files[0]
-      } else if (e.response._data?.message) {
-        errorMessage = e.response._data.message
+      if (e.response.data?.options?.link) {
+        const root = e.response.data.options.link.root || ''
+        const path = e.response.data.options.link.path || ''
+        errorMessage = `<a href='${root}${path}' target='_blank'>${e.response.data.error}, ${e.response.data.message}</a>`
+      } else if (e.response.data?.errors?.files) {
+        errorMessage = e.response.data.errors.files[0]
+      } else if (e.response.data?.message) {
+        errorMessage = e.response.data.message
       } else {
         errorMessage = e.message || 'An unknown error occurred'
       }

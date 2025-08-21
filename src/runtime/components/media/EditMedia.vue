@@ -642,7 +642,7 @@ async function updateMediaByID() {
       await props.responseReceived('PUT', mediaByIdUri.value + mediaId.value, data)
     }
 
-    if (response.error && response.error.value) throw new Error(response.error.value.message)
+    if (response.error && response.error.value) throw new Error(response.error.value)
 
     if (props.nuxtSections) {
       if (!offlineMode) {
@@ -653,7 +653,7 @@ async function updateMediaByID() {
     }
   } catch (e) {
     let errorMessage = ''
-    if (e.request && e.response === undefined) {
+    if ((e && e.request && e.response === undefined) || (e && e.message && e.message.includes('<no response>'))) {
       errorMessage = t('mediaTooLarge')
     } else if (e.response?.data?.options) {
       errorMessage = `<a href='${e.response.data.options.link.root}${e.response.data.options.link.path}' target='_blank'>${e.response.data.error}, ${e.response.data.message}</a>`
