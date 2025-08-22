@@ -29,6 +29,7 @@
         :folder-type="folderType"
         :response-received="responseReceived"
         :request-pre-sent="requestPreSent"
+        :alter-error-received="alterErrorReceived"
         @updateMediaComponent="onMediaComponentUpdate"
         @onMediaSelected="(media) => $emit('getSelectedMedia', media)"
     />
@@ -130,6 +131,10 @@ const props = defineProps({
   contentUsedKey: {
     type: String,
     default: ''
+  },
+  alterErrorReceived: {
+    type: Function,
+    default: () => {}
   },
   responseReceived: {
     type: Function,

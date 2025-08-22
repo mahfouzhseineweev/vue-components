@@ -23,6 +23,9 @@
       :sections-user-id="props.sectionsUserId"
       :selected-media-id="route.query.id"
       :media-translation-prefix="props.mediaTranslationPrefix"
+      :alter-error-received="alterErrorReceived"
+      :response-received="responseReceived"
+      :request-pre-sent="requestPreSent"
       @emittedMedia="handleEmittedMedia"
     ></LazyGMediaComponent>
   </div>
@@ -48,7 +51,19 @@ const props = defineProps({
   serverUrl: { type: String, default: '' },
   selectedMediaId: { type: String, default: '' },
   contentUsedKey: { type: String, default: "title" },
-  mediaTranslationPrefix: { type: String, default: "mediaT." }
+  mediaTranslationPrefix: { type: String, default: "mediaT." },
+  alterErrorReceived: {
+    type: Function,
+    default: () => {}
+  },
+  responseReceived: {
+    type: Function,
+    default: () => {}
+  },
+  requestPreSent: {
+    type: Function,
+    default: () => {}
+  }
 });
 
 const emit = defineEmits(['settingsUpdate', 'wysiwygMedia']);

@@ -381,6 +381,10 @@ const props = defineProps({
     type: String,
     default: ''
   },
+  alterErrorReceived: {
+    type: Function,
+    default: () => {}
+  },
   responseReceived: {
     type: Function,
     default: () => {}
@@ -671,7 +675,15 @@ async function updateMediaByID() {
     }
   } catch (e) {
     let errorMessage = ''
-    if ((e && e.request && e.response === undefined) || (e && e.message && e.message.includes('<no response>'))) {
+
+    let updatedError
+    try {
+      updatedError = props.alterErrorReceived(e)
+    } catch {}
+
+    if (updatedError) {
+      errorMessage = updatedError
+    } else if ((e && e.request && e.response === undefined) || (e && e.message && e.message.includes('<no response>'))) {
       errorMessage = t('mediaTooLarge')
     } else if (e.response?.data?.options) {
       errorMessage = `<a href='${e.response.data.options.link.root}${e.response.data.options.link.path}' target='_blank'>${e.response.data.error}, ${e.response.data.message}</a>`
