@@ -341,7 +341,11 @@ const props = defineProps({
   },
   responseReceived: {
     type: Function,
-    required: true
+    default: () => {}
+  },
+  requestPreSent: {
+    type: Function,
+    default: () => {}
   }
 })
 

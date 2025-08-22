@@ -302,7 +302,6 @@ import {
   useLocalePath,
   onMounted,
   watch,
-  useCookie
 } from '#imports'
 
 import { acceptedFileTypes, mediaHeader, showToast } from './medias.js'
@@ -384,7 +383,11 @@ const props = defineProps({
   },
   responseReceived: {
     type: Function,
-    required: true
+    default: () => {}
+  },
+  requestPreSent: {
+    type: Function,
+    default: () => {}
   }
 })
 
@@ -638,6 +641,14 @@ async function updateMediaByID() {
     data.append('private_status', media.value.private_status)
     data.append('locked_status', media.value.locked_status)
 
+    try {
+      const res = await props.requestPreSent('PUT', mediaByIdUri.value + mediaId.value, data)
+      if (res && res.proceed === false) {
+        loading.value = false
+        return
+      }
+    } catch {}
+
     const response = await useFetch(mediaByIdUri.value + mediaId.value, {
       method: 'PUT',
       headers: mediaHeader({ token: token.value }, projectId.value),
@@ -687,9 +698,9 @@ async function deleteMediaByID() {
       headers: mediaHeader({ token: token.value }, projectId.value)
     })
 
-    if (offlineMode) {
+    try {
       await props.responseReceived('DELETE', mediaByIdUri.value, mediaId.value)
-    }
+    } catch {}
 
     if (response.error.value) throw new Error(response.error.value.message)
 
@@ -703,7 +714,7 @@ async function deleteMediaByID() {
       emit('updateMediaComponent', { name: 'MediaListMedias', appliedFilters: props.appliedFilters, folderType: props.folderType })
     }
   } catch (e) {
-    useToast().show({ message: e.message, timeout: 5, classToast: 'bg-error', classMessage: 'text-white' })
+    showToast('Error', 'error', e.message)
   } finally {
     loading.value = false
   }

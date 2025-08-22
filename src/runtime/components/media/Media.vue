@@ -28,6 +28,7 @@
         :applied-filters="appliedFilters"
         :folder-type="folderType"
         :response-received="responseReceived"
+        :request-pre-sent="requestPreSent"
         @updateMediaComponent="onMediaComponentUpdate"
         @onMediaSelected="(media) => $emit('getSelectedMedia', media)"
     />
@@ -132,7 +133,11 @@ const props = defineProps({
   },
   responseReceived: {
     type: Function,
-    required: true
+    default: () => {}
+  },
+  requestPreSent: {
+    type: Function,
+    default: () => {}
   }
 })
 

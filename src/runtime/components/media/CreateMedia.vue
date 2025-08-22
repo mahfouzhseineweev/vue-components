@@ -100,7 +100,11 @@ const props = defineProps({
   },
   responseReceived: {
     type: Function,
-    required: true
+    default: () => {}
+  },
+  requestPreSent: {
+    type: Function,
+    default: () => {}
   }
 })
 
@@ -160,6 +164,13 @@ async function onFileSelected(e) {
   data.append('private_status', 'public')
   data.append('locked_status', 'unlocked')
 
+  try {
+    const res = await props.requestPreSent('POST', mediaByIdUri.value, data)
+    if (res && res.proceed === false) {
+      loading.value = false
+      return
+    }
+  } catch {}
 
   try {
     // $fetch returns the response directly, not an object with .value properties
