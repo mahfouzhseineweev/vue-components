@@ -593,7 +593,7 @@ async function getMediaByID() {
       headers: mediaHeader({ token: token.value }, projectId.value)
     })
 
-    if (response.error.value) throw new Error(response.error.value.message)
+    if (response.error && response.error.value) throw response.error.value
 
     let responseReceivedData
     try {
@@ -620,7 +620,7 @@ async function getMediaByID() {
   } catch (e) {
     loading.value = false
     if (props.nuxtSections) {
-      showToast('Error', 'error', e.message)
+      showToast('Error', 'error', e.data?.message || e.message)
     }
     backClicked()
   } finally {
@@ -664,7 +664,7 @@ async function updateMediaByID() {
       responseReceivedData = await props.responseReceived('PUT', mediaByIdUri.value + mediaId.value, data)
     } catch {}
 
-    if (response.error && response.error.value) throw new Error(response.error.value)
+    if (response.error && response.error.value) throw response.error.value
 
     if (props.nuxtSections) {
       if (!responseReceivedData) {
@@ -685,16 +685,18 @@ async function updateMediaByID() {
       errorMessage = updatedError
     } else if ((e && e.request && e.response === undefined) || (e && e.message && e.message.includes('<no response>'))) {
       errorMessage = t('mediaTooLarge')
-    } else if (e.response?.data?.options) {
-      errorMessage = `<a href='${e.response.data.options.link.root}${e.response.data.options.link.path}' target='_blank'>${e.response.data.error}, ${e.response.data.message}</a>`
-    } else if (e.response?.data?.errors) {
-      errorMessage = e.response.data.errors.files[0]
+    } else if (e.data?.options) {
+      errorMessage = `${e.data.error}, ${e.data.message}`
+    } else if (e.data?.errors) {
+      errorMessage = e.data.errors.files[0]
+    } else if (e.data?.message) {
+      errorMessage = e.data?.message
     } else {
       errorMessage = e.message
     }
 
     if (props.nuxtSections) {
-      showToast('Error', 'error', errorMessage)
+      showToast('Error', 'error', errorMessage, e.data?.options)
     }
   } finally {
     loading.value = false
@@ -714,7 +716,7 @@ async function deleteMediaByID() {
       await props.responseReceived('DELETE', mediaByIdUri.value, mediaId.value)
     } catch {}
 
-    if (response.error.value) throw new Error(response.error.value.message)
+    if (response.error && response.error.value) throw response.error.value
 
     if (props.nuxtSections) {
       showToast('', 'success', response.data.value.message)
@@ -726,7 +728,7 @@ async function deleteMediaByID() {
       emit('updateMediaComponent', { name: 'MediaListMedias', appliedFilters: props.appliedFilters, folderType: props.folderType })
     }
   } catch (e) {
-    showToast('Error', 'error', e.message)
+    showToast('Error', 'error', e.data?.message || e.message)
   } finally {
     loading.value = false
   }

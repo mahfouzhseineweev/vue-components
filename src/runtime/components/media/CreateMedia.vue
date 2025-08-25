@@ -180,7 +180,7 @@ async function onFileSelected(e) {
       body: data
     })
 
-    if (response.error && response.error.value) throw new Error(response.error.value)
+    if (response.error && response.error.value) throw response.error.value
 
     try {
       await props.responseReceived('POST', mediaByIdUri.value, data)
@@ -208,18 +208,18 @@ async function onFileSelected(e) {
     if ((e && e.request && !e.response) || (e && e.message && e.message.includes('<no response>'))) {
       // Network error or request couldn't be sent
       errorMessage = t('mediaTooLarge')
-    } else if (e.response) {
+    } else if (e && e.data) {
       // Server responded with an error
-      if (e.response.data?.options?.link) {
-        const root = e.response.data.options.link.root || ''
-        const path = e.response.data.options.link.path || ''
-        errorMessage = `<a href='${root}${path}' target='_blank'>${e.response.data.error}, ${e.response.data.message}</a>`
-      } else if (e.response.data?.errors?.files) {
-        errorMessage = e.response.data.errors.files[0]
-      } else if (e.response.data?.message) {
-        errorMessage = e.response.data.message
+      if (e.data?.options?.link) {
+        errorMessage = `${e.data.error}, ${e.data.message}`
+      } else if (e.data?.errors?.files) {
+        errorMessage = e.data.errors.files[0]
+      } else if (e.data?.message) {
+        errorMessage = e.data.message
+      } else if (e.data?.message) {
+        errorMessage = e.data?.message
       } else {
-        errorMessage = e.message || 'An unknown error occurred'
+        errorMessage = e.message
       }
     } else {
       // Fallback error message
@@ -227,7 +227,7 @@ async function onFileSelected(e) {
     }
 
     if (props.nuxtSections) {
-      showToast('Error', 'error', errorMessage)
+      showToast('Error', 'error', errorMessage, e.data?.options)
     }
   } finally {
     loading.value = false

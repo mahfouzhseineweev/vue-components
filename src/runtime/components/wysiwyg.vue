@@ -687,7 +687,6 @@ watch(selectedMedia, (mediaObject) => {
   };
 
   if (mediaObject.files && mediaObject.files[0]) {
-    media.files[0].url = mediaObject.files[0].url;
     media.files[0].filename = mediaObject.files[0].filename;
     if (mediaObject.files[0].headers) media.headers = mediaObject.files[0].headers;
   }
