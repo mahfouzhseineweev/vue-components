@@ -719,7 +719,6 @@ async function getAuthors() {
     loading.value = false
   } catch (e) {
     loading.value = false
-    console.error(e)
   }
 }
 
