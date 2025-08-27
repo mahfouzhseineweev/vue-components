@@ -32,7 +32,8 @@
 </template>
 
 <script setup>
-import { ref, useRoute, useCookie, onMounted, onBeforeUnmount ,watch } from '#imports'
+import {ref, useRoute, useCookie, onMounted, onBeforeUnmount, watch, inject, nextTick} from '#imports'
+import {initLottieFromHtml} from "../components/media/medias.js";
 
 // Variables to hold dynamically imported components and libraries
 let QuillEditorComponent;
@@ -596,6 +597,31 @@ const defineQuillModules = async () => {
   }
   Quill.register(MyLink, true);
 
+  class LottieBlot extends BlockEmbed {
+    static blotName = 'lottie';
+    static tagName = 'div';
+
+    static create(value) {
+      const node = super.create();
+      if (value['lottie-id']) node.setAttribute('lottie-id', value['lottie-id']);
+      if (value.src) node.setAttribute('src', value.src);
+      if (value['media-id']) node.setAttribute('media-id', value['media-id']);
+      if (value['media-type']) node.setAttribute('media-type', value['media-type']);
+      return node;
+    }
+
+    static value(node) {
+      return {
+        'lottie-id': node.getAttribute('lottie-id'),
+        src: node.getAttribute('src'),
+        'media-id': node.getAttribute('media-id'),
+        'media-type': node.getAttribute('media-type'),
+      };
+    }
+  }
+
+  Quill.register(LottieBlot);
+
 };
 
 // Initialize editor options
@@ -657,7 +683,7 @@ watch(settings, (newSettings) => {
 });
 
 // Watch for changes to props.html
-watch(() => props.html, (newHtml) => {
+watch(() => props.html, async (newHtml) => {
   if (settings.value !== newHtml) {
     const htmlContent = appendEmptyParagraphIfOnlyRawHtmlContainer (newHtml)
     settings.value = htmlContent;
@@ -672,11 +698,19 @@ watch(() => props.html, (newHtml) => {
         quill.setContents(delta);
       }
     }
+    try {
+      if (loadScript) {
+        await loadScript('https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.13.0/lottie.min.js', true)
+        await nextTick()
+        initLottieFromHtml(quillContainer.value)
+      }
+    } catch {}
   }
 }, { immediate: true });
 
+const loadScript = inject('loadScript')
 // Watch for changes to selectedMedia
-watch(selectedMedia, (mediaObject) => {
+watch(selectedMedia, async (mediaObject) => {
   const quill = QuillEditorComponent;
   if (!mediaObject || !quill) {
     return;
@@ -693,6 +727,7 @@ watch(selectedMedia, (mediaObject) => {
   media.media_id = mediaObject.id;
   media.url = mediaObject.url || (mediaObject.files && mediaObject.files[0] ? mediaObject.files[0].url : '');
   media.seo_tag = mediaObject.seo_tag;
+  media.metadata = mediaObject.metadata
 
   const range = selectedRange.value || quill.getSelection();
   let insertIndex = range ? range.index : (quill.getLength() > 0 ? quill.getLength() -1 : 0);
@@ -703,12 +738,29 @@ watch(selectedMedia, (mediaObject) => {
   }
   selectedRange.value = null;
 
-  quill.insertEmbed(insertIndex, 'customImage', {
-    src: media.url,
-    'media-id': media.media_id,
-    alt: media.seo_tag || '',
-    loading: 'lazy'
-  }, Quill.sources.USER);
+  if (media.metadata?.type === 'lottie') {
+    quill.insertEmbed(insertIndex, 'lottie', {
+      'lottie-id': `lottie-${media.media_id}`,
+      src: media.url,
+      'media-id': media.media_id,
+      'media-type': media.metadata?.type || 'image',
+    }, Quill.sources.USER);
+    try {
+      if (loadScript) {
+        await loadScript('https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.13.0/lottie.min.js', true)
+        await nextTick()
+        initLottieFromHtml(quillContainer.value)
+      }
+    } catch {}
+  } else {
+    quill.insertEmbed(insertIndex, 'customImage', {
+      src: media.url,
+      'media-id': media.media_id,
+      'media-type': media.metadata?.type || 'image',
+      alt: media.seo_tag || '',
+      loading: 'lazy'
+    }, Quill.sources.USER);
+  }
 
   quill.setSelection(insertIndex + 1, 0, Quill.sources.SILENT);
   emit('wysiwygMedia', media);

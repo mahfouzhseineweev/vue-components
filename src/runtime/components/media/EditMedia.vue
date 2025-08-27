@@ -304,7 +304,7 @@ import {
   watch,
 } from '#imports'
 
-import { acceptedFileTypes, mediaHeader, showToast } from './medias.js'
+import {acceptedFileTypes, isLottieAnimation, mediaHeader, showToast} from './medias.js'
 
 const { t } = useI18n()
 
@@ -644,6 +644,23 @@ async function updateMediaByID() {
     if (media.value.seo_tag) data.append('seo_tag', media.value.seo_tag)
     data.append('private_status', media.value.private_status)
     data.append('locked_status', media.value.locked_status)
+
+    function readFileAsText(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = e => resolve(e.target.result)
+        reader.onerror = reject
+        reader.readAsText(file)
+      })
+    }
+
+    try {
+      const fileText = await readFileAsText(file.value)
+      const isLottie = isLottieAnimation(JSON.parse(fileText))
+      if (isLottie) {
+        data.append('metadata[type]', 'lottie')
+      }
+    } catch {}
 
     try {
       const res = await props.requestPreSent('PUT', mediaByIdUri.value + mediaId.value, data)

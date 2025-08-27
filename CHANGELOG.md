@@ -8,6 +8,7 @@
 
 - Offline Mode management
 - Mobile friendly adjustment #226
+- Lottie animation support for Media MetaComponent and wyisywg
 
 ### v3.0.3 (27/06/2025)
 

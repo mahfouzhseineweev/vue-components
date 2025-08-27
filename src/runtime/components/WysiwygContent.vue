@@ -1,12 +1,12 @@
 <template>
   <div :class="[wrapperDefaultClasses, wrapperClasses]">
-    <article :class="[defaultClasses, classes]" v-html="htmlContent"></article>
+    <article ref="articleContainerRef" :class="[defaultClasses, classes]" v-html="htmlContent"></article>
   </div>
 </template>
 
 <script setup>
-import {useRouter, onMounted} from "#imports";
-// import {useRouter} from "#app";
+import {useRouter, onMounted, watch, ref, inject, nextTick} from "#imports";
+import {initLottieFromHtml} from "../components/media/medias.js";
 
 const props = defineProps({
   htmlContent: {
@@ -31,11 +31,14 @@ const props = defineProps({
   }
 })
 
+const articleContainerRef = ref(null)
 const router = useRouter()
 
 import('quill/dist/quill.snow.css')
 
-onMounted(() => {
+const loadScript = inject('loadScript')
+
+onMounted(async () => {
   // Handle internal link clicks
   const quillEditor = document.querySelector('.ql-editor')
   if (quillEditor) {
@@ -50,6 +53,19 @@ onMounted(() => {
       }
     })
   }
+  if (loadScript) {
+    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.13.0/lottie.min.js', true)
+  }
+  await nextTick()
+  initLottieFromHtml(articleContainerRef.value)
+})
+
+watch(() => props.htmlContent, async () => {
+  if (loadScript) {
+    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.13.0/lottie.min.js', true)
+  }
+  await nextTick()
+  initLottieFromHtml(articleContainerRef.value)
 })
 </script>
 
