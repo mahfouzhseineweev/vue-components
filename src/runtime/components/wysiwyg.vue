@@ -700,7 +700,10 @@ watch(() => props.html, async (newHtml) => {
     }
     try {
       if (loadScript) {
-        await loadScript('https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.13.0/lottie.min.js', true)
+        const lottieDivs = quillContainer.value.querySelectorAll('div[lottie-id][media-type="lottie"]');
+        if (lottieDivs && lottieDivs.length > 0) {
+          await loadScript('https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.13.0/lottie.min.js', true)
+        }
         await nextTick()
         initLottieFromHtml(quillContainer.value)
       }
@@ -747,7 +750,10 @@ watch(selectedMedia, async (mediaObject) => {
     }, Quill.sources.USER);
     try {
       if (loadScript) {
-        await loadScript('https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.13.0/lottie.min.js', true)
+        const lottieDivs = quillContainer.value.querySelectorAll('div[lottie-id][media-type="lottie"]');
+        if (lottieDivs && lottieDivs.length > 0) {
+          await loadScript('https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.13.0/lottie.min.js', true)
+        }
         await nextTick()
         initLottieFromHtml(quillContainer.value)
       }

@@ -54,7 +54,11 @@ onMounted(async () => {
     })
   }
   if (loadScript) {
-    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.13.0/lottie.min.js', true)
+    await nextTick()
+    const lottieDivs = articleContainerRef.value.querySelectorAll('div[lottie-id][media-type="lottie"]');
+    if (lottieDivs && lottieDivs.length > 0) {
+      await loadScript('https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.13.0/lottie.min.js', true)
+    }
   }
   await nextTick()
   initLottieFromHtml(articleContainerRef.value)
@@ -62,7 +66,11 @@ onMounted(async () => {
 
 watch(() => props.htmlContent, async () => {
   if (loadScript) {
-    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.13.0/lottie.min.js', true)
+    await nextTick()
+    const lottieDivs = articleContainerRef.value.querySelectorAll('div[lottie-id][media-type="lottie"]');
+    if (lottieDivs && lottieDivs.length > 0) {
+      await loadScript('https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.13.0/lottie.min.js', true)
+    }
   }
   await nextTick()
   initLottieFromHtml(articleContainerRef.value)

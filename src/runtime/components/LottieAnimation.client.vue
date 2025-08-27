@@ -12,6 +12,7 @@ import {
 
 const props = defineProps({
   src: {type: String, required: true}, // JSON path (public folder or remote URL)
+  type: {type: String, default: 'lottie'},
   loop: {type: Boolean, default: true},
   autoplay: {type: Boolean, default: true},
   width: {type: String, default: '200px'},
@@ -43,7 +44,7 @@ defineExpose({play, pause, stop, setSpeed})
 
 const loadScript = inject('loadScript')
 onMounted(async () => {
-  if (!loadScript) return
+  if (!loadScript || props.type !== 'lottie') return
 
   await loadScript('https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.13.0/lottie.min.js', true)
 

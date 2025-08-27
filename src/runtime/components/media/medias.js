@@ -62,27 +62,29 @@ export const initLottieFromHtml = (htmlElement) => {
     try {
         // Select all matching divs
         const lottieDivs = htmlElement.querySelectorAll('div[lottie-id][media-type="lottie"]');
-        lottieDivs.forEach(div => {
-            const src = div.getAttribute('src');
-            const lottieId = div.getAttribute('lottie-id');
+        if (lottieDivs && lottieDivs.length > 0) {
+            lottieDivs.forEach(div => {
+                const src = div.getAttribute('src');
+                const lottieId = div.getAttribute('lottie-id');
 
-            // Find the corresponding element in the real DOM
-            const target = htmlElement.querySelector(`div[lottie-id="${lottieId}"][media-type="lottie"]`);
-            if (!target) return;
+                // Find the corresponding element in the real DOM
+                const target = htmlElement.querySelector(`div[lottie-id="${lottieId}"][media-type="lottie"]`);
+                if (!target) return;
 
-            if (target.hasChildNodes()) {
-                target.innerHTML = ""
-            }
+                if (target.hasChildNodes()) {
+                    target.innerHTML = ""
+                }
 
-            if (window.lottie) {
-                window.lottie.loadAnimation({
-                    container: target,
-                    renderer: 'svg',
-                    loop: true,
-                    autoplay: true,
-                    path: src
-                });
-            }
-        });
+                if (window.lottie) {
+                    window.lottie.loadAnimation({
+                        container: target,
+                        renderer: 'svg',
+                        loop: true,
+                        autoplay: true,
+                        path: src
+                    });
+                }
+            });
+        }
     } catch {}
 }
