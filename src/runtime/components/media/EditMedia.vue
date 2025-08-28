@@ -191,7 +191,7 @@
             <div>{{ $t(mediaTranslationPrefix + 'EditMedia.downloadMedia') }}</div>
           </div>
 
-          <div v-if="media.type === 'document'">
+          <div v-if="media.type === 'document' && media.metadata?.type !== 'lottie'">
             <div class="flex w-[350px] h-[200px] justify-center items-center object-cover relative" :style="hiddenContainerStyle">
               <div class="flex flex-col items-center gap-4">
                 <span class="icon-mediaDocument text-6xl"></span>
@@ -205,7 +205,7 @@
 
           <div v-else-if="!(lockedStatus === 'locked' && media.author !== sectionsUserId)">
             <div v-if="media.files && media.files[0].url !== ''" class="relative w-max">
-              <img :src="media.files[0].url" alt="" class="rounded-md md:w-[400px] w-[300px]" />
+              <LazyGUniversalViewer :src="media.files[0].url" :type="media.metadata?.type || 'image'" alt="" class="rounded-md md:w-[400px] w-[300px]" />
               <div class="absolute top-1/3 left-1/3 -translate-x-1/3 -translate-y-1/3" @click="imagePick.click()">
                 <span class="icon-reload text-8xl cursor-pointer"></span>
                 <input ref="imagePick" type="file" class="hidden" accept="image/*" @change="onFileSelected" />
@@ -215,7 +215,7 @@
 
           <div v-else-if="media.files">
             <div v-if="media.files[0].url !== ''" class="relative w-max">
-              <img :src="mediaPreview || media.files[0].url" alt="" class="rounded-md w-[400px]" />
+              <LazyGUniversalViewer :src="mediaPreview || media.files[0].url" :type="media.metadata?.type || 'image'" alt="" class="rounded-md w-[400px]" />
             </div>
           </div>
         </div>
@@ -239,7 +239,7 @@
       "
       class="sticky bottom-0 py-2 m-4 rounded-md shadow bg-white"
     >
-      <div class="flex w-full items-center justify-end">
+      <div class="flex w-full items-center justify-end btns-row">
         <div
           v-if="privateStatus !== 'private' || (privateStatus === 'private' && media.author === sectionsUserId)"
           class="cursor-pointer flex items-center"
@@ -292,9 +292,19 @@
 </template>
 
 <script setup>
-import { useFetch, useI18n, ref, computed, useRoute, navigateTo, useLocalePath, onMounted ,watch } from '#imports'
+import {
+  useFetch,
+  useI18n,
+  ref,
+  computed,
+  useRoute,
+  navigateTo,
+  useLocalePath,
+  onMounted,
+  watch,
+} from '#imports'
 
-import { acceptedFileTypes, mediaHeader, showToast } from './medias.js'
+import {acceptedFileTypes, isLottieAnimation, mediaHeader, showToast} from './medias.js'
 
 const { t } = useI18n()
 
@@ -370,6 +380,18 @@ const props = defineProps({
   mediaIdEditing: {
     type: String,
     default: ''
+  },
+  alterErrorReceived: {
+    type: Function,
+    default: () => {}
+  },
+  responseReceived: {
+    type: Function,
+    default: () => {}
+  },
+  requestPreSent: {
+    type: Function,
+    default: () => {}
   }
 })
 
@@ -440,6 +462,9 @@ const media = ref({
   meta: {
     author: '',
     content: []
+  },
+  metadata: {
+    type: ''
   }
 })
 
@@ -566,12 +591,20 @@ onMounted(() => {
 async function getMediaByID() {
   try {
     loading.value = true
-    const response = await useFetch(mediaByIdUri.value + mediaId.value, {
+    let response = await useFetch(mediaByIdUri.value + mediaId.value, {
       method: 'GET',
       headers: mediaHeader({ token: token.value }, projectId.value)
     })
 
-    if (response.error.value) throw new Error(response.error.value.message)
+    if (response.error && response.error.value) throw response.error.value
+
+    let responseReceivedData
+    try {
+      responseReceivedData = await props.responseReceived('GET', mediaByIdUri.value + mediaId.value, {}, response.data.value)
+    } catch {}
+    if (responseReceivedData) {
+      response.data.value = responseReceivedData
+    }
 
     media.value = response.data.value
     if (media.value.title === 'null') media.value.title = ''
@@ -590,7 +623,7 @@ async function getMediaByID() {
   } catch (e) {
     loading.value = false
     if (props.nuxtSections) {
-      showToast('Error', 'error', e.message)
+      showToast('Error', 'error', e.data?.message || e.message)
     }
     backClicked()
   } finally {
@@ -615,33 +648,75 @@ async function updateMediaByID() {
     data.append('private_status', media.value.private_status)
     data.append('locked_status', media.value.locked_status)
 
+    function readFileAsText(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader()
+        reader.onload = e => resolve(e.target.result)
+        reader.onerror = reject
+        reader.readAsText(file)
+      })
+    }
+
+    try {
+      const fileText = await readFileAsText(file.value)
+      const isLottie = isLottieAnimation(JSON.parse(fileText))
+      if (isLottie) {
+        data.append('metadata[type]', 'lottie')
+      }
+    } catch {}
+
+    try {
+      const res = await props.requestPreSent('PUT', mediaByIdUri.value + mediaId.value, data)
+      if (res && res.proceed === false) {
+        loading.value = false
+        return
+      }
+    } catch {}
+
     const response = await useFetch(mediaByIdUri.value + mediaId.value, {
       method: 'PUT',
       headers: mediaHeader({ token: token.value }, projectId.value),
       body: data
     })
 
-    if (response.error.value) throw new Error(response.error.value.message)
+    let responseReceivedData
+    try {
+      responseReceivedData = await props.responseReceived('PUT', mediaByIdUri.value + mediaId.value, data)
+    } catch {}
+
+    if (response.error && response.error.value) throw response.error.value
 
     if (props.nuxtSections) {
-      await getMediaByID()
+      if (!responseReceivedData) {
+        await getMediaByID()
+      }
       if (isEditingMedia.value) emit('onMediaSelected', media.value)
       showToast('', 'success', t(props.mediaTranslationPrefix + 'mediaUpdated'))
     }
   } catch (e) {
     let errorMessage = ''
-    if (e.request && e.response === undefined) {
+
+    let updatedError
+    try {
+      updatedError = props.alterErrorReceived(e)
+    } catch {}
+
+    if (updatedError) {
+      errorMessage = updatedError
+    } else if ((e && e.request && e.response === undefined) || (e && e.message && e.message.includes('<no response>'))) {
       errorMessage = t('mediaTooLarge')
-    } else if (e.response?.data?.options) {
-      errorMessage = `<a href='${e.response.data.options.link.root}${e.response.data.options.link.path}' target='_blank'>${e.response.data.error}, ${e.response.data.message}</a>`
-    } else if (e.response?.data?.errors) {
-      errorMessage = e.response.data.errors.files[0]
+    } else if (e.data?.options) {
+      errorMessage = `${e.data.error}, ${e.data.message}`
+    } else if (e.data?.errors) {
+      errorMessage = e.data.errors.files[0]
+    } else if (e.data?.message) {
+      errorMessage = e.data?.message
     } else {
       errorMessage = e.message
     }
 
     if (props.nuxtSections) {
-      showToast('Error', 'error', errorMessage)
+      showToast('Error', 'error', errorMessage, e.data?.options)
     }
   } finally {
     loading.value = false
@@ -657,7 +732,11 @@ async function deleteMediaByID() {
       headers: mediaHeader({ token: token.value }, projectId.value)
     })
 
-    if (response.error.value) throw new Error(response.error.value.message)
+    try {
+      await props.responseReceived('DELETE', mediaByIdUri.value, mediaId.value)
+    } catch {}
+
+    if (response.error && response.error.value) throw response.error.value
 
     if (props.nuxtSections) {
       showToast('', 'success', response.data.value.message)
@@ -669,7 +748,7 @@ async function deleteMediaByID() {
       emit('updateMediaComponent', { name: 'MediaListMedias', appliedFilters: props.appliedFilters, folderType: props.folderType })
     }
   } catch (e) {
-    useToast().show({ message: e.message, timeout: 5, classToast: 'bg-error', classMessage: 'text-white' })
+    showToast('Error', 'error', e.data?.message || e.message)
   } finally {
     loading.value = false
   }
@@ -744,5 +823,10 @@ const emit = defineEmits(['updateMediaComponent', 'onMediaSelected'])
 }
 .bg-mediaLocked {
   background-color: #ffe5dd;
+}
+@media screen and (max-width: 768px) {
+  .btns-row {
+    flex-wrap: wrap;
+  }
 }
 </style>

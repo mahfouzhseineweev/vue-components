@@ -2,6 +2,14 @@
 
 ---
 
+### v3.0.4 (27/08/2025)
+
+---
+
+- Offline Mode management
+- Mobile friendly adjustment #226
+- Lottie animation support for Media MetaComponent and wyisywg
+
 ### v3.0.3 (27/06/2025)
 
 ---

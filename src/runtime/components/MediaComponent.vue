@@ -22,6 +22,9 @@
               :with-select-media-button="true"
               :nuxt-sections="true"
               :media-id-editing="mediaIdEditing"
+              :alter-error-received="alterErrorReceived"
+              :response-received="responseReceived"
+              :request-pre-sent="requestPreSent"
               @get-selected-media="emitMedia"
           />
         </div>
@@ -65,6 +68,18 @@ const props = defineProps({
   mediaTranslationPrefix: {
     type: String,
     default: 'mediaT.'
+  },
+  alterErrorReceived: {
+    type: Function,
+    default: () => {}
+  },
+  responseReceived: {
+    type: Function,
+    default: () => {}
+  },
+  requestPreSent: {
+    type: Function,
+    default: () => {}
   }
 })
 

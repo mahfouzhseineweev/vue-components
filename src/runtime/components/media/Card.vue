@@ -25,8 +25,8 @@
 
       </div>
 
-      <div v-if="!props.hidden || (props.hidden &amp;&amp; props.isAuthor)" class="w-[350px] cursor-pointer" @click="props.openMedia">
-        <div v-if="props.mediaType === 'document'">
+      <div v-if="!props.hidden || (props.hidden && props.isAuthor)" class="md:w-[350px] cursor-pointer card-image-wrapper" @click="props.openMedia">
+        <div v-if="props.mediaType === 'document' && props.mediaMetadataType !== 'lottie'">
           <div class="flex w-full h-[200px] justify-center items-center object-cover" :style="props.hiddenContainerStyle">
             <div class="flex flex-col items-center gap-4">
               <span class="icon-mediaDocument text-6xl"></span>
@@ -41,10 +41,10 @@
           </div>
         </div>
         <div v-else>
-          <img :src="props.mediaSrc" class="w-full h-[200px] object-cover" />
+          <LazyGUniversalViewer :src="props.mediaSrc" :type="props.mediaMetadataType" class="w-full h-[200px] object-cover" />
         </div>
       </div>
-      <div v-else class="w-[350px] cursor-pointer" :style="props.hiddenContainerStyle" @click="props.openMedia">
+      <div v-else class="w-[350px] cursor-pointer card-hidden-message-wrapper" :style="props.hiddenContainerStyle" @click="props.openMedia">
         <div class="flex w-full h-[200px] justify-center items-center object-cover">
           <div class="flex flex-col items-center gap-4">
             <span :class="props.hiddenMediaSrc"></span>
@@ -55,7 +55,7 @@
         </div>
       </div>
 
-      <div class="flex flex-wrap w-[350px] items-center pt-3 pr-3 pl-3">
+      <div class="flex flex-wrap w-[350px] items-center pt-3 pr-3 pl-3 card-details-wrapper">
         <div :class="props.mediaTitleStyle">
           {{ props.mediaTitle }}
         </div>
@@ -160,6 +160,10 @@ const props = defineProps({
   mediaSrc: {
     type: String,
     default: defaultMediaSvg // Use imported asset
+  },
+  mediaMetadataType: {
+    type: String,
+    default: ''
   },
   hiddenMediaSrc: {
     type: String,
@@ -286,5 +290,12 @@ const props = defineProps({
 }
 .bg-mediaLocked {
   background-color: #FFE5DD;
+}
+@media screen and (max-width: 768px) {
+  .card-hidden-message-wrapper,
+  .card-details-wrapper,
+  .card-image-wrapper {
+    width: auto !important;
+  }
 }
 </style>
