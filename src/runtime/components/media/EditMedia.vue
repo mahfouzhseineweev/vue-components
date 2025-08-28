@@ -191,7 +191,7 @@
             <div>{{ $t(mediaTranslationPrefix + 'EditMedia.downloadMedia') }}</div>
           </div>
 
-          <div v-if="media.type === 'document'">
+          <div v-if="media.type === 'document' && media.metadata?.type !== 'lottie'">
             <div class="flex w-[350px] h-[200px] justify-center items-center object-cover relative" :style="hiddenContainerStyle">
               <div class="flex flex-col items-center gap-4">
                 <span class="icon-mediaDocument text-6xl"></span>
@@ -205,7 +205,7 @@
 
           <div v-else-if="!(lockedStatus === 'locked' && media.author !== sectionsUserId)">
             <div v-if="media.files && media.files[0].url !== ''" class="relative w-max">
-              <img :src="media.files[0].url" alt="" class="rounded-md md:w-[400px] w-[300px]" />
+              <LazyGUniversalViewer :src="media.files[0].url" :type="media.metadata?.type || 'image'" alt="" class="rounded-md md:w-[400px] w-[300px]" />
               <div class="absolute top-1/3 left-1/3 -translate-x-1/3 -translate-y-1/3" @click="imagePick.click()">
                 <span class="icon-reload text-8xl cursor-pointer"></span>
                 <input ref="imagePick" type="file" class="hidden" accept="image/*" @change="onFileSelected" />
@@ -215,7 +215,7 @@
 
           <div v-else-if="media.files">
             <div v-if="media.files[0].url !== ''" class="relative w-max">
-              <img :src="mediaPreview || media.files[0].url" alt="" class="rounded-md w-[400px]" />
+              <LazyGUniversalViewer :src="mediaPreview || media.files[0].url" :type="media.metadata?.type || 'image'" alt="" class="rounded-md w-[400px]" />
             </div>
           </div>
         </div>
@@ -462,6 +462,9 @@ const media = ref({
   meta: {
     author: '',
     content: []
+  },
+  metadata: {
+    type: ''
   }
 })
 

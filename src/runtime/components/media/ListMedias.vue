@@ -125,6 +125,7 @@
               :locked="media.locked_status !== 'unlocked'"
               :hidden="media.private_status !== 'public'"
               :media-src="media.files[0].url"
+              :media-metadata-type="media.metadata?.type || 'image'"
               :media-title="media.title && media.title !== '' && media.title !== 'null' ? media.title : media.files[0].filename"
               :media-title-style="'w-200px overflow-hidden text-ellipsis white whitespace-nowrap'"
               :media-author="media.meta && (media.meta.author_name || media.meta.author) ? media.meta.author ? $t(mediaTranslationPrefix + 'by') + media.meta.author : $t(mediaTranslationPrefix + 'by') + media.meta.author_name : ''"
