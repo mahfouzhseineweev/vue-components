@@ -603,29 +603,26 @@ const defineQuillModules = async () => {
 
   class LottieBlot extends Embed {
     static blotName = 'lottie';
-    static tagName = 'span';
+    static tagName = 'div';
 
     static create(value) {
       const node = super.create();
-      node.setAttribute('data-html', JSON.stringify(value));
-      node.setAttribute('tabindex', "0")
+      if (value['lottie-id']) node.setAttribute('lottie-id', value['lottie-id']);
+      if (value.src) node.setAttribute('src', value.src);
       if (value['media-id']) node.setAttribute('media-id', value['media-id']);
-      const inner = document.createElement('div');
-      inner.className = 'lottie-container';
-
-      if (value['lottie-id']) inner.setAttribute('lottie-id', value['lottie-id']);
-      if (value.src) inner.setAttribute('src', value.src);
-      if (value['media-id']) inner.setAttribute('media-id', value['media-id']);
-      if (value['media-type']) inner.setAttribute('media-type', value['media-type']);
-      inner.setAttribute('contenteditable', 'false');
-      inner.style.display = 'inline-block'
-      node.appendChild(inner);
+      if (value['media-type']) node.setAttribute('media-type', value['media-type']);
+      node.setAttribute('contenteditable', 'false');
+      node.style.display = 'inline-block'
       return node;
     }
 
     static value(node) {
-      const data = node.getAttribute('data-html');
-      return data ? JSON.parse(data) : {};
+      return {
+        'lottie-id': node.getAttribute('lottie-id'),
+        src: node.getAttribute('src'),
+        'media-id': node.getAttribute('media-id'),
+        'media-type': node.getAttribute('media-type'),
+      };
     }
   }
 
