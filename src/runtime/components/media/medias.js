@@ -78,7 +78,7 @@ export const initLottieFromHtml = (htmlElement) => {
                 if (window.lottie) {
                     window.lottie.loadAnimation({
                         container: target,
-                        renderer: 'svg',
+                        renderer: 'canvas',
                         loop: true,
                         autoplay: true,
                         path: src
