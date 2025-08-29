@@ -688,6 +688,22 @@ const handleLottieClick = (event) => {
   }
 };
 
+const initializeLottie = async (htmlElement) => {
+  try {
+    if (loadScript) {
+      const lottieDivs = htmlElement.querySelectorAll('div[lottie-id][media-type="lottie"]');
+      if (lottieDivs && lottieDivs.length > 0) {
+        await loadScript('https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.13.0/lottie.min.js', true)
+      }
+      await nextTick()
+      lottieDivs.forEach(div => {
+        div.addEventListener('click', handleLottieClick);
+      });
+      initLottieFromHtml(htmlElement)
+    }
+  } catch {}
+}
+
 // Watch for changes to settings
 watch(settings, (newSettings) => {
   // Avoid emitting for initial empty state from Quill or if unchanged from prop
@@ -712,19 +728,7 @@ watch(() => props.html, async (newHtml) => {
         quill.setContents(delta);
       }
     }
-    try {
-      if (loadScript) {
-        const lottieDivs = quillContainer.value.querySelectorAll('div[lottie-id][media-type="lottie"]');
-        if (lottieDivs && lottieDivs.length > 0) {
-          await loadScript('https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.13.0/lottie.min.js', true)
-        }
-        await nextTick()
-        lottieDivs.forEach(div => {
-          div.addEventListener('click', handleLottieClick);
-        });
-        initLottieFromHtml(quillContainer.value)
-      }
-    } catch {}
+    await initializeLottie(quillContainer.value)
   }
 }, { immediate: true });
 
@@ -766,19 +770,7 @@ watch(selectedMedia, async (mediaObject) => {
       'media-id': media.media_id,
       'media-type': media.metadata?.type || 'image',
     }, Quill.sources.USER);
-    try {
-      if (loadScript) {
-        const lottieDivs = quillContainer.value.querySelectorAll('div[lottie-id][media-type="lottie"]');
-        if (lottieDivs && lottieDivs.length > 0) {
-          await loadScript('https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.13.0/lottie.min.js', true)
-        }
-        await nextTick()
-        lottieDivs.forEach(div => {
-          div.addEventListener('click', handleLottieClick);
-        });
-        initLottieFromHtml(quillContainer.value)
-      }
-    } catch {}
+    await initializeLottie(quillContainer.value)
   } else {
     quill.insertEmbed(insertIndex, 'customImage', {
       src: media.url,
@@ -1070,6 +1062,8 @@ const onQuillEditorReady = async (quillInstance) => {
       // quill.clipboard.dangerouslyPasteHTML(0, htmlContent);
     }
   }
+
+  await initializeLottie(quillContainer.value)
 };
 
 const appendEmptyParagraphIfOnlyRawHtmlContainer  = (htmlContent) => {
