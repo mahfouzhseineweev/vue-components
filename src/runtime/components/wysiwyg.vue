@@ -23,13 +23,17 @@
       :sections-user-id="props.sectionsUserId"
       :selected-media-id="route.query.id"
       :media-translation-prefix="props.mediaTranslationPrefix"
+      :alter-error-received="alterErrorReceived"
+      :response-received="responseReceived"
+      :request-pre-sent="requestPreSent"
       @emittedMedia="handleEmittedMedia"
     ></LazyGMediaComponent>
   </div>
 </template>
 
 <script setup>
-import { ref, useRoute, useCookie, onMounted, onBeforeUnmount ,watch } from '#imports'
+import {ref, useRoute, useCookie, onMounted, onBeforeUnmount, watch, inject, nextTick} from '#imports'
+import {initLottieFromHtml} from "../components/media/medias.js";
 
 // Variables to hold dynamically imported components and libraries
 let QuillEditorComponent;
@@ -48,7 +52,19 @@ const props = defineProps({
   serverUrl: { type: String, default: '' },
   selectedMediaId: { type: String, default: '' },
   contentUsedKey: { type: String, default: "title" },
-  mediaTranslationPrefix: { type: String, default: "mediaT." }
+  mediaTranslationPrefix: { type: String, default: "mediaT." },
+  alterErrorReceived: {
+    type: Function,
+    default: () => {}
+  },
+  responseReceived: {
+    type: Function,
+    default: () => {}
+  },
+  requestPreSent: {
+    type: Function,
+    default: () => {}
+  }
 });
 
 const emit = defineEmits(['settingsUpdate', 'wysiwygMedia']);
@@ -62,6 +78,7 @@ const selectedRange = ref(null);
 const myQuillEditorRef = ref(null);
 const quillContainer = ref(null);
 const sectionsMediaComponentRef = ref(null);
+const editableMediaId = ref(null);
 
 const fontsArray = [
   "0.25rem", "0.5rem", "0.75rem", false, "1.25rem", "1.5rem", "1.75rem", "2rem",
@@ -415,6 +432,9 @@ const defineQuillModules = async () => {
   Quill.register('modules/html', HTMLModule);
   const style = document.createElement('style');
   style.innerHTML = `
+  div[lottie-id] canvas {
+    pointer-events: none;
+  }
   .ql-html-container {
     width: 100%;
   }
@@ -581,6 +601,33 @@ const defineQuillModules = async () => {
   }
   Quill.register(MyLink, true);
 
+  class LottieBlot extends Embed {
+    static blotName = 'lottie';
+    static tagName = 'div';
+
+    static create(value) {
+      const node = super.create();
+      if (value['lottie-id']) node.setAttribute('lottie-id', value['lottie-id']);
+      if (value.src) node.setAttribute('src', value.src);
+      if (value['media-id']) node.setAttribute('media-id', value['media-id']);
+      if (value['media-type']) node.setAttribute('media-type', value['media-type']);
+      node.setAttribute('contenteditable', 'false');
+      node.style.display = 'inline-block'
+      return node;
+    }
+
+    static value(node) {
+      return {
+        'lottie-id': node.getAttribute('lottie-id'),
+        src: node.getAttribute('src'),
+        'media-id': node.getAttribute('media-id'),
+        'media-type': node.getAttribute('media-type'),
+      };
+    }
+  }
+
+  Quill.register(LottieBlot);
+
 };
 
 // Initialize editor options
@@ -633,6 +680,30 @@ const initEditorOptions = () => {
 
 };
 
+const handleLottieClick = (event) => {
+  const mediaId = event.target.getAttribute('media-id');
+
+  if (mediaId) {
+    editableMediaId.value = mediaId;
+  }
+};
+
+const initializeLottie = async (htmlElement) => {
+  try {
+    if (loadScript) {
+      const lottieDivs = htmlElement.querySelectorAll('div[lottie-id][media-type="lottie"]');
+      if (lottieDivs && lottieDivs.length > 0) {
+        await loadScript('https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.13.0/lottie.min.js', true)
+      }
+      await nextTick()
+      lottieDivs.forEach(div => {
+        div.addEventListener('click', handleLottieClick);
+      });
+      initLottieFromHtml(htmlElement)
+    }
+  } catch {}
+}
+
 // Watch for changes to settings
 watch(settings, (newSettings) => {
   // Avoid emitting for initial empty state from Quill or if unchanged from prop
@@ -642,7 +713,7 @@ watch(settings, (newSettings) => {
 });
 
 // Watch for changes to props.html
-watch(() => props.html, (newHtml) => {
+watch(() => props.html, async (newHtml) => {
   if (settings.value !== newHtml) {
     const htmlContent = appendEmptyParagraphIfOnlyRawHtmlContainer (newHtml)
     settings.value = htmlContent;
@@ -657,11 +728,14 @@ watch(() => props.html, (newHtml) => {
         quill.setContents(delta);
       }
     }
+    await initializeLottie(quillContainer.value)
   }
 }, { immediate: true });
 
+const loadScript = inject('loadScript')
 // Watch for changes to selectedMedia
-watch(selectedMedia, (mediaObject) => {
+watch(selectedMedia, async (mediaObject) => {
+  editableMediaId.value = null;
   const quill = QuillEditorComponent;
   if (!mediaObject || !quill) {
     return;
@@ -672,13 +746,13 @@ watch(selectedMedia, (mediaObject) => {
   };
 
   if (mediaObject.files && mediaObject.files[0]) {
-    media.files[0].url = mediaObject.files[0].url;
     media.files[0].filename = mediaObject.files[0].filename;
     if (mediaObject.files[0].headers) media.headers = mediaObject.files[0].headers;
   }
   media.media_id = mediaObject.id;
   media.url = mediaObject.url || (mediaObject.files && mediaObject.files[0] ? mediaObject.files[0].url : '');
   media.seo_tag = mediaObject.seo_tag;
+  media.metadata = mediaObject.metadata
 
   const range = selectedRange.value || quill.getSelection();
   let insertIndex = range ? range.index : (quill.getLength() > 0 ? quill.getLength() -1 : 0);
@@ -689,12 +763,23 @@ watch(selectedMedia, (mediaObject) => {
   }
   selectedRange.value = null;
 
-  quill.insertEmbed(insertIndex, 'customImage', {
-    src: media.url,
-    'media-id': media.media_id,
-    alt: media.seo_tag || '',
-    loading: 'lazy'
-  }, Quill.sources.USER);
+  if (media.metadata?.type === 'lottie') {
+    quill.insertEmbed(insertIndex, 'lottie', {
+      'lottie-id': `lottie-${media.media_id}`,
+      src: media.url,
+      'media-id': media.media_id,
+      'media-type': media.metadata?.type || 'image',
+    }, Quill.sources.USER);
+    await initializeLottie(quillContainer.value)
+  } else {
+    quill.insertEmbed(insertIndex, 'customImage', {
+      src: media.url,
+      'media-id': media.media_id,
+      'media-type': media.metadata?.type || 'image',
+      alt: media.seo_tag || '',
+      loading: 'lazy'
+    }, Quill.sources.USER);
+  }
 
   quill.setSelection(insertIndex + 1, 0, Quill.sources.SILENT);
   emit('wysiwygMedia', media);
@@ -713,7 +798,7 @@ function validate() {
 }
 
 function uploadFunction(mediaId = null) {
-  sectionsMediaComponentRef.value?.openModal(mediaId, null);
+  sectionsMediaComponentRef.value?.openModal(mediaId || editableMediaId.value, null);
 }
 
 function saveFormat() {
@@ -767,6 +852,8 @@ const onQuillEditorReady = async (quillInstance) => {
           const delta = quill.getContents(currentRange.index, currentRange.length);
           if (delta?.ops?.length === 1 && delta.ops[0].insert?.customImage?.['media-id']) {
             mediaIdToEdit = delta.ops[0].insert.customImage['media-id'];
+          } else if (delta?.ops?.length === 1 && delta.ops[0].insert?.lottie?.['media-id']) {
+            mediaIdToEdit = delta.ops[0].insert.lottie['media-id'];
           }
         }
       }
@@ -975,6 +1062,8 @@ const onQuillEditorReady = async (quillInstance) => {
       // quill.clipboard.dangerouslyPasteHTML(0, htmlContent);
     }
   }
+
+  await initializeLottie(quillContainer.value)
 };
 
 const appendEmptyParagraphIfOnlyRawHtmlContainer  = (htmlContent) => {

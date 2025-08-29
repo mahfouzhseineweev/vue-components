@@ -1,6 +1,6 @@
 {
   "name": "@geeks.solutions/vue-components",
-  "version": "3.0.3",
+  "version": "3.0.4",
   "author": "Geeks Solutions info@geeks.solutions (https://www.geeks.solutions)",
   "repository": {
     "type": "git",
@@ -57,7 +57,8 @@
     "nuxt": "^3.17.1",
     "quill": "2.0.0-dev.3",
     "quill-table-ui": "^1.0.7",
-    "vue-select": "^4.0.0-beta.6"
+    "vue-select": "^4.0.0-beta.6",
+    "@nuxt/image": "^1.10.0"
   },
   "devDependencies": {
     "@nuxt/devtools": "^2.4.0",

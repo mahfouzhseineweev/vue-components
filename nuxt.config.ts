@@ -6,6 +6,7 @@ export default defineNuxtConfig({
     "@nuxt/eslint",
     "@nuxt/test-utils",
     "@nuxtjs/i18n",
+    "@nuxt/image",
     "@nuxtjs/tailwindcss"
   ],
   i18n: {

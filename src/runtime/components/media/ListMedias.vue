@@ -125,6 +125,7 @@
               :locked="media.locked_status !== 'unlocked'"
               :hidden="media.private_status !== 'public'"
               :media-src="media.files[0].url"
+              :media-metadata-type="media.metadata?.type || 'image'"
               :media-title="media.title && media.title !== '' && media.title !== 'null' ? media.title : media.files[0].filename"
               :media-title-style="'w-200px overflow-hidden text-ellipsis white whitespace-nowrap'"
               :media-author="media.meta && (media.meta.author_name || media.meta.author) ? media.meta.author ? $t(mediaTranslationPrefix + 'by') + media.meta.author : $t(mediaTranslationPrefix + 'by') + media.meta.author_name : ''"
@@ -141,7 +142,7 @@
             />
           </div>
         </div>
-        <a v-if="mediaResponse.length !== totalMedias.value" class="flex justify-center text-Blue underline mb-16 cursor-pointer" @click="seeMoreMedias">{{ $t(mediaTranslationPrefix + 'seeMore') }}</a>
+        <a v-if="mediaResponse.length !== totalMedias" class="flex justify-center text-Blue underline mb-16 cursor-pointer" @click="seeMoreMedias">{{ $t(mediaTranslationPrefix + 'seeMore') }}</a>
       </div>
 
       <div v-show="mediaResponse.length === 0 && loading === false" class="text-FieldGray p-16">{{ $t(mediaTranslationPrefix + 'noMediasFound') }}</div>
@@ -338,6 +339,14 @@ const props = defineProps({
       errorOccurred: false,
       withIcon: false,
     })
+  },
+  responseReceived: {
+    type: Function,
+    default: () => {}
+  },
+  requestPreSent: {
+    type: Function,
+    default: () => {}
   }
 })
 
@@ -543,7 +552,7 @@ async function getAllMedias (folderMediaType, filtered) {
     loading.value = true
 
     // First API call to get all media counts
-    const { data: allMediaResponse } = await useFetch(mediaUri.value, {
+    let { data: allMediaResponse } = await useFetch(mediaUri.value, {
       method: 'POST',
       body: {
         sort: {
@@ -552,6 +561,18 @@ async function getAllMedias (folderMediaType, filtered) {
       },
       headers: mediaHeader({ token: token.value }, projectId.value)
     })
+
+    let responseReceivedData
+    try {
+      responseReceivedData = await props.responseReceived('POST', mediaUri.value, {
+        sort: {
+          inserted_at: payloadData.value.sort.inserted_at
+        }
+      }, allMediaResponse.value)
+    } catch {}
+    if (responseReceivedData) {
+      allMediaResponse.value = responseReceivedData
+    }
 
     if (allMediaResponse && allMediaResponse.value) {
       // Process the response to categorize media files
@@ -613,13 +634,25 @@ async function getAllMedias (folderMediaType, filtered) {
     }
 
     // Second API call with updated filters
-    const { data: filteredResponse } = await useFetch(mediaUri.value, {
+    let { data: filteredResponse } = await useFetch(mediaUri.value, {
       method: 'POST',
       body: payloadData.value,
       headers: mediaHeader({ token: token.value }, projectId.value)
     })
 
     if (mediaResponse && mediaResponse.value) {
+
+      let responseReceivedData
+      try {
+        responseReceivedData = await props.responseReceived('POST', mediaUri.value, {
+          ...payloadData.value,
+          filteredFetch: true
+        }, filteredResponse.value)
+      } catch {}
+      if (responseReceivedData) {
+        filteredResponse.value = responseReceivedData
+      }
+
       mediaResponse.value = filteredResponse.value.result
       totalMedias.value = filteredResponse.value.total
 
@@ -687,7 +720,6 @@ async function getAuthors() {
     loading.value = false
   } catch (e) {
     loading.value = false
-    console.error(e)
   }
 }
 
