@@ -12,6 +12,8 @@ import ListMedias from '../src/runtime/components/media/ListMedias.vue';
 import MainFilter from '../src/runtime/components/MainFilter.vue';
 import FilterSelect from '../src/runtime/components/FilterSelect.vue';
 import HeaderContainer from '../src/runtime/components/HeaderContainer.vue';
+import UniversalViewer from '../src/runtime/components/UniversalViewer.vue';
+import LottieAnimation from '../src/runtime/components/LottieAnimation.client.vue';
 
 // Global component registration
 setup((app) => {
@@ -39,6 +41,8 @@ setup((app) => {
     app.component('LazyGMainFilter', MainFilter);
     app.component('LazyGFilterSelect', FilterSelect);
     app.component('LazyGHeaderContainer', HeaderContainer);
+    app.component('LazyGUniversalViewer', UniversalViewer);
+    app.component('LazyGLottieAnimation', LottieAnimation);
 });
 
 const preview = {
